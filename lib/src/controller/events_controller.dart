@@ -56,8 +56,27 @@ class CalendarData {
   final fullDayEvents = <DateTime, List<FullDayEvent>>{};
 
   void addEvents(List<Event> events) {
+    final dayMaxDuration = Duration(days: 1) - Duration(microseconds: 1);
+
     for (var event in events) {
-      addDayEvents(event.startTime.withoutTime, [event]);
+      var currentDayStartTime = event.startTime.withoutTime;
+      var currentDayEventShouldStartAt = event.startTime;
+
+      while (currentDayEventShouldStartAt.isBefore(event.endTime)) {
+        final currentDayEndTime = currentDayStartTime.add(dayMaxDuration);
+        final currentDayEventShouldEndAt = event.endTime.isBefore(currentDayEndTime)
+            ? event.endTime
+            : currentDayEndTime;
+
+        addDayEvents(currentDayStartTime, [
+          event.copyWith(
+              startTime: currentDayEventShouldStartAt,
+              endTime: currentDayEventShouldEndAt)
+        ]);
+
+        currentDayStartTime = currentDayStartTime.add(Duration(days: 1));
+        currentDayEventShouldStartAt = currentDayStartTime;
+      }
     }
   }
 
