@@ -38,7 +38,9 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
         color: daysHeaderParam.daysHeaderColor ?? defaultHeaderBackgroundColor,
       ),
       child: Padding(
-        padding: EdgeInsets.only(left: timesIndicatorsWidth),
+        padding: Directionality.of(context) == TextDirection.rtl
+            ? EdgeInsets.only(right: timesIndicatorsWidth)
+            : EdgeInsets.only(left: timesIndicatorsWidth),
         child: SizedBox(
           height: daysHeaderParam.daysHeaderHeight,
           child: InfiniteList(
