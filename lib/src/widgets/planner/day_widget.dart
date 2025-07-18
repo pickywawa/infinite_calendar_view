@@ -421,7 +421,7 @@ class DefaultDayEvent extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (title?.isNotEmpty == true && height > 15)
+                        if ((title?.isNotEmpty ?? false) && height > 15)
                           Flexible(
                             child: Text(
                               title!,
@@ -434,7 +434,7 @@ class DefaultDayEvent extends StatelessWidget {
                               maxLines: height > 40 ? 2 : 1,
                             ),
                           ),
-                        if (description?.isNotEmpty == true && height > 40)
+                        if ((description?.isNotEmpty ?? false) && height > 40)
                           Flexible(
                             child: Text(
                               description!,

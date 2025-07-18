@@ -54,7 +54,7 @@ class DefaultDayEvents extends StatelessWidget {
     if (nullEventsWidget != null && events == null) {
       return nullEventsWidget!;
     }
-    if (events?.isEmpty == true) {
+    if (events?.isEmpty ?? false) {
       return emptyEventsWidget;
     }
     return Column(
@@ -171,14 +171,14 @@ class DefaultDetailEvent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (event.title?.isNotEmpty == true)
+          if (event.title?.isNotEmpty  ?? false)
             Text(
               event.title ?? '',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-          if (event.description?.isNotEmpty == true)
+          if (event.description?.isNotEmpty  ?? false)
             Text(
               event.description ?? '',
               style: Theme.of(context).textTheme.bodyMedium,

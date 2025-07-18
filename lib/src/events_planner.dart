@@ -361,7 +361,7 @@ class EventsPlannerState extends State<EventsPlanner> {
         onPointerCancel: canZoom ? (event) => _onPointerUp() : null,
         onPointerUp: canZoom ? (event) => _onPointerUp() : null,
         child: IgnorePointer(
-          ignoring: canZoom ? _plannerPointerDownCount > 1 : false,
+          ignoring: canZoom && _plannerPointerDownCount > 1,
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context).copyWith(
               scrollbars: false,
@@ -377,33 +377,28 @@ class EventsPlannerState extends State<EventsPlanner> {
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     childCount: 1,
-                    (context, index) => Padding(
-                        padding: const EdgeInsets.only(
-                          
-                        ),
-                        child: SizedBox(
-                          height: plannerHeight,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // left Timeline
-                              getVerticalTimeIndicatorWidget(
-                                currentHourIndicatorColor,
-                              ),
-
-                              // day planning infinite list
-                              Expanded(
-                                child: getPlannerWidget(
-                                  todayColor,
-                                  daySeparationWidthPadding,
-                                  plannerHeight,
-                                  currentHourIndicatorColor,
-                                ),
-                              ),
-                            ],
+                    (context, index) => SizedBox(
+                      height: plannerHeight,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // left Timeline
+                          getVerticalTimeIndicatorWidget(
+                            currentHourIndicatorColor,
                           ),
-                        ),
+
+                          // day planning infinite list
+                          Expanded(
+                            child: getPlannerWidget(
+                              todayColor,
+                              daySeparationWidthPadding,
+                              plannerHeight,
+                              currentHourIndicatorColor,
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
                   ),
                 )
               ],
@@ -577,7 +572,7 @@ class EventsPlannerState extends State<EventsPlanner> {
     });
   }
 
-  void updateVerticalScrollOffset(verticalScrollOffset) {
+  void updateVerticalScrollOffset(double verticalScrollOffset) {
     mainVerticalController.jumpTo(verticalScrollOffset);
   }
 

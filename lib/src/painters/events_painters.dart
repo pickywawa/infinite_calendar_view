@@ -39,16 +39,16 @@ class LinesPainter extends CustomPainter {
     for (var i = 0; i < 24; i++) {
       final hourY = i * cellHeight;
       final halfHourY = hourY + cellHeight / 2;
-      canvas.drawLine(Offset(0, hourY), Offset(size.width, hourY), hourPaint);
-      canvas.drawLine(
+      canvas..drawLine(Offset(0, hourY), Offset(size.width, hourY), hourPaint)
+      ..drawLine(
           Offset(0, halfHourY), Offset(size.width, halfHourY), halfHourPaint);
 
       if (heightPerMinute > 2) {
         final quarterHourY15 = hourY + cellHeight / 4;
         final quarterHourY45 = hourY + (cellHeight / 4) * 3;
-        canvas.drawLine(Offset(0, quarterHourY15),
-            Offset(size.width, quarterHourY15), quarterHourPaint);
-        canvas.drawLine(Offset(0, quarterHourY45),
+        canvas..drawLine(Offset(0, quarterHourY15),
+            Offset(size.width, quarterHourY15), quarterHourPaint)
+        ..drawLine(Offset(0, quarterHourY45),
             Offset(size.width, quarterHourY45), quarterHourPaint);
       }
     }
@@ -79,9 +79,9 @@ class TimeIndicatorPainter extends CustomPainter {
         ..strokeWidth = 0.75;
       final currentTimeLineY =
           heightPerMinute * (currentTime.hour * 60 + currentTime.minute);
-      canvas.drawLine(Offset(0, currentTimeLineY),
-          Offset(size.width, currentTimeLineY), currentTimePaint);
-      canvas.drawCircle(Offset(1, currentTimeLineY), 3, currentTimePaint);
+      canvas..drawLine(Offset(0, currentTimeLineY),
+          Offset(size.width, currentTimeLineY), currentTimePaint)
+      ..drawCircle(Offset(1, currentTimeLineY), 3, currentTimePaint);
     }
   }
 
@@ -179,13 +179,13 @@ class HoursPainter extends CustomPainter {
     double y,
     Color color,
   ) {
-    final textPainter = textPainterBuilder?.call(time, color) ??
-        getDefaultTextPainter(time, color);
-    textPainter.layout(
+    textPainterBuilder?.call(time, color) ??
+        getDefaultTextPainter(time, color)
+    ..layout(
       minWidth: size.width,
       maxWidth: size.width,
-    );
-    textPainter.paint(canvas, Offset(0, y));
+    )
+    ..paint(canvas, Offset(0, y));
   }
 
   TextPainter getDefaultTextPainter(TimeOfDay time, Color color) => TextPainter(

@@ -82,7 +82,7 @@ class _WeekState extends State<Week> {
 
           return DragTarget(
             onAcceptWithDetails: (details) {
-              final onDragEnd = details.data! as Function(DateTime);
+              final onDragEnd = details.data! as void Function(DateTime);
               final renderBox = context.findRenderObject()! as RenderBox;
               final relativeOffset = renderBox.globalToLocal(
                   Offset(details.offset.dx + dayWidth / 2, details.offset.dy));

@@ -132,7 +132,7 @@ class CalendarData {
         startTime: newStartTime,
         endTime: event.endTime == null
             ? null
-            : newEndTime ?? newStartTime.add(event.getDuration() ?? const Duration()),
+            : newEndTime ?? newStartTime.add(event.getDuration() ?? Duration.zero),
       ),
     );
   }
@@ -169,15 +169,14 @@ class CalendarData {
   void removeMultiDayEvent(Event event) {
     // remove event for event day and previous day for same event (multi day events)
     var previousDay = event.startTime.withoutTime;
-    while (dayEvents[previousDay]?.any((e) => e.uniqueId == event.uniqueId) ==
-        true) {
+    while (dayEvents[previousDay]?.any((e) => e.uniqueId == event.uniqueId) ?? false) {
       dayEvents[previousDay]?.removeWhere((e) => e.uniqueId == event.uniqueId);
       previousDay = previousDay.subtract(const Duration(days: 1));
     }
     // remove next same event (multi day events)
     var nextDay = event.startTime.withoutTime.add(const Duration(days: 1));
     while (
-        dayEvents[nextDay]?.any((e) => e.uniqueId == event.uniqueId) == true) {
+        dayEvents[nextDay]?.any((e) => e.uniqueId == event.uniqueId) ?? false) {
       dayEvents[nextDay]?.removeWhere((e) => e.uniqueId == event.uniqueId);
       nextDay = nextDay.add(const Duration(days: 1));
     }

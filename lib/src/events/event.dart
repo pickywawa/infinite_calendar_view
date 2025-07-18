@@ -16,10 +16,10 @@ class Event {
     this.daysIndex,
   }) {
     if (!isFullDay) {
-      assert(endTime != null);
-      assert(endTime!.isAfter(startTime));
-    } else if (endTime != null) {
-      assert(endTime!.isAfter(startTime));
+      assert(endTime != null, 'endTime cannot be null for non full day event');
+    }
+    if (endTime != null) {
+      assert(endTime!.isAfter(startTime), 'endTime must be after startTime');
     }
   }
 
@@ -97,10 +97,10 @@ class Event {
       data: data ?? this.data,
       eventType: eventType ?? this.eventType,
       daysIndex: daysIndex ?? this.daysIndex,
-    );
-    event.uniqueId = uniqueId;
-    event.effectiveStartTime = effectiveStartTime ?? this.effectiveStartTime;
-    event.effectiveEndTime = effectiveEndTime ?? this.effectiveEndTime;
+    )
+    ..uniqueId = uniqueId
+    ..effectiveStartTime = effectiveStartTime ?? this.effectiveStartTime
+    ..effectiveEndTime = effectiveEndTime ?? this.effectiveEndTime;
     return event;
   }
 

@@ -74,8 +74,8 @@ class SideEventArranger extends EventArranger {
           .where((e) => e != null)
           .toSet()
           .where((e) => e != null)
-          .toSet();
-      columnSet.add(columnIndex);
+          .toSet()
+      ..add(columnIndex);
       final maxColumn = columnSet.length;
 
       // determine column width

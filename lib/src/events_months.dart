@@ -162,7 +162,7 @@ class EventsMonthsState extends State<EventsMonths> {
                     return true;
                   },
                   child: AbsorbPointer(
-                    absorbing: isZoom ? _pointerDownCount > 1 : false,
+                    absorbing: isZoom && _pointerDownCount > 1,
                     child: InfiniteList(
                       controller: scrollController,
                       direction: InfiniteListDirection.multi,
