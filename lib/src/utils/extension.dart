@@ -14,7 +14,7 @@ extension DateTimeExtensions on DateTime {
 
   /// get startOfWeek day depending on the desired starting day of the week
   DateTime startOfWeek(int weekday) {
-    var dayDifference = (this.weekday - weekday) % 7;
+    final dayDifference = (this.weekday - weekday) % 7;
     return DateTime(year, month, day - dayDifference);
   }
 }
@@ -27,7 +27,7 @@ extension StringExtension on String {
   String capitalize() {
     if (isEmpty) return this;
     if (length == 1) return toUpperCase();
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+    return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
   }
 }
 
@@ -38,14 +38,14 @@ extension BuildContextExtension on BuildContext {
 
 extension ColorBrightness on Color {
   Color darken([double amount = .1]) {
-    assert(amount >= 0 && amount <= 1);
+    assert(amount >= 0 && amount <= 1, 'Amount must be between 0 and 1');
     final hsl = HSLColor.fromColor(this);
     final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
     return hslDark.toColor();
   }
 
   Color lighten([double amount = .1]) {
-    assert(amount >= 0 && amount <= 1);
+    assert(amount >= 0 && amount <= 1, 'Amount must be between 0 and 1');
     final hsl = HSLColor.fromColor(this);
     final hslLight =
         hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));

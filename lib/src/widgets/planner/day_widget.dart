@@ -12,7 +12,6 @@ import '../../utils/extension.dart';
 
 class DayWidget extends StatelessWidget {
   const DayWidget({
-    super.key,
     required this.controller,
     required this.day,
     required this.todayColor,
@@ -27,6 +26,7 @@ class DayWidget extends StatelessWidget {
     required this.currentHourIndicatorColor,
     required this.offTimesParam,
     required this.showMultiDayEvents,
+    super.key,
   });
 
   final EventsController controller;
@@ -46,12 +46,12 @@ class DayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var isToday = DateUtils.isSameDay(day, DateTime.now());
-    var dayBackgroundColor =
+    final isToday = DateUtils.isSameDay(day, DateTime.now());
+    final dayBackgroundColor =
         isToday && todayColor != null ? todayColor : dayParam.dayColor;
-    var width = dayWidth - (daySeparationWidthPadding * 2);
-    var offTimesOfDay = offTimesParam.offTimesDayRanges[day];
-    var offTimesDefaultColor = context.isDarkMode
+    final width = dayWidth - (daySeparationWidthPadding * 2);
+    final offTimesOfDay = offTimesParam.offTimesDayRanges[day];
+    final offTimesDefaultColor = context.isDarkMode
         ? Theme.of(context).colorScheme.surface.lighten(0.03)
         : const Color(0xFFF4F4F4);
 
@@ -217,22 +217,21 @@ class DayWidget extends StatelessWidget {
   }
 
   DateTime getExactDateTime(double dy) {
-    var dayMinute = dy / heightPerMinute;
+    final dayMinute = dy / heightPerMinute;
     return day.withoutTime.add(Duration(minutes: dayMinute.toInt()));
   }
 
   DateTime getRoundDateTime(double dy) {
-    var dayMinute = dy / heightPerMinute;
-    var dayMinuteRounded = dayParam.onSlotMinutesRound *
+    final dayMinute = dy / heightPerMinute;
+    final dayMinuteRounded = dayParam.onSlotMinutesRound *
         (dayMinute / dayParam.onSlotMinutesRound)
             .round(); // Round to nearest multiple of 10 minutes
-    return day.withoutTime.add(Duration(minutes: dayMinuteRounded.toInt()));
+    return day.withoutTime.add(Duration(minutes: dayMinuteRounded));
   }
 }
 
 class EventsListWidget extends StatefulWidget {
   const EventsListWidget({
-    super.key,
     required this.controller,
     required this.day,
     required this.columIndex,
@@ -242,6 +241,7 @@ class EventsListWidget extends StatefulWidget {
     required this.dayEventsArranger,
     required this.dayParam,
     required this.showMultiDayEvents,
+    super.key,
   });
 
   final EventsController controller;
@@ -270,7 +270,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
     heightPerMinute = widget.heightPerMinute;
     events = getDayColumnEvents();
     organizedEvents = getOrganizedEvents(events);
-    eventListener = () => updateEvents();
+    eventListener = updateEvents;
     widget.controller.addListener(eventListener);
   }
 
@@ -280,20 +280,18 @@ class _EventsListWidgetState extends State<EventsListWidget> {
     widget.controller.removeListener(eventListener);
   }
 
-  List<Event>? getDayColumnEvents() {
-    return widget.controller
-        .getFilteredDayEvents(
-          widget.day,
-          returnMultiDayEvents: widget.showMultiDayEvents,
-          returnFullDayEvent: false,
-          returnMultiFullDayEvents: false,
-        )
-        ?.where((e) => e.columnIndex == widget.columIndex)
-        .toList();
-  }
+  List<Event>? getDayColumnEvents() => widget.controller
+      .getFilteredDayEvents(
+        widget.day,
+        returnMultiDayEvents: widget.showMultiDayEvents,
+        returnFullDayEvent: false,
+        returnMultiFullDayEvents: false,
+      )
+      ?.where((e) => e.columnIndex == widget.columIndex)
+      .toList();
 
   List<OrganizedEvent> getOrganizedEvents(List<Event>? events) {
-    var arranger = widget.dayEventsArranger;
+    final arranger = widget.dayEventsArranger;
     return arranger.arrange(
       events: events ?? [],
       height: widget.plannerHeight,
@@ -304,7 +302,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
 
   void updateEvents() {
     if (mounted) {
-      var dayEvents = getDayColumnEvents();
+      final dayEvents = getDayColumnEvents();
 
       // update events when pinch to zoom
       if (heightPerMinute != widget.heightPerMinute) {
@@ -315,7 +313,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
       }
 
       // no update if no change for current day
-      if (listEquals(dayEvents, events) == false) {
+      if (!listEquals(dayEvents, events)) {
         setState(() {
           events = dayEvents != null ? [...dayEvents] : null;
           organizedEvents = getOrganizedEvents(events);
@@ -345,12 +343,12 @@ class _EventsListWidgetState extends State<EventsListWidget> {
   }
 
   Widget getEventWidget(OrganizedEvent organizedEvent, double scale) {
-    var left = organizedEvent.left;
-    var top = organizedEvent.top * scale;
-    var right = organizedEvent.right;
-    var bottom = organizedEvent.bottom * scale;
-    var height = widget.plannerHeight - (bottom + top);
-    var width = widget.dayWidth - (left + right);
+    final left = organizedEvent.left;
+    final top = organizedEvent.top * scale;
+    final right = organizedEvent.right;
+    final bottom = organizedEvent.bottom * scale;
+    final height = widget.plannerHeight - (bottom + top);
+    final width = widget.dayWidth - (left + right);
 
     return Positioned(
       left: left,
@@ -378,9 +376,9 @@ class _EventsListWidgetState extends State<EventsListWidget> {
 
 class DefaultDayEvent extends StatelessWidget {
   const DefaultDayEvent({
-    super.key,
     required this.height,
     required this.width,
+    super.key,
     this.child,
     this.title,
     this.description,
@@ -420,69 +418,66 @@ class DefaultDayEvent extends StatelessWidget {
   final GestureTapCallback? onDoubleTap;
   final GestureLongPressCallback? onLongPress;
 
-  static final minHeight = 30;
+  static const minHeight = 30;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: eventMargin,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(roundBorderRadius),
-        child: Material(
-          child: InkWell(
-            onTap: onTap,
-            onTapDown: onTapDown,
-            onTapUp: onTapUp,
-            onTapCancel: onTapCancel,
-            onDoubleTap: onDoubleTap,
-            onLongPress: onLongPress,
-            child: Ink(
-              color: color,
-              width: width,
-              height: height,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: height > minHeight ? verticalPadding : 0,
+  Widget build(BuildContext context) => Container(
+        margin: eventMargin,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(roundBorderRadius),
+          child: Material(
+            child: InkWell(
+              onTap: onTap,
+              onTapDown: onTapDown,
+              onTapUp: onTapUp,
+              onTapCancel: onTapCancel,
+              onDoubleTap: onDoubleTap,
+              onLongPress: onLongPress,
+              child: Ink(
+                color: color,
+                width: width,
+                height: height,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: height > minHeight ? verticalPadding : 0,
+                  ),
+                  child: child ??
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if ((title?.isNotEmpty ?? false) && height > 15)
+                            Flexible(
+                              child: Text(
+                                title!,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: titleFontSize,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                                maxLines: height > 40 ? 2 : 1,
+                              ),
+                            ),
+                          if ((description?.isNotEmpty ?? false) && height > 40)
+                            Flexible(
+                              child: Text(
+                                description!,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: descriptionFontSize,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                                maxLines: 4,
+                              ),
+                            ),
+                        ],
+                      ),
                 ),
-                child: child ??
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (title?.isNotEmpty == true && height > 15)
-                          Flexible(
-                            child: Text(
-                              title!,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: titleFontSize,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: false,
-                              maxLines: height > 40 ? 2 : 1,
-                            ),
-                          ),
-                        if (description?.isNotEmpty == true && height > 40)
-                          Flexible(
-                            child: Text(
-                              description!,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: descriptionFontSize,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: false,
-                              maxLines: 4,
-                            ),
-                          ),
-                      ],
-                    ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

@@ -45,7 +45,7 @@ class EventsMonthsView extends StatelessWidget {
     );
   }
 
-  move(CalendarData data, Event event, DateTime newDay) {
+  void move(CalendarData data, Event event, DateTime newDay) {
     data.moveEvent(
       event,
       newDay.copyWith(

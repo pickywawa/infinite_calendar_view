@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/events/event.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
+import '../../events/event.dart';
+import '../../utils/extension.dart';
 
 class DefaultMonthDayHeader extends StatelessWidget {
   const DefaultMonthDayHeader({
-    super.key,
     required this.text,
+    super.key,
     this.isToday = false,
     this.fontSize = 12,
     this.fontWeight = FontWeight.w600,
@@ -24,12 +24,12 @@ class DefaultMonthDayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var colorScheme = Theme.of(context).colorScheme;
-    var todayBgColor = todayBackgroundColor ?? colorScheme.primary;
-    var todayFgColor = todayTextColor ?? colorScheme.onPrimary;
-    var fgColor = textColor ?? colorScheme.outline;
+    final colorScheme = Theme.of(context).colorScheme;
+    final todayBgColor = todayBackgroundColor ?? colorScheme.primary;
+    final todayFgColor = todayTextColor ?? colorScheme.onPrimary;
+    final fgColor = textColor ?? colorScheme.outline;
     return Center(
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: isToday ? todayBgColor : null,
           borderRadius: BorderRadius.circular(10),
@@ -38,7 +38,7 @@ class DefaultMonthDayHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Text(
             text,
-            style: TextStyle().copyWith(
+            style: const TextStyle().copyWith(
               fontSize: fontSize,
               fontWeight: fontWeight,
               color: isToday ? todayFgColor : fgColor,
@@ -52,10 +52,10 @@ class DefaultMonthDayHeader extends StatelessWidget {
 
 class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
   const DefaultNotShowedMonthEventsWidget({
-    super.key,
     required this.context,
     required this.eventHeight,
     required this.text,
+    super.key,
     this.textStyle,
     this.textPadding = const EdgeInsets.all(2),
     this.decoration,
@@ -69,61 +69,55 @@ class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
   final BoxDecoration? decoration;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: eventHeight,
-      decoration: decoration ??
-          BoxDecoration(
-            color: Theme.of(context).colorScheme.outlineVariant.lighten(0.1),
-            borderRadius: BorderRadius.circular(3),
+  Widget build(BuildContext context) => Container(
+        height: eventHeight,
+        decoration: decoration ??
+            BoxDecoration(
+              color: Theme.of(context).colorScheme.outlineVariant.lighten(),
+              borderRadius: BorderRadius.circular(3),
+            ),
+        child: Padding(
+          padding: textPadding,
+          child: Text(
+            text,
+            style: textStyle ?? const TextStyle().copyWith(fontSize: 10),
           ),
-      child: Padding(
-        padding: textPadding,
-        child: Text(
-          text,
-          style: textStyle ?? TextStyle().copyWith(fontSize: 10),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class DraggableMonthEvent extends StatelessWidget {
   const DraggableMonthEvent({
-    super.key,
     required this.child,
-    this.draggableFeedback,
     required this.onDragEnd,
+    super.key,
+    this.draggableFeedback,
   });
 
-  static double defaultDraggableOpacity = 0.7;
+  static var defaultDraggableOpacity = 0.7;
   final Widget child;
   final Widget? draggableFeedback;
   final void Function(DateTime day) onDragEnd;
 
   @override
-  Widget build(BuildContext context) {
-    return LongPressDraggable(
-      data: onDragEnd,
-      child: child,
-      feedback: draggableFeedback ?? getDefaultDraggableFeedback(),
-      childWhenDragging: SizedBox.shrink(),
-    );
-  }
+  Widget build(BuildContext context) => LongPressDraggable(
+        data: onDragEnd,
+        feedback: draggableFeedback ?? getDefaultDraggableFeedback(),
+        childWhenDragging: const SizedBox.shrink(),
+        child: child,
+      );
 
-  Widget getDefaultDraggableFeedback() {
-    return Opacity(
-      opacity: defaultDraggableOpacity,
-      child: child,
-    );
-  }
+  Widget getDefaultDraggableFeedback() => Opacity(
+        opacity: defaultDraggableOpacity,
+        child: child,
+      );
 }
 
 /// default event showed
 class DefaultMonthDayEvent extends StatelessWidget {
   const DefaultMonthDayEvent({
-    super.key,
     required this.event,
+    super.key,
     this.fontSize = 10,
     this.fontWeight = FontWeight.w400,
     this.padding = const EdgeInsets.all(2),
@@ -149,36 +143,34 @@ class DefaultMonthDayEvent extends StatelessWidget {
   final GestureLongPressCallback? onLongPress;
 
   @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(roundBorderRadius),
-      child: GestureDetector(
-        onTap: onTap,
-        onTapDown: onTapDown,
-        onTapUp: onTapUp,
-        onTapCancel: onTapCancel,
-        onDoubleTap: onDoubleTap,
-        onLongPress: onLongPress,
-        child: Container(
-          decoration: BoxDecoration(
-            color: event.color,
-            border: event.isFullDay
-                ? Border(left: BorderSide(color: event.textColor, width: 3))
-                : null,
-          ),
-          child: Padding(
-            padding: padding,
-            child: Text(
-              event.title ?? "",
-              style: TextStyle().copyWith(
-                fontSize: fontSize,
-                fontWeight: fontWeight,
-                color: event.textColor,
+  Widget build(BuildContext context) => ClipRRect(
+        borderRadius: BorderRadius.circular(roundBorderRadius),
+        child: GestureDetector(
+          onTap: onTap,
+          onTapDown: onTapDown,
+          onTapUp: onTapUp,
+          onTapCancel: onTapCancel,
+          onDoubleTap: onDoubleTap,
+          onLongPress: onLongPress,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: event.color,
+              border: event.isFullDay
+                  ? Border(left: BorderSide(color: event.textColor, width: 3))
+                  : null,
+            ),
+            child: Padding(
+              padding: padding,
+              child: Text(
+                event.title ?? '',
+                style: const TextStyle().copyWith(
+                  fontSize: fontSize,
+                  fontWeight: fontWeight,
+                  color: event.textColor,
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

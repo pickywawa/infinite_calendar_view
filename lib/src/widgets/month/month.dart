@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/controller/events_controller.dart';
-import 'package:infinite_calendar_view/src/events_months.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
-import 'package:infinite_calendar_view/src/widgets/month/week.dart';
+import '../../controller/events_controller.dart';
+import '../../events_months.dart';
+import '../../utils/extension.dart';
+import 'week.dart';
 
 class Month extends StatelessWidget {
   const Month({
-    super.key,
     required this.controller,
     required this.month,
     required this.weekParam,
     required this.weekHeight,
     required this.daysParam,
     required this.maxEventsShowed,
+    super.key,
   });
 
   final EventsController controller;
@@ -24,17 +24,17 @@ class Month extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var startOfWeeks = <DateTime>[];
+    final startOfWeeks = <DateTime>[];
     var startOfWeek = month.startOfWeek(weekParam.startOfWeekDay);
-    while (startOfWeek.add(Duration(days: 6)).month == month.month) {
+    while (startOfWeek.add(const Duration(days: 6)).month == month.month) {
       startOfWeeks.add(startOfWeek);
-      startOfWeek = startOfWeek.add(Duration(days: 7));
+      startOfWeek = startOfWeek.add(const Duration(days: 7));
     }
 
     // weeks of month
     return Column(
       children: [
-        for (var startOfWeek in startOfWeeks)
+        for (final startOfWeek in startOfWeeks)
           Week(
             controller: controller,
             weekParam: weekParam,

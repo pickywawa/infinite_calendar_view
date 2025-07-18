@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/utils/default_text.dart';
 
 import '../../events/event.dart';
+import '../../utils/default_text.dart';
 
 class DefaultDayEvents extends StatelessWidget {
   const DefaultDayEvents({
-    super.key,
     required this.events,
+    super.key,
     this.eventBuilder,
     this.eventSeparator = defaultEventSeparator,
     this.emptyEventsWidget = defaultEmptyEventsWidget,
     this.nullEventsWidget = defaultNullEventsWidget,
   });
 
-  static const defaultNoEventText = "No event";
+  static const defaultNoEventText = 'No event';
   static const defaultHorizontalPadding = 20.0;
   static const defaultVerticalSmallPadding = 10.0;
   static const defaultVerticalPadding = 20.0;
@@ -55,34 +55,30 @@ class DefaultDayEvents extends StatelessWidget {
     if (nullEventsWidget != null && events == null) {
       return nullEventsWidget!;
     }
-    if (events?.isEmpty == true) {
+    if (events?.isEmpty ?? false) {
       return emptyEventsWidget;
     }
     return Column(
-      children:
-          events?.map((event) => getEventAndSeparator(event)).toList() ?? [],
+      children: events?.map(getEventAndSeparator).toList() ?? [],
     );
   }
 
-  Column getEventAndSeparator(Event event) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        eventBuilder?.call(event) ?? DefaultDetailEvent(event: event),
-        if (eventSeparator != null &&
-            events!.indexOf(event) != events!.length - 1)
-          eventSeparator!,
-      ],
-    );
-  }
+  Column getEventAndSeparator(Event event) => Column(
+        children: [
+          eventBuilder?.call(event) ?? DefaultDetailEvent(event: event),
+          if (eventSeparator != null &&
+              events!.indexOf(event) != events!.length - 1)
+            eventSeparator!,
+        ],
+      );
 }
 
 /// Default detail event
 /// can be replaced in dayEventsBuilder -> eventBuilder
 class DefaultDetailEvent extends StatelessWidget {
   const DefaultDetailEvent({
-    super.key,
     required this.event,
+    super.key,
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
@@ -129,17 +125,17 @@ class DefaultDetailEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var event = this.event;
+    final event = this.event;
 
     String? durationText;
     String? timeText;
     if (event.isFullDay) {
       timeText = this.timeText ?? defaultFullDayText;
     } else {
-      var startTime = event.startTime;
+      final startTime = event.startTime;
       timeText = this.timeText ?? getDefaultTimeText(startTime);
       durationText = this.durationText ??
-          this.getDefaultDurationText(event.startTime, event.endTime!);
+          getDefaultDurationText(event.startTime, event.endTime!);
     }
 
     return InkWell(
@@ -171,87 +167,81 @@ class DefaultDetailEvent extends StatelessWidget {
     );
   }
 
-  Flexible getContent(BuildContext context) {
-    return Flexible(
-      flex: defaultContentFit,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (event.title?.isNotEmpty == true)
-            Text(
-              event.title ?? "",
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          if (event.description?.isNotEmpty == true)
-            Text(
-              event.description ?? "",
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-        ],
-      ),
-    );
-  }
-
-  Flexible getColoredCircle() {
-    return Flexible(
-      flex: defaultColoredCircleFit,
-      fit: FlexFit.tight,
-      child: Container(
-        width: defaultCircleColorSize,
-        height: defaultCircleColorSize,
-        margin: const EdgeInsets.only(top: defaultCircleColorSize / 2),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: event.color,
+  Flexible getContent(BuildContext context) => Flexible(
+        flex: defaultContentFit,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (event.title?.isNotEmpty ?? false)
+              Text(
+                event.title ?? '',
+                style:
+                    Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            if (event.description?.isNotEmpty ?? false)
+              Text(
+                event.description ?? '',
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
         ),
-      ),
-    );
-  }
+      );
+
+  Flexible getColoredCircle() => Flexible(
+        flex: defaultColoredCircleFit,
+        fit: FlexFit.tight,
+        child: Container(
+          width: defaultCircleColorSize,
+          height: defaultCircleColorSize,
+          margin: const EdgeInsets.only(top: defaultCircleColorSize / 2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: event.color,
+          ),
+        ),
+      );
 
   Flexible getHour(
     String timeText,
     String? durationText,
     BuildContext context,
-  ) {
-    return Flexible(
-      flex: defaultDateFit,
-      fit: FlexFit.tight,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(timeText),
-          if (durationText != null)
-            Text(
-              durationText,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Theme.of(context).colorScheme.outline),
-            ),
-        ],
-      ),
-    );
-  }
+  ) =>
+      Flexible(
+        flex: defaultDateFit,
+        fit: FlexFit.tight,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(timeText),
+            if (durationText != null)
+              Text(
+                durationText,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.outline),
+              ),
+          ],
+        ),
+      );
 
-  String getDefaultTimeText(DateTime startTime) {
-    return "${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}";
-  }
+  String getDefaultTimeText(DateTime startTime) =>
+      "${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}";
 
   String getDefaultDurationText(DateTime startDate, DateTime endDate) {
-    var duration = endDate.difference(startDate);
-    var element = <String>[];
+    final duration = endDate.difference(startDate);
+    final element = <String>[];
     if (duration.inHours > 0) {
-      element.add("${duration.inHours}h");
+      element.add('${duration.inHours}h');
     }
-    var minutes = duration.inMinutes.remainder(60);
+    final minutes = duration.inMinutes.remainder(60);
     if (minutes > 0) {
-      element.add("${minutes}${duration.inHours == 0 ? "m" : ""}");
+      element.add("$minutes${duration.inHours == 0 ? "m" : ""}");
     }
-    return element.join("");
+    return element.join();
   }
 }

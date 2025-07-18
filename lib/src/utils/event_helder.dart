@@ -1,29 +1,29 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/events/event.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
+import '../events/event.dart';
+import 'extension.dart';
 
 /// find event must be showed, and place multi day event in same row
 List<List<Event?>> getShowedWeekEvents(
   List<List<Event>?> weekEvents,
   int maxEventsShowed,
 ) {
-  var sortedMultiDayEvents = getWeekMultiDaysEventsSortedMap(weekEvents);
+  final sortedMultiDayEvents = getWeekMultiDaysEventsSortedMap(weekEvents);
 
   // place no multi days events to show
-  List<List<Event?>> daysEventsList = List.generate(7, (index) {
-    var events = (weekEvents[index] ?? []).where((e) => !e.isMultiDay);
-    return List.generate(maxEventsShowed, (i) => events.getOrNull(i));
+  final daysEventsList = List<List<Event?>>.generate(7, (index) {
+    final events = (weekEvents[index] ?? []).where((e) => !e.isMultiDay);
+    return List.generate(maxEventsShowed, events.getOrNull);
   });
 
-  for (var multiDayEvents in sortedMultiDayEvents.values) {
-    var dayPlacedEvents = daysEventsList[multiDayEvents.keys.first];
-    var eventToPlace = multiDayEvents.values.first;
+  for (final multiDayEvents in sortedMultiDayEvents.values) {
+    final dayPlacedEvents = daysEventsList[multiDayEvents.keys.first];
+    final eventToPlace = multiDayEvents.values.first;
     var index = 0;
     // compute index to place line
     while (index < dayPlacedEvents.length && dayPlacedEvents[index] != null) {
-      var placedEvent = dayPlacedEvents[index]!;
+      final placedEvent = dayPlacedEvents[index]!;
       if (eventToPlace.startTime.millisecondsSinceEpoch >
           placedEvent.startTime.millisecondsSinceEpoch) {
         index++;
@@ -34,7 +34,7 @@ List<List<Event?>> getShowedWeekEvents(
 
     // place all line
     if (index < maxEventsShowed) {
-      for (var eventToPlace in multiDayEvents.entries) {
+      for (final eventToPlace in multiDayEvents.entries) {
         daysEventsList[eventToPlace.key].insert(index, eventToPlace.value);
       }
     }
@@ -46,10 +46,11 @@ List<List<Event?>> getShowedWeekEvents(
 SplayTreeMap<UniqueKey, Map<int, Event>> getWeekMultiDaysEventsSortedMap(
     List<List<Event>?> weekEvents) {
   // generate map of all multi days events
-  Map<UniqueKey, Map<int, Event>> multiDaysEventsMap = {};
+  final multiDaysEventsMap = <UniqueKey, Map<int, Event>>{};
   for (var day = 0; day < 7; day++) {
-    var multiDaysEvents = weekEvents[day]?.where((e) => e.isMultiDay);
-    for (Event event in multiDaysEvents ?? []) {
+    final multiDaysEvents = weekEvents[day]?.where((e) => e.isMultiDay);
+    if (multiDaysEvents?.isEmpty ?? true) continue;
+    for (final event in multiDaysEvents!) {
       multiDaysEventsMap[event.uniqueId] = {
         ...multiDaysEventsMap[event.uniqueId] ?? {},
         day: event
@@ -61,8 +62,8 @@ SplayTreeMap<UniqueKey, Map<int, Event>> getWeekMultiDaysEventsSortedMap(
   final sortedMultiDayEvents = SplayTreeMap<UniqueKey, Map<int, Event>>.from(
     multiDaysEventsMap,
     (a, b) {
-      var eventA = multiDaysEventsMap[a]!.values.first;
-      var eventB = multiDaysEventsMap[b]!.values.first;
+      final eventA = multiDaysEventsMap[a]!.values.first;
+      final eventB = multiDaysEventsMap[b]!.values.first;
       return eventA.startTime.compareTo(
         eventB.startTime,
       );
@@ -73,8 +74,8 @@ SplayTreeMap<UniqueKey, Map<int, Event>> getWeekMultiDaysEventsSortedMap(
 }
 
 List<DateTime> getDaysInBetween(DateTime startDate, DateTime endDate) {
-  List<DateTime> days = [];
-  for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
+  final days = <DateTime>[];
+  for (var i = 0; i <= endDate.difference(startDate).inDays; i++) {
     days.add(startDate.add(Duration(days: i)));
   }
   return days;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-const String defaultType = "default";
+const defaultType = 'default';
 
 class Event {
   Event({
-    this.columnIndex = 0,
     required this.startTime,
+    this.columnIndex = 0,
     this.endTime,
     this.isFullDay = false,
     this.title,
@@ -17,15 +17,15 @@ class Event {
     this.daysIndex,
   }) {
     if (!isFullDay) {
-      assert(endTime != null);
-      assert(endTime!.isAfter(startTime));
-    } else if (endTime != null) {
-      assert(endTime!.isAfter(startTime));
+      assert(endTime != null, 'endTime cannot be null for non full day event');
+    }
+    if (endTime != null) {
+      assert(endTime!.isAfter(startTime), 'endTime must be after startTime');
     }
   }
 
   // generated unique id
-  late UniqueKey uniqueId = UniqueKey();
+  late var uniqueId = UniqueKey();
 
   // column index in planner mode, 0 if not multiple column
   final int columnIndex;
@@ -72,21 +72,21 @@ class Event {
   bool get isMultiDay => daysIndex != null;
 
   Event copyWith({
-    final int? columnIndex,
-    final DateTime? startTime,
-    final DateTime? endTime,
-    final bool? isFullDay,
-    final String? title,
-    final String? description,
-    final Color? color,
-    final Color? textColor,
-    final Object? data,
-    final Object? eventType,
-    final int? daysIndex,
-    final DateTime? effectiveStartTime,
-    final DateTime? effectiveEndTime,
+    int? columnIndex,
+    DateTime? startTime,
+    DateTime? endTime,
+    bool? isFullDay,
+    String? title,
+    String? description,
+    Color? color,
+    Color? textColor,
+    Object? data,
+    Object? eventType,
+    int? daysIndex,
+    DateTime? effectiveStartTime,
+    DateTime? effectiveEndTime,
   }) {
-    var event = Event(
+    final event = Event(
       columnIndex: columnIndex ?? this.columnIndex,
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
@@ -98,10 +98,10 @@ class Event {
       data: data ?? this.data,
       eventType: eventType ?? this.eventType,
       daysIndex: daysIndex ?? this.daysIndex,
-    );
-    event.uniqueId = uniqueId;
-    event.effectiveStartTime = effectiveStartTime ?? this.effectiveStartTime;
-    event.effectiveEndTime = effectiveEndTime ?? this.effectiveEndTime;
+    )
+      ..uniqueId = uniqueId
+      ..effectiveStartTime = effectiveStartTime ?? this.effectiveStartTime
+      ..effectiveEndTime = effectiveEndTime ?? this.effectiveEndTime;
     return event;
   }
 

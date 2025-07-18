@@ -1,5 +1,7 @@
 import 'event.dart';
 
+// Coupled
+//ignore: one_member_abstracts
 abstract class EventArranger {
   /// [EventArranger] defines how simultaneous events will be arranged.
   /// Implement [arrange] method to define how events will be arranged.
