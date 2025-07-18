@@ -7,18 +7,7 @@ import '../../../infinite_calendar_view.dart';
 
 class HorizontalFullDayEventsWidget extends StatelessWidget {
   const HorizontalFullDayEventsWidget({
-    super.key,
-    required this.controller,
-    required this.fullDayParam,
-    required this.columnsParam,
-    required this.daySeparationWidthPadding,
-    required this.dayHorizontalController,
-    required this.maxPreviousDays,
-    required this.maxNextDays,
-    required this.initialDate,
-    required this.dayWidth,
-    required this.todayColor,
-    required this.timesIndicatorsWidth,
+    required this.controller, required this.fullDayParam, required this.columnsParam, required this.daySeparationWidthPadding, required this.dayHorizontalController, required this.maxPreviousDays, required this.maxNextDays, required this.initialDate, required this.dayWidth, required this.todayColor, required this.timesIndicatorsWidth, super.key,
   });
 
   final EventsController controller;
@@ -67,8 +56,8 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
                   negChildCount: maxPreviousDays,
                   posChildCount: maxNextDays,
                   builder: (context, index) {
-                    var day = initialDate.add(Duration(days: index));
-                    var isToday = DateUtils.isSameDay(day, DateTime.now());
+                    final day = initialDate.add(Duration(days: index));
+                    final isToday = DateUtils.isSameDay(day, DateTime.now());
                     return InfiniteListItem(
                       contentBuilder: (context) {
                         return SizedBox(
@@ -98,15 +87,7 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
 
 class FullDayEventsWidget extends StatefulWidget {
   const FullDayEventsWidget({
-    super.key,
-    required this.controller,
-    required this.isToday,
-    required this.day,
-    required this.todayColor,
-    required this.fullDayParam,
-    required this.columnsParam,
-    required this.dayWidth,
-    required this.daySeparationWidthPadding,
+    required this.controller, required this.isToday, required this.day, required this.todayColor, required this.fullDayParam, required this.columnsParam, required this.dayWidth, required this.daySeparationWidthPadding, super.key,
   });
 
   final EventsController controller;
@@ -145,7 +126,7 @@ class _FullDayEventsWidgetState extends State<FullDayEventsWidget> {
 
   void updateEvents() {
     if (mounted) {
-      var fullDayEvents = widget.controller
+      final fullDayEvents = widget.controller
           .getFilteredDayEvents(
             widget.day,
             returnDayEvents: false,
@@ -165,7 +146,7 @@ class _FullDayEventsWidgetState extends State<FullDayEventsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var width = widget.dayWidth - (widget.daySeparationWidthPadding * 2);
+    final width = widget.dayWidth - (widget.daySeparationWidthPadding * 2);
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -189,7 +170,7 @@ class _FullDayEventsWidgetState extends State<FullDayEventsWidget> {
   }
 
   Widget getFullDayEvents(double width) {
-    var eventTopPadding = 2.0;
+    final eventTopPadding = 2.0;
     return widget.fullDayParam.fullDayEventsBuilder != null
         ? widget.fullDayParam.fullDayEventsBuilder!
             .call(events ?? [], widget.dayWidth)
@@ -197,7 +178,7 @@ class _FullDayEventsWidgetState extends State<FullDayEventsWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                for (var e in events ?? [])
+                for (final e in events ?? [])
                   Padding(
                     padding: EdgeInsets.only(top: eventTopPadding),
                     child: widget.fullDayParam.fullDayEventBuilder

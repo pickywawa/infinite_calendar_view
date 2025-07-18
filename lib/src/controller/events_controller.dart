@@ -47,8 +47,8 @@ class EventsController extends ChangeNotifier {
     bool returnMultiDayEvents = true,
     bool returnMultiFullDayEvents = true,
   }) {
-    var dayEvents = calendarData.dayEvents[date.withoutTime];
-    var dayEventsByType = dayEvents
+    final dayEvents = calendarData.dayEvents[date.withoutTime];
+    final dayEventsByType = dayEvents
         ?.where((e) => e.isFullDay
             ? (e.isMultiDay ? returnMultiFullDayEvents : returnFullDayEvent)
             : (e.isMultiDay ? returnMultiDayEvents : returnDayEvents))
@@ -58,7 +58,7 @@ class EventsController extends ChangeNotifier {
 
   // get day events sorted by startTime
   List<Event>? getSortedFilteredDayEvents(DateTime date) {
-    var daysEvents = getFilteredDayEvents(date);
+    final daysEvents = getFilteredDayEvents(date);
     daysEvents?.sort((a, b) => a.startTime.compareTo(b.startTime));
     return daysEvents;
   }
@@ -73,20 +73,20 @@ class CalendarData {
 
   /// add all events and cuts up appointments if they are over several days
   void addEvents(List<Event> events) {
-    for (var event in events) {
-      var days = event.endTime?.withoutTime
+    for (final event in events) {
+      final days = event.endTime?.withoutTime
               .difference(event.startTime.withoutTime)
               .inDays ??
           0;
 
       // if event is multi days, dispatch in all events days
       for (int i = 0; i <= days; i++) {
-        var day = event.startTime.withoutTime.add(Duration(days: i));
-        var startTime = i == 0 ? event.startTime : day;
-        var endTime = (i == days && !event.isFullDay)
+        final day = event.startTime.withoutTime.add(Duration(days: i));
+        final startTime = i == 0 ? event.startTime : day;
+        final endTime = (i == days && !event.isFullDay)
             ? event.endTime
-            : day.add(Duration(days: 1, milliseconds: -1));
-        var newEvents = event.copyWith(
+            : day.add(const Duration(days: 1, milliseconds: -1));
+        final newEvents = event.copyWith(
           startTime: startTime,
           endTime: endTime,
           effectiveStartTime: event.startTime,
@@ -100,7 +100,7 @@ class CalendarData {
 
   // add day events
   void _addDayEvent(DateTime day, Event event) {
-    var dayDate = day.withoutTime;
+    final dayDate = day.withoutTime;
     if (!dayEvents.containsKey(dayDate)) {
       dayEvents[dayDate] = [];
     }
@@ -113,7 +113,7 @@ class CalendarData {
   void replaceDayEvents(
     DateTime day,
     List<Event> events, [
-    final Object? eventType,
+    Object? eventType,
   ]) {
     removeDayEvents(day, eventType);
     addEvents(events);
@@ -132,7 +132,7 @@ class CalendarData {
         startTime: newStartTime,
         endTime: event.endTime == null
             ? null
-            : newEndTime ?? newStartTime.add(event.getDuration() ?? Duration()),
+            : newEndTime ?? newStartTime.add(event.getDuration() ?? const Duration()),
       ),
     );
   }
@@ -140,12 +140,12 @@ class CalendarData {
   /// remove all event for day
   /// if eventType is entered, remove juste day event type
   /// does not delete multi-day events that do not start on that day
-  void removeDayEvents(DateTime day, [final Object? eventType]) {
-    var eventsToRemove = dayEvents[day.withoutTime]?.where((e) =>
+  void removeDayEvents(DateTime day, [Object? eventType]) {
+    final eventsToRemove = dayEvents[day.withoutTime]?.where((e) =>
             (eventType == null || (e.eventType == eventType)) &&
             (!e.isMultiDay || e.daysIndex == 0)) ??
         [];
-    for (var event in [...eventsToRemove]) {
+    for (final event in [...eventsToRemove]) {
       removeEvent(event.copyWith());
     }
   }
@@ -172,14 +172,14 @@ class CalendarData {
     while (dayEvents[previousDay]?.any((e) => e.uniqueId == event.uniqueId) ==
         true) {
       dayEvents[previousDay]?.removeWhere((e) => e.uniqueId == event.uniqueId);
-      previousDay = previousDay.subtract(Duration(days: 1));
+      previousDay = previousDay.subtract(const Duration(days: 1));
     }
     // remove next same event (multi day events)
-    var nextDay = event.startTime.withoutTime.add(Duration(days: 1));
+    var nextDay = event.startTime.withoutTime.add(const Duration(days: 1));
     while (
         dayEvents[nextDay]?.any((e) => e.uniqueId == event.uniqueId) == true) {
       dayEvents[nextDay]?.removeWhere((e) => e.uniqueId == event.uniqueId);
-      nextDay = nextDay.add(Duration(days: 1));
+      nextDay = nextDay.add(const Duration(days: 1));
     }
   }
 

@@ -18,7 +18,7 @@ class SimpleEventArranger extends EventArranger {
     required double width,
     required double heightPerMinute,
   }) {
-    var organizedEvents = events
+    final organizedEvents = events
         .map((event) => OrganizedEvent(
               top: event.startTime.totalMinutes * heightPerMinute,
               bottom: height - (event.endTime!.totalMinutes * heightPerMinute),

@@ -5,15 +5,14 @@ import 'package:infinite_calendar_view/src/utils/extension.dart';
 
 class MonthHeader extends StatelessWidget {
   const MonthHeader({
-    super.key,
-    required this.weekParam,
+    required this.weekParam, super.key,
   });
 
   final WeekParam weekParam;
 
   @override
   Widget build(BuildContext context) {
-    var startOfWeek = weekParam.startOfWeekDay;
+    final startOfWeek = weekParam.startOfWeekDay;
 
     return Container(
       height: weekParam.headerHeight,
@@ -47,12 +46,12 @@ class MonthHeader extends StatelessWidget {
   }
 
   TextStyle getDefaultTextStyle(BuildContext context, int dayOfWeek) {
-    var defaultForegroundColor = context.isDarkMode
+    final defaultForegroundColor = context.isDarkMode
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.onPrimary;
-    var textColor = weekParam.headerDayTextColor?.call(dayOfWeek + 1) ??
+    final textColor = weekParam.headerDayTextColor?.call(dayOfWeek + 1) ??
         defaultForegroundColor;
-    return TextStyle().copyWith(
+    return const TextStyle().copyWith(
       color: (dayOfWeek >= 5) ? textColor.darken() : textColor,
       fontWeight: FontWeight.w700,
       fontSize: 13,

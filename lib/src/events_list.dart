@@ -13,8 +13,7 @@ import 'widgets/details/header_details.dart';
 
 class EventsList extends StatefulWidget {
   const EventsList({
-    super.key,
-    required this.controller,
+    required this.controller, super.key,
     this.initialDate,
     this.maxPreviousDays = 365,
     this.maxNextDays = 365,
@@ -107,8 +106,8 @@ class EventsListState extends State<EventsList> {
         posChildCount: widget.maxNextDays,
         physics: widget.verticalScrollPhysics,
         builder: (context, index) {
-          var day = initialDay.add(Duration(days: index)).withoutTime;
-          var isToday = DateUtils.isSameDay(day, DateTime.now());
+          final day = initialDay.add(Duration(days: index)).withoutTime;
+          final isToday = DateUtils.isSameDay(day, DateTime.now());
 
           return InfiniteListItem(
             headerStateBuilder: (context, state) {
@@ -164,10 +163,7 @@ class EventsListState extends State<EventsList> {
 
 class DayEvents extends StatefulWidget {
   const DayEvents({
-    super.key,
-    required this.controller,
-    required this.day,
-    required this.dayEventsBuilder,
+    required this.controller, required this.day, required this.dayEventsBuilder, super.key,
   });
 
   final EventsController controller;
@@ -199,7 +195,7 @@ class _DayEventsState extends State<DayEvents> {
   // update day events when change
   void updateEvents() {
     if (mounted) {
-      var dayEvents = widget.controller.getSortedFilteredDayEvents(widget.day);
+      final dayEvents = widget.controller.getSortedFilteredDayEvents(widget.day);
       // no update if no change for current day
       if (listEquals(dayEvents, events) == false) {
         setState(() {

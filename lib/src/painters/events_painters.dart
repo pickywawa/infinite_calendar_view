@@ -22,7 +22,7 @@ class LinesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    var cellHeight = heightPerMinute * 60;
+    final cellHeight = heightPerMinute * 60;
 
     final hourPaint = Paint()
       ..color = lineColor
@@ -70,14 +70,14 @@ class TimeIndicatorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    var currentTime = DateTime.now();
+    final currentTime = DateTime.now();
 
     // draw current time line
     if (isToday) {
       final currentTimePaint = Paint()
         ..color = color
         ..strokeWidth = 0.75;
-      var currentTimeLineY =
+      final currentTimeLineY =
           heightPerMinute * (currentTime.hour * 60 + currentTime.minute);
       canvas.drawLine(Offset(0, currentTimeLineY),
           Offset(size.width, currentTimeLineY), currentTimePaint);
@@ -115,10 +115,10 @@ class HoursPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    var cellHeight = heightPerMinute * 60;
+    final cellHeight = heightPerMinute * 60;
 
     // draw currentHour
-    var currentTime = TimeOfDay.now();
+    final currentTime = TimeOfDay.now();
     if (showCurrentHour) {
       drawHour(
         canvas,
@@ -165,7 +165,7 @@ class HoursPainter extends CustomPainter {
     // 24:00 hour
     final hourY = (24 * cellHeight) + 4;
     if (!isHideByCurrentTime(currentTime, hourY)) {
-      drawHour(canvas, size, TimeOfDay(hour: 24, minute: 0), hourY, hourColor);
+      drawHour(canvas, size, const TimeOfDay(hour: 24, minute: 0), hourY, hourColor);
     }
   }
 
@@ -181,7 +181,7 @@ class HoursPainter extends CustomPainter {
     double y,
     Color color,
   ) {
-    var textPainter = textPainterBuilder?.call(time, color) ??
+    final textPainter = textPainterBuilder?.call(time, color) ??
         getDefaultTextPainter(time, color);
     textPainter.layout(
       minWidth: size.width,
@@ -229,9 +229,9 @@ class OffSetAllDaysPainter extends CustomPainter {
     if (!isToday || paintToday) {
       final paint = Paint()..color = offTimesColor;
 
-      for (var range in offTimesRanges) {
-        var startY = range.start.totalMinutes * heightPerMinute;
-        var endY = range.end.totalMinutes * heightPerMinute;
+      for (final range in offTimesRanges) {
+        final startY = range.start.totalMinutes * heightPerMinute;
+        final endY = range.end.totalMinutes * heightPerMinute;
         canvas.drawRect(
           Rect.fromPoints(Offset(0, startY), Offset(size.width, endY)),
           paint,
@@ -264,7 +264,7 @@ class ColumnPainter extends CustomPainter {
           Offset(columnsTotalWidth, size.height), paint);
 
       if (i != columnsParam.columns) {
-        var columnWidth = columnsParam.getColumSize(width, i);
+        final columnWidth = columnsParam.getColumSize(width, i);
         columnsTotalWidth += columnWidth;
       }
     }

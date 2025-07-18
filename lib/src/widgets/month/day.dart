@@ -4,8 +4,7 @@ import 'package:infinite_calendar_view/src/utils/extension.dart';
 
 class DefaultMonthDayHeader extends StatelessWidget {
   const DefaultMonthDayHeader({
-    super.key,
-    required this.text,
+    required this.text, super.key,
     this.isToday = false,
     this.fontSize = 12,
     this.fontWeight = FontWeight.w600,
@@ -24,10 +23,10 @@ class DefaultMonthDayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var colorScheme = Theme.of(context).colorScheme;
-    var todayBgColor = todayBackgroundColor ?? colorScheme.primary;
-    var todayFgColor = todayTextColor ?? colorScheme.onPrimary;
-    var fgColor = textColor ?? colorScheme.outline;
+    final colorScheme = Theme.of(context).colorScheme;
+    final todayBgColor = todayBackgroundColor ?? colorScheme.primary;
+    final todayFgColor = todayTextColor ?? colorScheme.onPrimary;
+    final fgColor = textColor ?? colorScheme.outline;
     return Center(
       child: Container(
         decoration: BoxDecoration(
@@ -38,7 +37,7 @@ class DefaultMonthDayHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Text(
             text,
-            style: TextStyle().copyWith(
+            style: const TextStyle().copyWith(
               fontSize: fontSize,
               fontWeight: fontWeight,
               color: isToday ? todayFgColor : fgColor,
@@ -52,10 +51,7 @@ class DefaultMonthDayHeader extends StatelessWidget {
 
 class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
   const DefaultNotShowedMonthEventsWidget({
-    super.key,
-    required this.context,
-    required this.eventHeight,
-    required this.text,
+    required this.context, required this.eventHeight, required this.text, super.key,
     this.textStyle,
     this.textPadding = const EdgeInsets.all(2),
     this.decoration,
@@ -81,7 +77,7 @@ class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
         padding: textPadding,
         child: Text(
           text,
-          style: textStyle ?? TextStyle().copyWith(fontSize: 10),
+          style: textStyle ?? const TextStyle().copyWith(fontSize: 10),
         ),
       ),
     );
@@ -90,10 +86,8 @@ class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
 
 class DraggableMonthEvent extends StatelessWidget {
   const DraggableMonthEvent({
-    super.key,
-    required this.child,
+    required this.child, required this.onDragEnd, super.key,
     this.draggableFeedback,
-    required this.onDragEnd,
   });
 
   static double defaultDraggableOpacity = 0.7;
@@ -107,7 +101,7 @@ class DraggableMonthEvent extends StatelessWidget {
       data: onDragEnd,
       child: child,
       feedback: draggableFeedback ?? getDefaultDraggableFeedback(),
-      childWhenDragging: SizedBox.shrink(),
+      childWhenDragging: const SizedBox.shrink(),
     );
   }
 
@@ -122,8 +116,7 @@ class DraggableMonthEvent extends StatelessWidget {
 /// default event showed
 class DefaultMonthDayEvent extends StatelessWidget {
   const DefaultMonthDayEvent({
-    super.key,
-    required this.event,
+    required this.event, super.key,
     this.fontSize = 10,
     this.fontWeight = FontWeight.w400,
     this.padding = const EdgeInsets.all(2),
@@ -170,7 +163,7 @@ class DefaultMonthDayEvent extends StatelessWidget {
             padding: padding,
             child: Text(
               event.title ?? "",
-              style: TextStyle().copyWith(
+              style: const TextStyle().copyWith(
                 fontSize: fontSize,
                 fontWeight: fontWeight,
                 color: event.textColor,

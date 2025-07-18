@@ -7,15 +7,7 @@ import '../../../infinite_calendar_view.dart';
 
 class HorizontalDaysIndicatorWidget extends StatelessWidget {
   const HorizontalDaysIndicatorWidget({
-    super.key,
-    required this.daysHeaderParam,
-    required this.columnsParam,
-    required this.timesIndicatorsWidth,
-    required this.dayHorizontalController,
-    required this.maxPreviousDays,
-    required this.maxNextDays,
-    required this.initialDate,
-    required this.dayWidth,
+    required this.daysHeaderParam, required this.columnsParam, required this.timesIndicatorsWidth, required this.dayHorizontalController, required this.maxPreviousDays, required this.maxNextDays, required this.initialDate, required this.dayWidth, super.key,
   });
 
   final DaysHeaderParam daysHeaderParam;
@@ -30,7 +22,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // take appbar background color first
-    var defaultHeaderBackgroundColor =
+    final defaultHeaderBackgroundColor =
         Theme.of(context).appBarTheme.backgroundColor;
 
     return Container(
@@ -49,8 +41,8 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
             negChildCount: maxPreviousDays,
             posChildCount: maxNextDays,
             builder: (context, index) {
-              var day = initialDate.add(Duration(days: index));
-              var isToday = DateUtils.isSameDay(day, DateTime.now());
+              final day = initialDate.add(Duration(days: index));
+              final isToday = DateUtils.isSameDay(day, DateTime.now());
 
               return InfiniteListItem(
                 contentBuilder: (context) {
@@ -90,9 +82,9 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
   }
 
   Row getColumnsHeader(BuildContext context, DateTime day, bool isToday) {
-    var colorScheme = Theme.of(context).colorScheme;
-    var bgColor = colorScheme.surface;
-    var builder = columnsParam.columnHeaderBuilder;
+    final colorScheme = Theme.of(context).colorScheme;
+    final bgColor = colorScheme.surface;
+    final builder = columnsParam.columnHeaderBuilder;
     return Row(
       children: [
         for (var column = 0; column < columnsParam.columns; column++)
@@ -116,11 +108,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
 
 class DefaultColumnHeader extends StatelessWidget {
   const DefaultColumnHeader({
-    super.key,
-    required this.columnText,
-    required this.backgroundColor,
-    required this.foregroundColor,
-    required this.columnWidth,
+    required this.columnText, required this.backgroundColor, required this.foregroundColor, required this.columnWidth, super.key,
   });
 
   final String columnText;
@@ -157,8 +145,7 @@ class DefaultColumnHeader extends StatelessWidget {
 
 class DefaultDayHeader extends StatelessWidget {
   const DefaultDayHeader({
-    super.key,
-    required this.dayText,
+    required this.dayText, super.key,
     this.isToday = false,
     this.foregroundColor,
     this.todayForegroundColor,
@@ -185,13 +172,13 @@ class DefaultDayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var colorScheme = Theme.of(context).colorScheme;
-    var defaultForegroundColor = context.isDarkMode
+    final colorScheme = Theme.of(context).colorScheme;
+    final defaultForegroundColor = context.isDarkMode
         ? Theme.of(context).colorScheme.primary
         : colorScheme.onPrimary;
-    var fgColor = foregroundColor ?? defaultForegroundColor;
-    var todayBgColor = todayBackgroundColor ?? colorScheme.surface;
-    var todayFgColor = todayForegroundColor ?? colorScheme.primary;
+    final fgColor = foregroundColor ?? defaultForegroundColor;
+    final todayBgColor = todayBackgroundColor ?? colorScheme.surface;
+    final todayFgColor = todayForegroundColor ?? colorScheme.primary;
 
     return Center(
       child: isToday

@@ -19,8 +19,7 @@ import 'widgets/planner/vertical_time_indicator_widget.dart';
 
 class EventsPlanner extends StatefulWidget {
   const EventsPlanner({
-    super.key,
-    required this.controller,
+    required this.controller, super.key,
     this.initialDate,
     this.daysShowed = 3,
     this.maxPreviousDays = 365,
@@ -195,18 +194,18 @@ class EventsPlannerState extends State<EventsPlanner> {
       if (widget.minVerticalScrollOffset != null ||
           widget.maxVerticalScrollOffset != null) {
         mainVerticalController.addListener(() {
-          var minOffset = widget.minVerticalScrollOffset;
-          var maxOffset = widget.maxVerticalScrollOffset;
+          final minOffset = widget.minVerticalScrollOffset;
+          final maxOffset = widget.maxVerticalScrollOffset;
           if (_plannerPointerDownCount < 2) {
             if (minOffset != null &&
                 mainVerticalController.offset < minOffset) {
               mainVerticalController.jumpTo(minOffset);
             }
             if (maxOffset != null) {
-              var maxScrollExtent =
+              final maxScrollExtent =
                   mainVerticalController.position.maxScrollExtent;
-              var dayOffset = heightPerMinute * 60 * 24;
-              var maxOffsetExtend = maxScrollExtent - (dayOffset - maxOffset);
+              final dayOffset = heightPerMinute * 60 * 24;
+              final maxOffsetExtend = maxScrollExtent - (dayOffset - maxOffset);
               if (mainVerticalController.offset > maxOffsetExtend) {
                 mainVerticalController.jumpTo(maxOffsetExtend);
               }
@@ -228,16 +227,16 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   /// listen mainHorizontalController and call onFirstDayChange when day change
   void initDayChangingListener() {
-    var halfDayWidth = (dayWidth / 2);
-    var scroll = mainHorizontalController;
+    final halfDayWidth = (dayWidth / 2);
+    final scroll = mainHorizontalController;
     scroll.addListener(() {
       if (listenHorizontalScrollDayChange) {
-        var halfDay = scroll.offset >= 0 ? halfDayWidth : -halfDayWidth;
-        var index = ((scroll.offset + halfDay) / dayWidth).toInt();
+        final halfDay = scroll.offset >= 0 ? halfDayWidth : -halfDayWidth;
+        final index = ((scroll.offset + halfDay) / dayWidth).toInt();
         // only when index has changed
         if (index != currentIndex) {
           currentIndex = index;
-          var currentDay = initialDate.add(Duration(days: currentIndex));
+          final currentDay = initialDate.add(Duration(days: currentIndex));
           widget.onDayChange?.call(currentDay);
           widget.controller.updateFocusedDay(currentDay);
         }
@@ -250,11 +249,11 @@ class EventsPlannerState extends State<EventsPlanner> {
   VoidCallback getAutomaticScrollAdjustListener() {
     return () {
       // when scroll stopped
-      var scroll = mainHorizontalController;
-      var stopScroll = !scroll.position.isScrollingNotifier.value;
+      final scroll = mainHorizontalController;
+      final stopScroll = !scroll.position.isScrollingNotifier.value;
       if (listenHorizontalScrollDayChange && stopScroll) {
         // Round to nearest day
-        var nearestDayOffset = dayWidth * (scroll.offset / dayWidth).round();
+        final nearestDayOffset = dayWidth * (scroll.offset / dayWidth).round();
         if (nearestDayOffset != scroll.offset) {
           // adjust scroll
           Future.delayed(const Duration(milliseconds: 1), () {
@@ -263,7 +262,7 @@ class EventsPlannerState extends State<EventsPlanner> {
                 curve: Curves.easeIn);
 
             // event
-            var adjustedDay = initialDate
+            final adjustedDay = initialDate
                 .add(Duration(days: (nearestDayOffset / dayWidth).toInt()));
             widget.onAutomaticAdjustHorizontalScroll?.call(adjustedDay);
           });
@@ -291,13 +290,13 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   @override
   Widget build(BuildContext context) {
-    var dayParam = widget.dayParam;
-    var plannerHeight = (heightPerMinute * 60 * 24) +
+    final dayParam = widget.dayParam;
+    final plannerHeight = (heightPerMinute * 60 * 24) +
         dayParam.dayTopPadding +
         dayParam.dayBottomPadding;
-    var daySeparationWidthPadding = widget.daySeparationWidth / 2;
-    var todayColor = dayParam.todayColor ?? getDefaultTodayColor(context);
-    var currentHourIndicatorColor =
+    final daySeparationWidthPadding = widget.daySeparationWidth / 2;
+    final todayColor = dayParam.todayColor ?? getDefaultTodayColor(context);
+    final currentHourIndicatorColor =
         widget.currentHourIndicatorParam.currentHourIndicatorColor ??
             getDefaultHourIndicatorColor(context);
 
@@ -305,7 +304,7 @@ class EventsPlannerState extends State<EventsPlanner> {
       builder: (context, constraints) {
         width = constraints.maxWidth;
         height = constraints.maxHeight;
-        var leftWidget = widget.timesIndicatorsParam.timesIndicatorsWidth;
+        final leftWidget = widget.timesIndicatorsParam.timesIndicatorsWidth;
         dayWidth = (width - leftWidget) / widget.daysShowed;
 
         return Column(
@@ -355,8 +354,8 @@ class EventsPlannerState extends State<EventsPlanner> {
     Color todayColor,
     double daySeparationWidthPadding,
   ) {
-    var zoom = widget.pinchToZoomParam;
-    var canZoom = zoom.pinchToZoom;
+    final zoom = widget.pinchToZoomParam;
+    final canZoom = zoom.pinchToZoom;
     return GestureDetector(
       onScaleStart: canZoom ? zoom.onScaleStart ?? _onScaleStart : null,
       onScaleUpdate: canZoom ? zoom.onScaleUpdate ?? _onScaleUpdate : null,
@@ -430,7 +429,7 @@ class EventsPlannerState extends State<EventsPlanner> {
     double plannerHeight,
     Color currentHourIndicatorColor,
   ) {
-    var physics = _plannerPointerDownCount > 1
+    final physics = _plannerPointerDownCount > 1
         ? const NeverScrollableScrollPhysics()
         : widget.horizontalScrollPhysics;
 
@@ -447,7 +446,7 @@ class EventsPlannerState extends State<EventsPlanner> {
         negChildCount: widget.maxPreviousDays,
         posChildCount: widget.maxNextDays,
         builder: (context, index) {
-          var day = initialDate.add(Duration(days: index));
+          final day = initialDate.add(Duration(days: index));
 
           // notify day will be build
           Future(() => widget.dayParam.onDayBuild?.call(day));
@@ -523,12 +522,12 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   void _onPointerSignal(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
-      var minZoom = widget.pinchToZoomParam.pinchToZoomMinHeightPerMinute;
-      var maxZoom = widget.pinchToZoomParam.pinchToZoomMaxHeightPerMinute;
-      var speed = widget.pinchToZoomParam.pinchToZoomSpeed;
-      var zoom = event.scrollDelta.dy * -0.001 * speed;
-      var newHeightPerMinute = heightPerMinute + zoom;
-      var scale = newHeightPerMinute / heightPerMinute;
+      final minZoom = widget.pinchToZoomParam.pinchToZoomMinHeightPerMinute;
+      final maxZoom = widget.pinchToZoomParam.pinchToZoomMaxHeightPerMinute;
+      final speed = widget.pinchToZoomParam.pinchToZoomSpeed;
+      final zoom = event.scrollDelta.dy * -0.001 * speed;
+      final newHeightPerMinute = heightPerMinute + zoom;
+      final scale = newHeightPerMinute / heightPerMinute;
 
       if (minZoom <= newHeightPerMinute && newHeightPerMinute <= maxZoom) {
         setState(() {
@@ -549,11 +548,11 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
     if (details.pointerCount == 2) {
-      var speed = widget.pinchToZoomParam.pinchToZoomSpeed;
-      var scale = (((details.scale - 1) * speed) + 1);
-      var newHeightPerMinute = heightPerMinuteScaleStart * scale;
-      var minZoom = widget.pinchToZoomParam.pinchToZoomMinHeightPerMinute;
-      var maxZoom = widget.pinchToZoomParam.pinchToZoomMaxHeightPerMinute;
+      final speed = widget.pinchToZoomParam.pinchToZoomSpeed;
+      final scale = (((details.scale - 1) * speed) + 1);
+      final newHeightPerMinute = heightPerMinuteScaleStart * scale;
+      final minZoom = widget.pinchToZoomParam.pinchToZoomMinHeightPerMinute;
+      final maxZoom = widget.pinchToZoomParam.pinchToZoomMaxHeightPerMinute;
       if (minZoom <= newHeightPerMinute && newHeightPerMinute <= maxZoom) {
         setState(() {
           heightPerMinute = newHeightPerMinute;
@@ -603,7 +602,7 @@ class EventsPlannerState extends State<EventsPlanner> {
     if (context.mounted) {
       // stop scroll listener for avoid change day listener
       listenHorizontalScrollDayChange = false;
-      var index = date.withoutTime.getDayDifference(initialDate);
+      final index = date.withoutTime.getDayDifference(initialDate);
       mainHorizontalController.jumpTo(index * dayWidth);
       listenHorizontalScrollDayChange = true;
     }
@@ -849,7 +848,7 @@ class ColumnsParam {
   final CustomPainter Function(double width, int colum)? columnCustomPainter;
 
   double getColumSize(double dayWidth, int columnIndex) {
-    var columnWidthRatio = columnsWidthRatio?[columnIndex];
+    final columnWidthRatio = columnsWidthRatio?[columnIndex];
     return columnWidthRatio != null
         ? dayWidth * columnWidthRatio
         : dayWidth / columns;
@@ -869,7 +868,7 @@ class ColumnsParam {
   int getColumnIndex(double dayWidth, double dx) {
     var totalWidth = 0.0;
     for (var column = 0; column < columns; column++) {
-      var columnSize = getColumSize(dayWidth, column);
+      final columnSize = getColumSize(dayWidth, column);
       if (totalWidth <= dx && dx < totalWidth + columnSize) {
         return column;
       }

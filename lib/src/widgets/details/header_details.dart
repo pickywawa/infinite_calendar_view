@@ -5,11 +5,7 @@ import 'package:infinite_calendar_view/infinite_calendar_view.dart';
 /// listen day events and update header when days events change
 class HeaderListWidget extends StatefulWidget {
   const HeaderListWidget({
-    super.key,
-    required this.controller,
-    required this.day,
-    required this.isToday,
-    required this.dayHeaderBuilder,
+    required this.controller, required this.day, required this.isToday, required this.dayHeaderBuilder, super.key,
   });
 
   final EventsController controller;
@@ -48,7 +44,7 @@ class _HeaderListWidgetState extends State<HeaderListWidget> {
   // update day events when change
   void updateEvents() {
     if (mounted) {
-      var dayEvents = widget.controller.getFilteredDayEvents(widget.day);
+      final dayEvents = widget.controller.getFilteredDayEvents(widget.day);
 
       // no update if no change for current day
       if (listEquals(dayEvents, events) == false) {
@@ -68,8 +64,7 @@ class _HeaderListWidgetState extends State<HeaderListWidget> {
 
 class DefaultHeader extends StatelessWidget {
   const DefaultHeader({
-    super.key,
-    required this.dayText,
+    required this.dayText, super.key,
   });
 
   static const defaultHorizontalPadding = 20.0;

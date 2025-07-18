@@ -18,12 +18,12 @@ class SideEventArranger extends EventArranger {
     required double width,
     required double heightPerMinute,
   }) {
-    var eventsConflict = <Event, List<Event>>{};
-    var eventsConflictGroup = <Event, Set<Event>>{};
+    final eventsConflict = <Event, List<Event>>{};
+    final eventsConflictGroup = <Event, Set<Event>>{};
 
     // determine conflict to each event
-    for (var event in events) {
-      var conflicts = events
+    for (final event in events) {
+      final conflicts = events
           .where((e) =>
               e != event &&
               e.startTime.isBefore(event.endTime!) == true &&
@@ -36,7 +36,7 @@ class SideEventArranger extends EventArranger {
         eventsConflictGroup[event] = {};
       }
       eventsConflictGroup[event]?.addAll(conflicts.toSet());
-      for (var conflictEvent in conflicts) {
+      for (final conflictEvent in conflicts) {
         if (eventsConflictGroup[conflictEvent] == null) {
           eventsConflictGroup[conflictEvent] = {};
         }
@@ -44,15 +44,15 @@ class SideEventArranger extends EventArranger {
       }
     }
 
-    var eventsColumn = <Event, int>{};
-    for (var eventEntry in eventsConflict.entries) {
+    final eventsColumn = <Event, int>{};
+    for (final eventEntry in eventsConflict.entries) {
       // no conflict
       if (eventEntry.value.isEmpty) {
         eventsColumn[eventEntry.key] = 0;
       }
       // conflicts : search free column (no already planned)
       else {
-        var alreadyPlacedColumn = eventEntry.value
+        final alreadyPlacedColumn = eventEntry.value
             .map((c) => eventsColumn[c])
             .where((e) => e != null)
             .toSet();
@@ -64,23 +64,23 @@ class SideEventArranger extends EventArranger {
       }
     }
 
-    var organizedEvents = events.map((event) {
-      var columnIndex = eventsColumn[event]!;
+    final organizedEvents = events.map((event) {
+      final columnIndex = eventsColumn[event]!;
 
       // count column conflict for event
       // bug : no just see conflict of conflict event -> see recursive
-      var columnSet = eventsConflictGroup[event]!
+      final columnSet = eventsConflictGroup[event]!
           .map((c) => eventsColumn[c])
           .where((e) => e != null)
           .toSet()
           .where((e) => e != null)
           .toSet();
       columnSet.add(columnIndex);
-      var maxColumn = columnSet.length;
+      final maxColumn = columnSet.length;
 
       // determine column width
-      var widthWithPadding = width - (paddingLeft + paddingRight);
-      var columnWidth = widthWithPadding / maxColumn;
+      final widthWithPadding = width - (paddingLeft + paddingRight);
+      final columnWidth = widthWithPadding / maxColumn;
 
       return OrganizedEvent(
         top: event.startTime.totalMinutes * heightPerMinute,

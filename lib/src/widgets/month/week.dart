@@ -10,13 +10,7 @@ import 'package:infinite_calendar_view/src/widgets/month/day.dart';
 
 class Week extends StatefulWidget {
   const Week({
-    super.key,
-    required this.controller,
-    required this.weekParam,
-    required this.weekHeight,
-    required this.daysParam,
-    required this.startOfWeek,
-    required this.maxEventsShowed,
+    required this.controller, required this.weekParam, required this.weekHeight, required this.daysParam, required this.startOfWeek, required this.maxEventsShowed, super.key,
   });
 
   final DateTime startOfWeek;
@@ -52,8 +46,8 @@ class _WeekState extends State<Week> {
   // update day events when change
   void updateEvents() {
     if (mounted) {
-      var weekEvents = getWeekEvents();
-      var weekShowedEvents =
+      final weekEvents = getWeekEvents();
+      final weekShowedEvents =
           getShowedWeekEvents(weekEvents, widget.maxEventsShowed);
       // no update if no change for current day
       if (listEquals(weekShowedEvents, this.weekShowedEvents) == false) {
@@ -67,7 +61,7 @@ class _WeekState extends State<Week> {
 
   /// find events of week
   List<List<Event>?> getWeekEvents() {
-    List<List<Event>?> eventsList = [];
+    final List<List<Event>?> eventsList = [];
     for (var day = 0; day < 7; day++) {
       eventsList.add(widget.controller.getSortedFilteredDayEvents(
         widget.startOfWeek.add(Duration(days: day)),
@@ -84,16 +78,16 @@ class _WeekState extends State<Week> {
       child: Container(
         height: widget.weekHeight,
         child: LayoutBuilder(builder: (context, constraints) {
-          var width = constraints.maxWidth;
-          var dayWidth = width / 7;
+          final width = constraints.maxWidth;
+          final dayWidth = width / 7;
 
           return DragTarget(
             onAcceptWithDetails: (details) {
-              var onDragEnd = details.data as Function(DateTime);
-              var renderBox = context.findRenderObject() as RenderBox;
-              var relativeOffset = renderBox.globalToLocal(
+              final onDragEnd = details.data as Function(DateTime);
+              final renderBox = context.findRenderObject() as RenderBox;
+              final relativeOffset = renderBox.globalToLocal(
                   Offset(details.offset.dx + dayWidth / 2, details.offset.dy));
-              var dragDay = getPositionDay(relativeOffset, dayWidth);
+              final dragDay = getPositionDay(relativeOffset, dayWidth);
               onDragEnd.call(dragDay);
             },
             builder: (context, candidateData, rejectedData) {
@@ -143,17 +137,17 @@ class _WeekState extends State<Week> {
   }
 
   DateTime getPositionDay(Offset localPosition, double dayWidth) {
-    var x = localPosition.dx;
-    var dayIndex = (x / dayWidth).toInt();
-    var day = widget.startOfWeek.add(Duration(days: dayIndex));
+    final x = localPosition.dx;
+    final dayIndex = (x / dayWidth).toInt();
+    final day = widget.startOfWeek.add(Duration(days: dayIndex));
     return day;
   }
 
   // get header of day
   Container getHeaderWidget(int dayOfWeek) {
-    var day = widget.startOfWeek.add(Duration(days: dayOfWeek));
-    var isStartOfMonth = day.day == 1;
-    var colorScheme = Theme.of(context).colorScheme;
+    final day = widget.startOfWeek.add(Duration(days: dayOfWeek));
+    final isStartOfMonth = day.day == 1;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: widget.daysParam.headerHeight,
       child: widget.daysParam.dayHeaderBuilder?.call(day) ??
@@ -174,16 +168,16 @@ class _WeekState extends State<Week> {
     int eventIndex,
     double dayWidth,
   ) {
-    var daySpacing = widget.weekParam.daySpacing;
-    var eventSpacing = widget.daysParam.eventSpacing;
-    var eventHeight = widget.daysParam.eventHeight;
-    var left = dayOfWeek * dayWidth + (daySpacing / 2);
-    var eventsLength = weekEvents[dayOfWeek]?.length ?? 0;
-    var day = widget.startOfWeek.add(Duration(days: dayOfWeek));
+    final daySpacing = widget.weekParam.daySpacing;
+    final eventSpacing = widget.daysParam.eventSpacing;
+    final eventHeight = widget.daysParam.eventHeight;
+    final left = dayOfWeek * dayWidth + (daySpacing / 2);
+    final eventsLength = weekEvents[dayOfWeek]?.length ?? 0;
+    final day = widget.startOfWeek.add(Duration(days: dayOfWeek));
 
     // More widget
-    var isLastSlot = eventIndex == widget.maxEventsShowed - 1;
-    var notShowedEventsCount = (eventsLength - widget.maxEventsShowed) + 1;
+    final isLastSlot = eventIndex == widget.maxEventsShowed - 1;
+    final notShowedEventsCount = (eventsLength - widget.maxEventsShowed) + 1;
     if (isLastSlot && notShowedEventsCount > 1) {
       return [
         Positioned(
@@ -203,8 +197,8 @@ class _WeekState extends State<Week> {
     }
 
     // Event widget
-    var event = weekShowedEvents[dayOfWeek][eventIndex];
-    var isMultiDayOtherDay = (event?.daysIndex ?? 0) > 0 && dayOfWeek > 0;
+    final event = weekShowedEvents[dayOfWeek][eventIndex];
+    final isMultiDayOtherDay = (event?.daysIndex ?? 0) > 0 && dayOfWeek > 0;
     if (event != null && !isMultiDayOtherDay) {
       // multi days events duration
       var duration = 1;
@@ -215,8 +209,8 @@ class _WeekState extends State<Week> {
           event.uniqueId) {
         duration++;
       }
-      var eventWidth = (dayWidth * duration) - daySpacing;
-      var top = weekShowedEvents[dayOfWeek].indexOf(event) *
+      final eventWidth = (dayWidth * duration) - daySpacing;
+      final top = weekShowedEvents[dayOfWeek].indexOf(event) *
           (eventHeight + eventSpacing);
       return [
         Positioned(

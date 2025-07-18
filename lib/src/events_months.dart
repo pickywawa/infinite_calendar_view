@@ -11,8 +11,7 @@ import 'widgets/month/month.dart';
 
 class EventsMonths extends StatefulWidget {
   const EventsMonths({
-    super.key,
-    required this.controller,
+    required this.controller, super.key,
     this.initialMonth,
     this.maxPreviousMonth = 120,
     this.maxNextMonth = 120,
@@ -85,7 +84,7 @@ class EventsMonthsState extends State<EventsMonths> {
   void initState() {
     super.initState();
     weekHeight = widget.weekParam.weekHeight;
-    var initialDay = widget.initialMonth ?? widget.controller.focusedDay;
+    final initialDay = widget.initialMonth ?? widget.controller.focusedDay;
     initialMonth = DateTime(initialDay.year, initialDay.month);
     _stickyMonth = initialMonth;
     scrollController = ScrollController();
@@ -107,9 +106,9 @@ class EventsMonthsState extends State<EventsMonths> {
       scrollIsStopped = !scrollController.position.isScrollingNotifier.value;
       if (scrollIsStopped &&
           ((scrollStartOffset - scrollController.offset).abs() > 10)) {
-        var scroll = scrollController;
+        final scroll = scrollController;
         if (!_blockAdjustScroll) {
-          var adjustedOffset = _stickyPercent < 0.5
+          final adjustedOffset = _stickyPercent < 0.5
               ? scroll.offset - _stickyOffset
               : scroll.offset +
                   (((1 - _stickyPercent) * _stickyOffset) / _stickyPercent);
@@ -133,8 +132,8 @@ class EventsMonthsState extends State<EventsMonths> {
 
   @override
   Widget build(BuildContext context) {
-    var zoom = widget.pinchToZoomParam;
-    var isZoom = zoom.pinchToZoom;
+    final zoom = widget.pinchToZoomParam;
+    final isZoom = zoom.pinchToZoom;
 
     return GestureDetector(
       onScaleStart: isZoom ? zoom.onScaleStart ?? _onScaleStart : null,
@@ -175,7 +174,7 @@ class EventsMonthsState extends State<EventsMonths> {
                           ? const NeverScrollableScrollPhysics()
                           : widget.verticalScrollPhysics,
                       builder: (context, index) {
-                        var month = DateTime(
+                        final month = DateTime(
                           initialMonth.year,
                           initialMonth.month + index,
                         );
@@ -191,7 +190,7 @@ class EventsMonthsState extends State<EventsMonths> {
                             }
                             _stickyPercent = state.position;
                             _stickyOffset = state.offset;
-                            return SizedBox.shrink();
+                            return const SizedBox.shrink();
                           },
                           contentBuilder: (context) {
                             return Month(
@@ -233,12 +232,12 @@ class EventsMonthsState extends State<EventsMonths> {
 
   /// get max row (events) can be showed to each day
   int getMaxEventsCanBeShowed() {
-    var dayParam = widget.daysParam;
-    var dayHeight = weekHeight;
-    var headerHeight = dayParam.headerHeight;
-    var eventHeight = dayParam.eventHeight;
-    var space = dayParam.eventSpacing;
-    var beforeEventSpacing = dayParam.spaceBetweenHeaderAndEvents;
+    final dayParam = widget.daysParam;
+    final dayHeight = weekHeight;
+    final headerHeight = dayParam.headerHeight;
+    final eventHeight = dayParam.eventHeight;
+    final space = dayParam.eventSpacing;
+    final beforeEventSpacing = dayParam.spaceBetweenHeaderAndEvents;
     return ((dayHeight - headerHeight - beforeEventSpacing + space) /
             (eventHeight + space))
         .toInt();
@@ -253,11 +252,11 @@ class EventsMonthsState extends State<EventsMonths> {
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
     if (details.pointerCount == 2) {
-      var speed = widget.pinchToZoomParam.pinchToZoomSpeed;
-      var scale = (((details.scale - 1) * speed) + 1);
-      var newWeekHeight = weekHeightScaleStart * scale;
-      var minZoom = widget.pinchToZoomParam.pinchToZoomMinWeekHeight;
-      var maxZoom = widget.pinchToZoomParam.pinchToZoomMaxWeekHeight;
+      final speed = widget.pinchToZoomParam.pinchToZoomSpeed;
+      final scale = (((details.scale - 1) * speed) + 1);
+      final newWeekHeight = weekHeightScaleStart * scale;
+      final minZoom = widget.pinchToZoomParam.pinchToZoomMinWeekHeight;
+      final maxZoom = widget.pinchToZoomParam.pinchToZoomMaxWeekHeight;
       if (minZoom <= newWeekHeight && newWeekHeight <= maxZoom) {
         setState(() {
           weekHeight = newWeekHeight;

@@ -6,14 +6,9 @@ import '../../utils/extension.dart';
 
 class DraggableEventWidget extends StatelessWidget {
   const DraggableEventWidget({
-    super.key,
-    required this.event,
-    required this.height,
-    required this.width,
-    required this.onDragEnd,
+    required this.event, required this.height, required this.width, required this.onDragEnd, required this.child, super.key,
     this.onSlotMinutesRound = 15,
     this.draggableFeedback,
-    required this.child,
   });
 
   static double defaultDraggableOpacity = 0.7;
@@ -56,8 +51,8 @@ class DraggableEventWidget extends StatelessWidget {
       childWhenDragging: const SizedBox.shrink(),
       onDragStarted: () {
         plannerState = context.findAncestorStateOfType<EventsPlannerState>();
-        var oldBox = context.findRenderObject() as RenderBox;
-        var oldPosition = oldBox.localToGlobal(Offset.zero);
+        final oldBox = context.findRenderObject() as RenderBox;
+        final oldPosition = oldBox.localToGlobal(Offset.zero);
         oldPositionY = oldPosition.dy;
         oldVerticalOffset = plannerState?.mainVerticalController.offset ?? 0;
       },
@@ -65,51 +60,51 @@ class DraggableEventWidget extends StatelessWidget {
         manageHorizontalScroll(plannerState, context, details);
       },
       onDragEnd: (details) {
-        var renderBox = plannerState?.context.findRenderObject() as RenderBox;
-        var relativeOffset = renderBox.globalToLocal(details.offset);
+        final renderBox = plannerState?.context.findRenderObject() as RenderBox;
+        final relativeOffset = renderBox.globalToLocal(details.offset);
 
         // find day
-        var dayWidth = plannerState?.dayWidth ?? 0;
-        var heightPerMinute = plannerState?.heightPerMinute ?? 0;
-        var scrollOffsetX = plannerState?.mainHorizontalController.offset ?? 0;
-        var releaseOffsetX = scrollOffsetX + relativeOffset.dx;
-        var dayIndex = (releaseOffsetX / dayWidth).toInt();
+        final dayWidth = plannerState?.dayWidth ?? 0;
+        final heightPerMinute = plannerState?.heightPerMinute ?? 0;
+        final scrollOffsetX = plannerState?.mainHorizontalController.offset ?? 0;
+        final releaseOffsetX = scrollOffsetX + relativeOffset.dx;
+        final dayIndex = (releaseOffsetX / dayWidth).toInt();
         // adjust negative index, because current day begin 0 and negative begin -1
-        var reallyDayIndex = releaseOffsetX >= 0 ? dayIndex : dayIndex - 1;
-        var currentDay = plannerState?.initialDate
+        final reallyDayIndex = releaseOffsetX >= 0 ? dayIndex : dayIndex - 1;
+        final currentDay = plannerState?.initialDate
                 .add(Duration(days: reallyDayIndex))
                 .withoutTime ??
             event.startTime.withoutTime;
 
         // find hour
-        var scrollOffsetY = plannerState?.mainVerticalController.offset ?? 0;
-        var difference = (details.offset.dy - oldPositionY) +
+        final scrollOffsetY = plannerState?.mainVerticalController.offset ?? 0;
+        final difference = (details.offset.dy - oldPositionY) +
             (scrollOffsetY - oldVerticalOffset);
-        var minuteDiff = difference / heightPerMinute;
+        final minuteDiff = difference / heightPerMinute;
 
         // exact event time
-        var duration = event.endTime!.difference(event.startTime).inMinutes;
-        var exactStartDateTime = currentDay.add(
+        final duration = event.endTime!.difference(event.startTime).inMinutes;
+        final exactStartDateTime = currentDay.add(
           Duration(
             minutes: event.startTime.totalMinutes + minuteDiff.toInt(),
           ),
         );
-        var exactEndDateTime = exactStartDateTime.add(
+        final exactEndDateTime = exactStartDateTime.add(
           Duration(
             minutes: duration,
           ),
         );
 
         // round event time to nearest multiple of onSlotMinutesRound minutes
-        var totalMinutes = exactStartDateTime.totalMinutes;
-        var totalMinutesRound =
+        final totalMinutes = exactStartDateTime.totalMinutes;
+        final totalMinutesRound =
             onSlotMinutesRound * (totalMinutes / onSlotMinutesRound).round();
-        var roundStartDateTime = currentDay.add(
+        final roundStartDateTime = currentDay.add(
           Duration(
             minutes: totalMinutesRound,
           ),
         );
-        var roundEndDateTime = roundStartDateTime.add(
+        final roundEndDateTime = roundStartDateTime.add(
           Duration(
             minutes: duration,
           ),
@@ -117,11 +112,11 @@ class DraggableEventWidget extends StatelessWidget {
 
         // find column
         var columnIndex = 0;
-        var dayPosition = (releaseOffsetX % dayWidth);
-        var columnsParam = plannerState?.widget.columnsParam;
+        final dayPosition = (releaseOffsetX % dayWidth);
+        final columnsParam = plannerState?.widget.columnsParam;
         if (columnsParam != null && columnsParam.columns > 0) {
           for (var column = 0; column < columnsParam.columns; column++) {
-            var positions = columnsParam.getColumPositions(dayWidth, column);
+            final positions = columnsParam.getColumPositions(dayWidth, column);
             if (positions[0] <= dayPosition && dayPosition <= positions[1]) {
               columnIndex = column;
             }
@@ -146,10 +141,10 @@ class DraggableEventWidget extends StatelessWidget {
     DragUpdateDetails details,
   ) {
     if (plannerState != null) {
-      var horizontalController = plannerState.mainHorizontalController;
-      var verticalController = plannerState.mainVerticalController;
-      var renderBox = plannerState.context.findRenderObject() as RenderBox;
-      var relativeOffset = renderBox.globalToLocal(details.globalPosition);
+      final horizontalController = plannerState.mainHorizontalController;
+      final verticalController = plannerState.mainVerticalController;
+      final renderBox = plannerState.context.findRenderObject() as RenderBox;
+      final relativeOffset = renderBox.globalToLocal(details.globalPosition);
 
       //var dx = details.localPosition.dx;
       if (relativeOffset.dx > (0.9 * plannerState.width)) {

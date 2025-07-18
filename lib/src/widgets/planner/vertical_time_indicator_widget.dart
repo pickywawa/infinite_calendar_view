@@ -5,11 +5,7 @@ import '../../painters/events_painters.dart';
 
 class VerticalTimeIndicatorWidget extends StatelessWidget {
   const VerticalTimeIndicatorWidget({
-    super.key,
-    required this.timesIndicatorsParam,
-    required this.heightPerMinute,
-    required this.currentHourIndicatorHourVisibility,
-    required this.currentHourIndicatorColor,
+    required this.timesIndicatorsParam, required this.heightPerMinute, required this.currentHourIndicatorHourVisibility, required this.currentHourIndicatorColor, super.key,
   });
 
   final TimesIndicatorsParam timesIndicatorsParam;

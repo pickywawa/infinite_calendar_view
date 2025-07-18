@@ -12,21 +12,7 @@ import '../../utils/extension.dart';
 
 class DayWidget extends StatelessWidget {
   const DayWidget({
-    super.key,
-    required this.controller,
-    required this.day,
-    required this.todayColor,
-    required this.daySeparationWidthPadding,
-    required this.plannerHeight,
-    required this.heightPerMinute,
-    required this.dayWidth,
-    required this.dayEventsArranger,
-    required this.dayParam,
-    required this.columnsParam,
-    required this.currentHourIndicatorParam,
-    required this.currentHourIndicatorColor,
-    required this.offTimesParam,
-    required this.showMultiDayEvents,
+    required this.controller, required this.day, required this.todayColor, required this.daySeparationWidthPadding, required this.plannerHeight, required this.heightPerMinute, required this.dayWidth, required this.dayEventsArranger, required this.dayParam, required this.columnsParam, required this.currentHourIndicatorParam, required this.currentHourIndicatorColor, required this.offTimesParam, required this.showMultiDayEvents, super.key,
   });
 
   final EventsController controller;
@@ -46,12 +32,12 @@ class DayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var isToday = DateUtils.isSameDay(day, DateTime.now());
-    var dayBackgroundColor =
+    final isToday = DateUtils.isSameDay(day, DateTime.now());
+    final dayBackgroundColor =
         isToday && todayColor != null ? todayColor : dayParam.dayColor;
-    var width = dayWidth - (daySeparationWidthPadding * 2);
-    var offTimesOfDay = offTimesParam.offTimesDayRanges[day];
-    var offTimesDefaultColor = context.isDarkMode
+    final width = dayWidth - (daySeparationWidthPadding * 2);
+    final offTimesOfDay = offTimesParam.offTimesDayRanges[day];
+    final offTimesDefaultColor = context.isDarkMode
         ? Theme.of(context).colorScheme.surface.lighten(0.03)
         : const Color(0xFFF4F4F4);
 
@@ -217,13 +203,13 @@ class DayWidget extends StatelessWidget {
   }
 
   DateTime getExactDateTime(double dy) {
-    var dayMinute = dy / heightPerMinute;
+    final dayMinute = dy / heightPerMinute;
     return day.withoutTime.add(Duration(minutes: dayMinute.toInt()));
   }
 
   DateTime getRoundDateTime(double dy) {
-    var dayMinute = dy / heightPerMinute;
-    var dayMinuteRounded = dayParam.onSlotMinutesRound *
+    final dayMinute = dy / heightPerMinute;
+    final dayMinuteRounded = dayParam.onSlotMinutesRound *
         (dayMinute / dayParam.onSlotMinutesRound)
             .round(); // Round to nearest multiple of 10 minutes
     return day.withoutTime.add(Duration(minutes: dayMinuteRounded.toInt()));
@@ -232,16 +218,7 @@ class DayWidget extends StatelessWidget {
 
 class EventsListWidget extends StatefulWidget {
   const EventsListWidget({
-    super.key,
-    required this.controller,
-    required this.day,
-    required this.columIndex,
-    required this.plannerHeight,
-    required this.heightPerMinute,
-    required this.dayWidth,
-    required this.dayEventsArranger,
-    required this.dayParam,
-    required this.showMultiDayEvents,
+    required this.controller, required this.day, required this.columIndex, required this.plannerHeight, required this.heightPerMinute, required this.dayWidth, required this.dayEventsArranger, required this.dayParam, required this.showMultiDayEvents, super.key,
   });
 
   final EventsController controller;
@@ -293,7 +270,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
   }
 
   List<OrganizedEvent> getOrganizedEvents(List<Event>? events) {
-    var arranger = widget.dayEventsArranger;
+    final arranger = widget.dayEventsArranger;
     return arranger.arrange(
       events: events ?? [],
       height: widget.plannerHeight,
@@ -304,7 +281,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
 
   void updateEvents() {
     if (mounted) {
-      var dayEvents = getDayColumnEvents();
+      final dayEvents = getDayColumnEvents();
 
       // update events when pinch to zoom
       if (heightPerMinute != widget.heightPerMinute) {
@@ -345,12 +322,12 @@ class _EventsListWidgetState extends State<EventsListWidget> {
   }
 
   Widget getEventWidget(OrganizedEvent organizedEvent, double scale) {
-    var left = organizedEvent.left;
-    var top = organizedEvent.top * scale;
-    var right = organizedEvent.right;
-    var bottom = organizedEvent.bottom * scale;
-    var height = widget.plannerHeight - (bottom + top);
-    var width = widget.dayWidth - (left + right);
+    final left = organizedEvent.left;
+    final top = organizedEvent.top * scale;
+    final right = organizedEvent.right;
+    final bottom = organizedEvent.bottom * scale;
+    final height = widget.plannerHeight - (bottom + top);
+    final width = widget.dayWidth - (left + right);
 
     return Positioned(
       left: left,
@@ -378,9 +355,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
 
 class DefaultDayEvent extends StatelessWidget {
   const DefaultDayEvent({
-    super.key,
-    required this.height,
-    required this.width,
+    required this.height, required this.width, super.key,
     this.child,
     this.title,
     this.description,

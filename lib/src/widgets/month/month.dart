@@ -6,13 +6,7 @@ import 'package:infinite_calendar_view/src/widgets/month/week.dart';
 
 class Month extends StatelessWidget {
   const Month({
-    super.key,
-    required this.controller,
-    required this.month,
-    required this.weekParam,
-    required this.weekHeight,
-    required this.daysParam,
-    required this.maxEventsShowed,
+    required this.controller, required this.month, required this.weekParam, required this.weekHeight, required this.daysParam, required this.maxEventsShowed, super.key,
   });
 
   final EventsController controller;
@@ -24,11 +18,11 @@ class Month extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var startOfWeeks = <DateTime>[];
+    final startOfWeeks = <DateTime>[];
     var startOfWeek = month.startOfWeek(weekParam.startOfWeekDay);
-    while (startOfWeek.add(Duration(days: 6)).month == month.month) {
+    while (startOfWeek.add(const Duration(days: 6)).month == month.month) {
       startOfWeeks.add(startOfWeek);
-      startOfWeek = startOfWeek.add(Duration(days: 7));
+      startOfWeek = startOfWeek.add(const Duration(days: 7));
     }
 
     // weeks of month

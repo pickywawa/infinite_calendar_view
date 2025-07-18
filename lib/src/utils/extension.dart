@@ -14,7 +14,7 @@ extension DateTimeExtensions on DateTime {
 
   /// get startOfWeek day depending on the desired starting day of the week
   DateTime startOfWeek(int weekday) {
-    var dayDifference = (this.weekday - weekday) % 7;
+    final dayDifference = (this.weekday - weekday) % 7;
     return DateTime(year, month, day - dayDifference);
   }
 }

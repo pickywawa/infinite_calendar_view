@@ -5,8 +5,7 @@ import '../../events/event.dart';
 
 class DefaultDayEvents extends StatelessWidget {
   const DefaultDayEvents({
-    super.key,
-    required this.events,
+    required this.events, super.key,
     this.eventBuilder,
     this.eventSeparator = defaultEventSeparator,
     this.emptyEventsWidget = defaultEmptyEventsWidget,
@@ -81,8 +80,7 @@ class DefaultDayEvents extends StatelessWidget {
 /// can be replaced in dayEventsBuilder -> eventBuilder
 class DefaultDetailEvent extends StatelessWidget {
   const DefaultDetailEvent({
-    super.key,
-    required this.event,
+    required this.event, super.key,
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
@@ -129,14 +127,14 @@ class DefaultDetailEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var event = this.event;
+    final event = this.event;
 
     String? durationText;
     String? timeText;
     if (event.isFullDay) {
       timeText = this.timeText ?? defaultFullDayText;
     } else {
-      var startTime = event.startTime;
+      final startTime = event.startTime;
       timeText = this.timeText ?? getDefaultTimeText(startTime);
       durationText = this.durationText ??
           this.getDefaultDurationText(event.startTime, event.endTime!);
@@ -243,12 +241,12 @@ class DefaultDetailEvent extends StatelessWidget {
   }
 
   String getDefaultDurationText(DateTime startDate, DateTime endDate) {
-    var duration = endDate.difference(startDate);
-    var element = <String>[];
+    final duration = endDate.difference(startDate);
+    final element = <String>[];
     if (duration.inHours > 0) {
       element.add("${duration.inHours}h");
     }
-    var minutes = duration.inMinutes.remainder(60);
+    final minutes = duration.inMinutes.remainder(60);
     if (minutes > 0) {
       element.add("${minutes}${duration.inHours == 0 ? "m" : ""}");
     }
