@@ -5,7 +5,8 @@ import '../../utils/extension.dart';
 
 class MonthHeader extends StatelessWidget {
   const MonthHeader({
-    required this.weekParam, super.key,
+    required this.weekParam,
+    super.key,
   });
 
   final WeekParam weekParam;
@@ -35,12 +36,13 @@ class MonthHeader extends StatelessWidget {
   }
 
   Widget getDefaultHeaderDay(BuildContext context, int dayOfWeek) => Center(
-      child: Text(
-        weekParam.headerDayText?.call(dayOfWeek + 1) ??
-            defaultDaysOfWeekText[dayOfWeek],
-        style: weekParam.headerStyle ?? getDefaultTextStyle(context, dayOfWeek),
-      ),
-    );
+        child: Text(
+          weekParam.headerDayText?.call(dayOfWeek + 1) ??
+              defaultDaysOfWeekText[dayOfWeek],
+          style:
+              weekParam.headerStyle ?? getDefaultTextStyle(context, dayOfWeek),
+        ),
+      );
 
   TextStyle getDefaultTextStyle(BuildContext context, int dayOfWeek) {
     final defaultForegroundColor = context.isDarkMode

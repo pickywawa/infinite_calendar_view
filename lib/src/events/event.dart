@@ -4,7 +4,8 @@ const defaultType = 'default';
 
 class Event {
   Event({
-    required this.startTime, this.columnIndex = 0,
+    required this.startTime,
+    this.columnIndex = 0,
     this.endTime,
     this.isFullDay = false,
     this.title,
@@ -98,9 +99,9 @@ class Event {
       eventType: eventType ?? this.eventType,
       daysIndex: daysIndex ?? this.daysIndex,
     )
-    ..uniqueId = uniqueId
-    ..effectiveStartTime = effectiveStartTime ?? this.effectiveStartTime
-    ..effectiveEndTime = effectiveEndTime ?? this.effectiveEndTime;
+      ..uniqueId = uniqueId
+      ..effectiveStartTime = effectiveStartTime ?? this.effectiveStartTime
+      ..effectiveEndTime = effectiveEndTime ?? this.effectiveEndTime;
     return event;
   }
 

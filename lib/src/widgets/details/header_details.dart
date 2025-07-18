@@ -5,7 +5,11 @@ import '../../../infinite_calendar_view.dart';
 /// listen day events and update header when days events change
 class HeaderListWidget extends StatefulWidget {
   const HeaderListWidget({
-    required this.controller, required this.day, required this.isToday, required this.dayHeaderBuilder, super.key,
+    required this.controller,
+    required this.day,
+    required this.isToday,
+    required this.dayHeaderBuilder,
+    super.key,
   });
 
   final EventsController controller;
@@ -56,13 +60,15 @@ class _HeaderListWidgetState extends State<HeaderListWidget> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.dayHeaderBuilder?.call(widget.day, widget.isToday, events) ??
-        DefaultHeader(dayText: widget.day.toString());
+  Widget build(BuildContext context) =>
+      widget.dayHeaderBuilder?.call(widget.day, widget.isToday, events) ??
+      DefaultHeader(dayText: widget.day.toString());
 }
 
 class DefaultHeader extends StatelessWidget {
   const DefaultHeader({
-    required this.dayText, super.key,
+    required this.dayText,
+    super.key,
   });
 
   static const defaultHorizontalPadding = 20.0;
@@ -73,27 +79,27 @@ class DefaultHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
-      child: Column(
-        children: [
-          const Divider(height: defaultDividerHeight),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: defaultHorizontalPadding,
-              vertical: defaultVerticalPadding,
-            ),
-            child: Container(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                dayText,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
+        child: Column(
+          children: [
+            const Divider(height: defaultDividerHeight),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: defaultHorizontalPadding,
+                vertical: defaultVerticalPadding,
+              ),
+              child: Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  dayText,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
               ),
             ),
-          ),
-          const Divider(height: defaultDividerHeight),
-        ],
-      ),
-    );
+            const Divider(height: defaultDividerHeight),
+          ],
+        ),
+      );
 }

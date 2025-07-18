@@ -4,7 +4,8 @@ import '../../utils/extension.dart';
 
 class DefaultMonthDayHeader extends StatelessWidget {
   const DefaultMonthDayHeader({
-    required this.text, super.key,
+    required this.text,
+    super.key,
     this.isToday = false,
     this.fontSize = 12,
     this.fontWeight = FontWeight.w600,
@@ -51,7 +52,10 @@ class DefaultMonthDayHeader extends StatelessWidget {
 
 class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
   const DefaultNotShowedMonthEventsWidget({
-    required this.context, required this.eventHeight, required this.text, super.key,
+    required this.context,
+    required this.eventHeight,
+    required this.text,
+    super.key,
     this.textStyle,
     this.textPadding = const EdgeInsets.all(2),
     this.decoration,
@@ -66,25 +70,27 @@ class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-      height: eventHeight,
-      decoration: decoration ??
-          BoxDecoration(
-            color: Theme.of(context).colorScheme.outlineVariant.lighten(),
-            borderRadius: BorderRadius.circular(3),
+        height: eventHeight,
+        decoration: decoration ??
+            BoxDecoration(
+              color: Theme.of(context).colorScheme.outlineVariant.lighten(),
+              borderRadius: BorderRadius.circular(3),
+            ),
+        child: Padding(
+          padding: textPadding,
+          child: Text(
+            text,
+            style: textStyle ?? const TextStyle().copyWith(fontSize: 10),
           ),
-      child: Padding(
-        padding: textPadding,
-        child: Text(
-          text,
-          style: textStyle ?? const TextStyle().copyWith(fontSize: 10),
         ),
-      ),
-    );
+      );
 }
 
 class DraggableMonthEvent extends StatelessWidget {
   const DraggableMonthEvent({
-    required this.child, required this.onDragEnd, super.key,
+    required this.child,
+    required this.onDragEnd,
+    super.key,
     this.draggableFeedback,
   });
 
@@ -95,22 +101,23 @@ class DraggableMonthEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LongPressDraggable(
-      data: onDragEnd,
-      feedback: draggableFeedback ?? getDefaultDraggableFeedback(),
-      childWhenDragging: const SizedBox.shrink(),
-      child: child,
-    );
+        data: onDragEnd,
+        feedback: draggableFeedback ?? getDefaultDraggableFeedback(),
+        childWhenDragging: const SizedBox.shrink(),
+        child: child,
+      );
 
   Widget getDefaultDraggableFeedback() => Opacity(
-      opacity: defaultDraggableOpacity,
-      child: child,
-    );
+        opacity: defaultDraggableOpacity,
+        child: child,
+      );
 }
 
 /// default event showed
 class DefaultMonthDayEvent extends StatelessWidget {
   const DefaultMonthDayEvent({
-    required this.event, super.key,
+    required this.event,
+    super.key,
     this.fontSize = 10,
     this.fontWeight = FontWeight.w400,
     this.padding = const EdgeInsets.all(2),
@@ -137,33 +144,33 @@ class DefaultMonthDayEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-      borderRadius: BorderRadius.circular(roundBorderRadius),
-      child: GestureDetector(
-        onTap: onTap,
-        onTapDown: onTapDown,
-        onTapUp: onTapUp,
-        onTapCancel: onTapCancel,
-        onDoubleTap: onDoubleTap,
-        onLongPress: onLongPress,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: event.color,
-            border: event.isFullDay
-                ? Border(left: BorderSide(color: event.textColor, width: 3))
-                : null,
-          ),
-          child: Padding(
-            padding: padding,
-            child: Text(
-              event.title ?? '',
-              style: const TextStyle().copyWith(
-                fontSize: fontSize,
-                fontWeight: fontWeight,
-                color: event.textColor,
+        borderRadius: BorderRadius.circular(roundBorderRadius),
+        child: GestureDetector(
+          onTap: onTap,
+          onTapDown: onTapDown,
+          onTapUp: onTapUp,
+          onTapCancel: onTapCancel,
+          onDoubleTap: onDoubleTap,
+          onLongPress: onLongPress,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: event.color,
+              border: event.isFullDay
+                  ? Border(left: BorderSide(color: event.textColor, width: 3))
+                  : null,
+            ),
+            child: Padding(
+              padding: padding,
+              child: Text(
+                event.title ?? '',
+                style: const TextStyle().copyWith(
+                  fontSize: fontSize,
+                  fontWeight: fontWeight,
+                  color: event.textColor,
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
 }

@@ -12,7 +12,21 @@ import '../../utils/extension.dart';
 
 class DayWidget extends StatelessWidget {
   const DayWidget({
-    required this.controller, required this.day, required this.todayColor, required this.daySeparationWidthPadding, required this.plannerHeight, required this.heightPerMinute, required this.dayWidth, required this.dayEventsArranger, required this.dayParam, required this.columnsParam, required this.currentHourIndicatorParam, required this.currentHourIndicatorColor, required this.offTimesParam, required this.showMultiDayEvents, super.key,
+    required this.controller,
+    required this.day,
+    required this.todayColor,
+    required this.daySeparationWidthPadding,
+    required this.plannerHeight,
+    required this.heightPerMinute,
+    required this.dayWidth,
+    required this.dayEventsArranger,
+    required this.dayParam,
+    required this.columnsParam,
+    required this.currentHourIndicatorParam,
+    required this.currentHourIndicatorColor,
+    required this.offTimesParam,
+    required this.showMultiDayEvents,
+    super.key,
   });
 
   final EventsController controller;
@@ -218,7 +232,16 @@ class DayWidget extends StatelessWidget {
 
 class EventsListWidget extends StatefulWidget {
   const EventsListWidget({
-    required this.controller, required this.day, required this.columIndex, required this.plannerHeight, required this.heightPerMinute, required this.dayWidth, required this.dayEventsArranger, required this.dayParam, required this.showMultiDayEvents, super.key,
+    required this.controller,
+    required this.day,
+    required this.columIndex,
+    required this.plannerHeight,
+    required this.heightPerMinute,
+    required this.dayWidth,
+    required this.dayEventsArranger,
+    required this.dayParam,
+    required this.showMultiDayEvents,
+    super.key,
   });
 
   final EventsController controller;
@@ -258,14 +281,14 @@ class _EventsListWidgetState extends State<EventsListWidget> {
   }
 
   List<Event>? getDayColumnEvents() => widget.controller
-        .getFilteredDayEvents(
-          widget.day,
-          returnMultiDayEvents: widget.showMultiDayEvents,
-          returnFullDayEvent: false,
-          returnMultiFullDayEvents: false,
-        )
-        ?.where((e) => e.columnIndex == widget.columIndex)
-        .toList();
+      .getFilteredDayEvents(
+        widget.day,
+        returnMultiDayEvents: widget.showMultiDayEvents,
+        returnFullDayEvent: false,
+        returnMultiFullDayEvents: false,
+      )
+      ?.where((e) => e.columnIndex == widget.columIndex)
+      .toList();
 
   List<OrganizedEvent> getOrganizedEvents(List<Event>? events) {
     final arranger = widget.dayEventsArranger;
@@ -353,7 +376,9 @@ class _EventsListWidgetState extends State<EventsListWidget> {
 
 class DefaultDayEvent extends StatelessWidget {
   const DefaultDayEvent({
-    required this.height, required this.width, super.key,
+    required this.height,
+    required this.width,
+    super.key,
     this.child,
     this.title,
     this.description,
@@ -397,62 +422,62 @@ class DefaultDayEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-      margin: eventMargin,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(roundBorderRadius),
-        child: Material(
-          child: InkWell(
-            onTap: onTap,
-            onTapDown: onTapDown,
-            onTapUp: onTapUp,
-            onTapCancel: onTapCancel,
-            onDoubleTap: onDoubleTap,
-            onLongPress: onLongPress,
-            child: Ink(
-              color: color,
-              width: width,
-              height: height,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: height > minHeight ? verticalPadding : 0,
+        margin: eventMargin,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(roundBorderRadius),
+          child: Material(
+            child: InkWell(
+              onTap: onTap,
+              onTapDown: onTapDown,
+              onTapUp: onTapUp,
+              onTapCancel: onTapCancel,
+              onDoubleTap: onDoubleTap,
+              onLongPress: onLongPress,
+              child: Ink(
+                color: color,
+                width: width,
+                height: height,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: height > minHeight ? verticalPadding : 0,
+                  ),
+                  child: child ??
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if ((title?.isNotEmpty ?? false) && height > 15)
+                            Flexible(
+                              child: Text(
+                                title!,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: titleFontSize,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                                maxLines: height > 40 ? 2 : 1,
+                              ),
+                            ),
+                          if ((description?.isNotEmpty ?? false) && height > 40)
+                            Flexible(
+                              child: Text(
+                                description!,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: descriptionFontSize,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: false,
+                                maxLines: 4,
+                              ),
+                            ),
+                        ],
+                      ),
                 ),
-                child: child ??
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if ((title?.isNotEmpty ?? false) && height > 15)
-                          Flexible(
-                            child: Text(
-                              title!,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: titleFontSize,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: false,
-                              maxLines: height > 40 ? 2 : 1,
-                            ),
-                          ),
-                        if ((description?.isNotEmpty ?? false) && height > 40)
-                          Flexible(
-                            child: Text(
-                              description!,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: descriptionFontSize,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: false,
-                              maxLines: 4,
-                            ),
-                          ),
-                      ],
-                    ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
 }

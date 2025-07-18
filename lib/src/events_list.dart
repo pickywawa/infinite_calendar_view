@@ -13,7 +13,8 @@ import 'widgets/details/header_details.dart';
 
 class EventsList extends StatefulWidget {
   const EventsList({
-    required this.controller, super.key,
+    required this.controller,
+    super.key,
     this.initialDate,
     this.maxPreviousDays = 365,
     this.maxNextDays = 365,
@@ -93,51 +94,51 @@ class EventsListState extends State<EventsList> {
 
   @override
   Widget build(BuildContext context) => ScrollConfiguration(
-      key: key,
-      behavior: ScrollConfiguration.of(context).copyWith(
-        scrollbars: widget.showWebScrollBar,
-        dragDevices: PointerDeviceKind.values.toSet(),
-      ),
-      child: InfiniteList(
-        controller: mainVerticalController,
-        direction: InfiniteListDirection.multi,
-        negChildCount: widget.maxPreviousDays,
-        posChildCount: widget.maxNextDays,
-        physics: widget.verticalScrollPhysics,
-        builder: (context, index) {
-          final day = initialDay.add(Duration(days: index)).withoutTime;
-          final isToday = DateUtils.isSameDay(day, DateTime.now());
+        key: key,
+        behavior: ScrollConfiguration.of(context).copyWith(
+          scrollbars: widget.showWebScrollBar,
+          dragDevices: PointerDeviceKind.values.toSet(),
+        ),
+        child: InfiniteList(
+          controller: mainVerticalController,
+          direction: InfiniteListDirection.multi,
+          negChildCount: widget.maxPreviousDays,
+          posChildCount: widget.maxNextDays,
+          physics: widget.verticalScrollPhysics,
+          builder: (context, index) {
+            final day = initialDay.add(Duration(days: index)).withoutTime;
+            final isToday = DateUtils.isSameDay(day, DateTime.now());
 
-          return InfiniteListItem(
-            headerStateBuilder: (context, state) {
-              if (state.sticky && listenScroll) {
-                if (stickyDay != day) {
-                  stickyDay = day;
-                  currentIndex = state.index;
-                  Future(() {
-                    if (listenScroll) {
-                      widget.onDayChange?.call(stickyDay);
-                      widget.controller.updateFocusedDay(stickyDay);
-                    }
-                  });
+            return InfiniteListItem(
+              headerStateBuilder: (context, state) {
+                if (state.sticky && listenScroll) {
+                  if (stickyDay != day) {
+                    stickyDay = day;
+                    currentIndex = state.index;
+                    Future(() {
+                      if (listenScroll) {
+                        widget.onDayChange?.call(stickyDay);
+                        widget.controller.updateFocusedDay(stickyDay);
+                      }
+                    });
+                  }
                 }
-              }
-              return HeaderListWidget(
+                return HeaderListWidget(
+                  controller: widget.controller,
+                  day: day,
+                  isToday: isToday,
+                  dayHeaderBuilder: widget.dayHeaderBuilder,
+                );
+              },
+              contentBuilder: (context) => DayEvents(
                 controller: widget.controller,
                 day: day,
-                isToday: isToday,
-                dayHeaderBuilder: widget.dayHeaderBuilder,
-              );
-            },
-            contentBuilder: (context) => DayEvents(
-              controller: widget.controller,
-              day: day,
-              dayEventsBuilder: widget.dayEventsBuilder,
-            ),
-          );
-        },
-      ),
-    );
+                dayEventsBuilder: widget.dayEventsBuilder,
+              ),
+            );
+          },
+        ),
+      );
 
   /// jump to date
   /// change initial date and redraw all list
@@ -161,7 +162,10 @@ class EventsListState extends State<EventsList> {
 
 class DayEvents extends StatefulWidget {
   const DayEvents({
-    required this.controller, required this.day, required this.dayEventsBuilder, super.key,
+    required this.controller,
+    required this.day,
+    required this.dayEventsBuilder,
+    super.key,
   });
 
   final EventsController controller;
@@ -193,7 +197,8 @@ class _DayEventsState extends State<DayEvents> {
   // update day events when change
   void updateEvents() {
     if (mounted) {
-      final dayEvents = widget.controller.getSortedFilteredDayEvents(widget.day);
+      final dayEvents =
+          widget.controller.getSortedFilteredDayEvents(widget.day);
       // no update if no change for current day
       if (!listEquals(dayEvents, events)) {
         setState(() {
@@ -204,6 +209,7 @@ class _DayEventsState extends State<DayEvents> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.dayEventsBuilder?.call(widget.day.withoutTime, events) ??
-        DefaultDayEvents(events: events);
+  Widget build(BuildContext context) =>
+      widget.dayEventsBuilder?.call(widget.day.withoutTime, events) ??
+      DefaultDayEvents(events: events);
 }

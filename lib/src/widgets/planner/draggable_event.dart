@@ -6,7 +6,12 @@ import '../../utils/extension.dart';
 
 class DraggableEventWidget extends StatelessWidget {
   const DraggableEventWidget({
-    required this.event, required this.height, required this.width, required this.onDragEnd, required this.child, super.key,
+    required this.event,
+    required this.height,
+    required this.width,
+    required this.onDragEnd,
+    required this.child,
+    super.key,
     this.onSlotMinutesRound = 15,
     this.draggableFeedback,
   });
@@ -60,13 +65,15 @@ class DraggableEventWidget extends StatelessWidget {
         manageHorizontalScroll(plannerState, context, details);
       },
       onDragEnd: (details) {
-        final renderBox = plannerState!.context.findRenderObject()! as RenderBox;
+        final renderBox =
+            plannerState!.context.findRenderObject()! as RenderBox;
         final relativeOffset = renderBox.globalToLocal(details.offset);
 
         // find day
         final dayWidth = plannerState?.dayWidth ?? 0;
         final heightPerMinute = plannerState?.heightPerMinute ?? 0;
-        final scrollOffsetX = plannerState?.mainHorizontalController.offset ?? 0;
+        final scrollOffsetX =
+            plannerState?.mainHorizontalController.offset ?? 0;
         final releaseOffsetX = scrollOffsetX + relativeOffset.dx;
         final dayIndex = (releaseOffsetX / dayWidth).toInt();
         // adjust negative index, because current day begin 0 and negative begin -1
@@ -163,11 +170,11 @@ class DraggableEventWidget extends StatelessWidget {
   }
 
   SizedBox getDefaultDraggableFeedback() => SizedBox(
-      height: height,
-      width: width,
-      child: Opacity(
-        opacity: defaultDraggableOpacity,
-        child: child,
-      ),
-    );
+        height: height,
+        width: width,
+        child: Opacity(
+          opacity: defaultDraggableOpacity,
+          child: child,
+        ),
+      );
 }

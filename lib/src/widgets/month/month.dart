@@ -6,7 +6,13 @@ import 'week.dart';
 
 class Month extends StatelessWidget {
   const Month({
-    required this.controller, required this.month, required this.weekParam, required this.weekHeight, required this.daysParam, required this.maxEventsShowed, super.key,
+    required this.controller,
+    required this.month,
+    required this.weekParam,
+    required this.weekHeight,
+    required this.daysParam,
+    required this.maxEventsShowed,
+    super.key,
   });
 
   final EventsController controller;

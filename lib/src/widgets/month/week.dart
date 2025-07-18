@@ -10,7 +10,13 @@ import 'day.dart';
 
 class Week extends StatefulWidget {
   const Week({
-    required this.controller, required this.weekParam, required this.weekHeight, required this.daysParam, required this.startOfWeek, required this.maxEventsShowed, super.key,
+    required this.controller,
+    required this.weekParam,
+    required this.weekHeight,
+    required this.daysParam,
+    required this.startOfWeek,
+    required this.maxEventsShowed,
+    super.key,
   });
 
   final DateTime startOfWeek;
@@ -72,24 +78,25 @@ class _WeekState extends State<Week> {
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
-      decoration: widget.weekParam.weekDecoration ??
-          WeekParam.defaultWeekDecoration(context),
-      child: SizedBox(
-        height: widget.weekHeight,
-        child: LayoutBuilder(builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final dayWidth = width / 7;
+        decoration: widget.weekParam.weekDecoration ??
+            WeekParam.defaultWeekDecoration(context),
+        child: SizedBox(
+          height: widget.weekHeight,
+          child: LayoutBuilder(builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final dayWidth = width / 7;
 
-          return DragTarget(
-            onAcceptWithDetails: (details) {
-              final onDragEnd = details.data! as void Function(DateTime);
-              final renderBox = context.findRenderObject()! as RenderBox;
-              final relativeOffset = renderBox.globalToLocal(
-                  Offset(details.offset.dx + dayWidth / 2, details.offset.dy));
-              final dragDay = getPositionDay(relativeOffset, dayWidth);
-              onDragEnd.call(dragDay);
-            },
-            builder: (context, candidateData, rejectedData) => GestureDetector(
+            return DragTarget(
+              onAcceptWithDetails: (details) {
+                final onDragEnd = details.data! as void Function(DateTime);
+                final renderBox = context.findRenderObject()! as RenderBox;
+                final relativeOffset = renderBox.globalToLocal(Offset(
+                    details.offset.dx + dayWidth / 2, details.offset.dy));
+                final dragDay = getPositionDay(relativeOffset, dayWidth);
+                onDragEnd.call(dragDay);
+              },
+              builder: (context, candidateData, rejectedData) =>
+                  GestureDetector(
                 onTapDown: (details) => widget.daysParam.onDayTapDown
                     ?.call(getPositionDay(details.localPosition, dayWidth)),
                 onTapUp: (details) => widget.daysParam.onDayTapUp
@@ -126,10 +133,10 @@ class _WeekState extends State<Week> {
                   ],
                 ),
               ),
-          );
-        }),
-      ),
-    );
+            );
+          }),
+        ),
+      );
 
   DateTime getPositionDay(Offset localPosition, double dayWidth) {
     final x = localPosition.dx;

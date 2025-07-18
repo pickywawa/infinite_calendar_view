@@ -5,7 +5,8 @@ import '../../utils/default_text.dart';
 
 class DefaultDayEvents extends StatelessWidget {
   const DefaultDayEvents({
-    required this.events, super.key,
+    required this.events,
+    super.key,
     this.eventBuilder,
     this.eventSeparator = defaultEventSeparator,
     this.emptyEventsWidget = defaultEmptyEventsWidget,
@@ -58,26 +59,26 @@ class DefaultDayEvents extends StatelessWidget {
       return emptyEventsWidget;
     }
     return Column(
-      children:
-          events?.map(getEventAndSeparator).toList() ?? [],
+      children: events?.map(getEventAndSeparator).toList() ?? [],
     );
   }
 
   Column getEventAndSeparator(Event event) => Column(
-      children: [
-        eventBuilder?.call(event) ?? DefaultDetailEvent(event: event),
-        if (eventSeparator != null &&
-            events!.indexOf(event) != events!.length - 1)
-          eventSeparator!,
-      ],
-    );
+        children: [
+          eventBuilder?.call(event) ?? DefaultDetailEvent(event: event),
+          if (eventSeparator != null &&
+              events!.indexOf(event) != events!.length - 1)
+            eventSeparator!,
+        ],
+      );
 }
 
 /// Default detail event
 /// can be replaced in dayEventsBuilder -> eventBuilder
 class DefaultDetailEvent extends StatelessWidget {
   const DefaultDetailEvent({
-    required this.event, super.key,
+    required this.event,
+    super.key,
     this.onTap,
     this.onDoubleTap,
     this.onLongPress,
@@ -167,66 +168,69 @@ class DefaultDetailEvent extends StatelessWidget {
   }
 
   Flexible getContent(BuildContext context) => Flexible(
-      flex: defaultContentFit,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (event.title?.isNotEmpty  ?? false)
-            Text(
-              event.title ?? '',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          if (event.description?.isNotEmpty  ?? false)
-            Text(
-              event.description ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-        ],
-      ),
-    );
+        flex: defaultContentFit,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (event.title?.isNotEmpty ?? false)
+              Text(
+                event.title ?? '',
+                style:
+                    Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            if (event.description?.isNotEmpty ?? false)
+              Text(
+                event.description ?? '',
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
+        ),
+      );
 
   Flexible getColoredCircle() => Flexible(
-      flex: defaultColoredCircleFit,
-      fit: FlexFit.tight,
-      child: Container(
-        width: defaultCircleColorSize,
-        height: defaultCircleColorSize,
-        margin: const EdgeInsets.only(top: defaultCircleColorSize / 2),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: event.color,
+        flex: defaultColoredCircleFit,
+        fit: FlexFit.tight,
+        child: Container(
+          width: defaultCircleColorSize,
+          height: defaultCircleColorSize,
+          margin: const EdgeInsets.only(top: defaultCircleColorSize / 2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: event.color,
+          ),
         ),
-      ),
-    );
+      );
 
   Flexible getHour(
     String timeText,
     String? durationText,
     BuildContext context,
-  ) => Flexible(
-      flex: defaultDateFit,
-      fit: FlexFit.tight,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(timeText),
-          if (durationText != null)
-            Text(
-              durationText,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Theme.of(context).colorScheme.outline),
-            ),
-        ],
-      ),
-    );
+  ) =>
+      Flexible(
+        flex: defaultDateFit,
+        fit: FlexFit.tight,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(timeText),
+            if (durationText != null)
+              Text(
+                durationText,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.outline),
+              ),
+          ],
+        ),
+      );
 
-  String getDefaultTimeText(DateTime startTime) => "${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}";
+  String getDefaultTimeText(DateTime startTime) =>
+      "${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}";
 
   String getDefaultDurationText(DateTime startDate, DateTime endDate) {
     final duration = endDate.difference(startDate);

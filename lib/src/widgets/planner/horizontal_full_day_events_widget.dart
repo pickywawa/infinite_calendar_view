@@ -7,7 +7,18 @@ import '../../../infinite_calendar_view.dart';
 
 class HorizontalFullDayEventsWidget extends StatelessWidget {
   const HorizontalFullDayEventsWidget({
-    required this.controller, required this.fullDayParam, required this.columnsParam, required this.daySeparationWidthPadding, required this.dayHorizontalController, required this.maxPreviousDays, required this.maxNextDays, required this.initialDate, required this.dayWidth, required this.todayColor, required this.timesIndicatorsWidth, super.key,
+    required this.controller,
+    required this.fullDayParam,
+    required this.columnsParam,
+    required this.daySeparationWidthPadding,
+    required this.dayHorizontalController,
+    required this.maxPreviousDays,
+    required this.maxNextDays,
+    required this.initialDate,
+    required this.dayWidth,
+    required this.todayColor,
+    required this.timesIndicatorsWidth,
+    super.key,
   });
 
   final EventsController controller;
@@ -26,41 +37,41 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
   // [fullDayParam.fullDayEventsBarDecoration] needs to be nullable
   //ignore: use_decorated_box
   Widget build(BuildContext context) => Container(
-      decoration: fullDayParam.fullDayEventsBarDecoration,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: timesIndicatorsWidth,
-            height: fullDayParam.fullDayEventsBarHeight,
-            child: fullDayParam.fullDayEventsBarLeftWidget ??
-                Center(
-                  child: Text(
-                    fullDayParam.fullDayEventsBarLeftText,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.outline,
-                        fontSize: 12),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-          ),
-          Expanded(
-            child: SizedBox(
+        decoration: fullDayParam.fullDayEventsBarDecoration,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: timesIndicatorsWidth,
               height: fullDayParam.fullDayEventsBarHeight,
-              child: InfiniteList(
-                  controller: dayHorizontalController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  direction: InfiniteListDirection.multi,
-                  negChildCount: maxPreviousDays,
-                  posChildCount: maxNextDays,
-                  builder: (context, index) {
-                    final day = initialDate.add(Duration(days: index));
-                    final isToday = DateUtils.isSameDay(day, DateTime.now());
-                    return InfiniteListItem(
-                      contentBuilder: (context) => SizedBox(
+              child: fullDayParam.fullDayEventsBarLeftWidget ??
+                  Center(
+                    child: Text(
+                      fullDayParam.fullDayEventsBarLeftText,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.outline,
+                          fontSize: 12),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+            ),
+            Expanded(
+              child: SizedBox(
+                height: fullDayParam.fullDayEventsBarHeight,
+                child: InfiniteList(
+                    controller: dayHorizontalController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    direction: InfiniteListDirection.multi,
+                    negChildCount: maxPreviousDays,
+                    posChildCount: maxNextDays,
+                    builder: (context, index) {
+                      final day = initialDate.add(Duration(days: index));
+                      final isToday = DateUtils.isSameDay(day, DateTime.now());
+                      return InfiniteListItem(
+                        contentBuilder: (context) => SizedBox(
                           width: dayWidth,
                           child: FullDayEventsWidget(
                             controller: controller,
@@ -74,18 +85,26 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
                                 daySeparationWidthPadding,
                           ),
                         ),
-                    );
-                  }),
+                      );
+                    }),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
 }
 
 class FullDayEventsWidget extends StatefulWidget {
   const FullDayEventsWidget({
-    required this.controller, required this.isToday, required this.day, required this.todayColor, required this.fullDayParam, required this.columnsParam, required this.dayWidth, required this.daySeparationWidthPadding, super.key,
+    required this.controller,
+    required this.isToday,
+    required this.day,
+    required this.todayColor,
+    required this.fullDayParam,
+    required this.columnsParam,
+    required this.dayWidth,
+    required this.daySeparationWidthPadding,
+    super.key,
   });
 
   final EventsController controller;
@@ -196,18 +215,18 @@ class _FullDayEventsWidgetState extends State<FullDayEventsWidget> {
   }
 
   Widget getColumnPainter(double width) => SizedBox(
-      width: width,
-      height: widget.fullDayParam.fullDayEventsBarHeight,
-      child: CustomPaint(
-        foregroundPainter: widget.columnsParam.columnCustomPainter?.call(
-              width,
-              widget.columnsParam.columns,
-            ) ??
-            ColumnPainter(
-              width: width,
-              columnsParam: widget.columnsParam,
-              lineColor: Theme.of(context).colorScheme.outlineVariant,
-            ),
-      ),
-    );
+        width: width,
+        height: widget.fullDayParam.fullDayEventsBarHeight,
+        child: CustomPaint(
+          foregroundPainter: widget.columnsParam.columnCustomPainter?.call(
+                width,
+                widget.columnsParam.columns,
+              ) ??
+              ColumnPainter(
+                width: width,
+                columnsParam: widget.columnsParam,
+                lineColor: Theme.of(context).colorScheme.outlineVariant,
+              ),
+        ),
+      );
 }

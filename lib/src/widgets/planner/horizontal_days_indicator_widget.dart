@@ -7,7 +7,15 @@ import '../../utils/extension.dart';
 
 class HorizontalDaysIndicatorWidget extends StatelessWidget {
   const HorizontalDaysIndicatorWidget({
-    required this.daysHeaderParam, required this.columnsParam, required this.timesIndicatorsWidth, required this.dayHorizontalController, required this.maxPreviousDays, required this.maxNextDays, required this.initialDate, required this.dayWidth, super.key,
+    required this.daysHeaderParam,
+    required this.columnsParam,
+    required this.timesIndicatorsWidth,
+    required this.dayHorizontalController,
+    required this.maxPreviousDays,
+    required this.maxNextDays,
+    required this.initialDate,
+    required this.dayWidth,
+    super.key,
   });
 
   final DaysHeaderParam daysHeaderParam;
@@ -46,22 +54,22 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
 
               return InfiniteListItem(
                 contentBuilder: (context) => SizedBox(
-                    width: dayWidth,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        if (daysHeaderParam.daysHeaderVisibility)
-                          daysHeaderParam.dayHeaderBuilder != null
-                              ? daysHeaderParam.dayHeaderBuilder!
-                                  .call(day, isToday)
-                              : getDefaultDayHeader(day, isToday),
-                        if (columnsParam.columns > 1 ||
-                            columnsParam.columnHeaderBuilder != null ||
-                            columnsParam.columnsLabels.isNotEmpty)
-                          getColumnsHeader(context, day, isToday)
-                      ],
-                    ),
+                  width: dayWidth,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      if (daysHeaderParam.daysHeaderVisibility)
+                        daysHeaderParam.dayHeaderBuilder != null
+                            ? daysHeaderParam.dayHeaderBuilder!
+                                .call(day, isToday)
+                            : getDefaultDayHeader(day, isToday),
+                      if (columnsParam.columns > 1 ||
+                          columnsParam.columnHeaderBuilder != null ||
+                          columnsParam.columnsLabels.isNotEmpty)
+                        getColumnsHeader(context, day, isToday)
+                    ],
                   ),
+                ),
               );
             },
           ),
@@ -70,12 +78,13 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
     );
   }
 
-  DefaultDayHeader getDefaultDayHeader(DateTime day, bool isToday) => DefaultDayHeader(
-      dayText: daysHeaderParam.dayHeaderTextBuilder?.call(day) ??
-          '${day.day}/${day.month}',
-      isToday: isToday,
-      foregroundColor: daysHeaderParam.daysHeaderForegroundColor,
-    );
+  DefaultDayHeader getDefaultDayHeader(DateTime day, bool isToday) =>
+      DefaultDayHeader(
+        dayText: daysHeaderParam.dayHeaderTextBuilder?.call(day) ??
+            '${day.day}/${day.month}',
+        isToday: isToday,
+        foregroundColor: daysHeaderParam.daysHeaderForegroundColor,
+      );
 
   Row getColumnsHeader(BuildContext context, DateTime day, bool isToday) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -104,7 +113,11 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
 
 class DefaultColumnHeader extends StatelessWidget {
   const DefaultColumnHeader({
-    required this.columnText, required this.backgroundColor, required this.foregroundColor, required this.columnWidth, super.key,
+    required this.columnText,
+    required this.backgroundColor,
+    required this.foregroundColor,
+    required this.columnWidth,
+    super.key,
   });
 
   final String columnText;
@@ -114,32 +127,33 @@ class DefaultColumnHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-      width: columnWidth,
-      child: Center(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child: Text(
-              columnText,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: foregroundColor,
+        width: columnWidth,
+        child: Center(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: Text(
+                columnText,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: foregroundColor,
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
 }
 
 class DefaultDayHeader extends StatelessWidget {
   const DefaultDayHeader({
-    required this.dayText, super.key,
+    required this.dayText,
+    super.key,
     this.isToday = false,
     this.foregroundColor,
     this.todayForegroundColor,
@@ -200,8 +214,8 @@ class DefaultDayHeader extends StatelessWidget {
   }
 
   TextStyle getDefaultStyle(Color fgColor) => TextStyle(
-      fontSize: 12,
-      fontWeight: FontWeight.w500,
-      color: fgColor,
-    );
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: fgColor,
+      );
 }

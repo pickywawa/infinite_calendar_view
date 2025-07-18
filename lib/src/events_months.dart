@@ -11,7 +11,8 @@ import 'widgets/month/month.dart';
 
 class EventsMonths extends StatefulWidget {
   const EventsMonths({
-    required this.controller, super.key,
+    required this.controller,
+    super.key,
     this.initialMonth,
     this.maxPreviousMonth = 120,
     this.maxNextMonth = 120,
@@ -102,31 +103,31 @@ class EventsMonthsState extends State<EventsMonths> {
   // when scroll end, auto adjust to start of month
   // if it's small scroll, like mouse wheel (web), not adjust (only possibility to differentiates mouse wheel to finger scroll)
   VoidCallback getAutomaticScrollAdjustListener() => () {
-      scrollIsStopped = !scrollController.position.isScrollingNotifier.value;
-      if (scrollIsStopped &&
-          ((scrollStartOffset - scrollController.offset).abs() > 10)) {
-        final scroll = scrollController;
-        if (!_blockAdjustScroll) {
-          final adjustedOffset = _stickyPercent < 0.5
-              ? scroll.offset - _stickyOffset
-              : scroll.offset +
-                  (((1 - _stickyPercent) * _stickyOffset) / _stickyPercent);
+        scrollIsStopped = !scrollController.position.isScrollingNotifier.value;
+        if (scrollIsStopped &&
+            ((scrollStartOffset - scrollController.offset).abs() > 10)) {
+          final scroll = scrollController;
+          if (!_blockAdjustScroll) {
+            final adjustedOffset = _stickyPercent < 0.5
+                ? scroll.offset - _stickyOffset
+                : scroll.offset +
+                    (((1 - _stickyPercent) * _stickyOffset) / _stickyPercent);
 
-          Future.delayed(const Duration(milliseconds: 1), () {
-            if (scrollIsStopped) {
-              _blockAdjustScroll = true;
-              scroll.animateTo(
-                adjustedOffset,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeIn,
-              );
-            }
-          });
-        } else {
-          _blockAdjustScroll = false;
+            Future.delayed(const Duration(milliseconds: 1), () {
+              if (scrollIsStopped) {
+                _blockAdjustScroll = true;
+                scroll.animateTo(
+                  adjustedOffset,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeIn,
+                );
+              }
+            });
+          } else {
+            _blockAdjustScroll = false;
+          }
         }
-      }
-    };
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -191,13 +192,13 @@ class EventsMonthsState extends State<EventsMonths> {
                             return const SizedBox.shrink();
                           },
                           contentBuilder: (context) => Month(
-                              controller: widget.controller,
-                              month: month,
-                              weekParam: widget.weekParam,
-                              weekHeight: weekHeight,
-                              daysParam: widget.daysParam,
-                              maxEventsShowed: maxEventsShowed,
-                            ),
+                            controller: widget.controller,
+                            month: month,
+                            weekParam: widget.weekParam,
+                            weekHeight: weekHeight,
+                            daysParam: widget.daysParam,
+                            maxEventsShowed: maxEventsShowed,
+                          ),
                         );
                       },
                     ),
@@ -329,14 +330,15 @@ class WeekParam {
   /// top header (day of week) text color
   final Color Function(int dayOfWeek)? headerDayTextColor;
 
-  static BoxDecoration defaultWeekDecoration(BuildContext context) => BoxDecoration(
-      border: Border(
-        bottom: BorderSide(
-          width: 0.5,
-          color: Theme.of(context).colorScheme.outlineVariant,
+  static BoxDecoration defaultWeekDecoration(BuildContext context) =>
+      BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            width: 0.5,
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
         ),
-      ),
-    );
+      );
 }
 
 class DaysParam {
