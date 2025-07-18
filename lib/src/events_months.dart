@@ -75,10 +75,10 @@ class EventsMonthsState extends State<EventsMonths> {
   late double weekHeightScaleStart;
   late double scrollControllerOffsetScaleStart;
   late VoidCallback automaticScrollAdjustListener;
-  bool _blockAdjustScroll = false;
-  bool scrollIsStopped = true;
-  int maxEventsShowed = 0;
-  int _pointerDownCount = 0;
+  var _blockAdjustScroll = false;
+  var scrollIsStopped = true;
+  var maxEventsShowed = 0;
+  var _pointerDownCount = 0;
 
   @override
   void initState() {
@@ -101,8 +101,7 @@ class EventsMonthsState extends State<EventsMonths> {
 
   // when scroll end, auto adjust to start of month
   // if it's small scroll, like mouse wheel (web), not adjust (only possibility to differentiates mouse wheel to finger scroll)
-  VoidCallback getAutomaticScrollAdjustListener() {
-    return () {
+  VoidCallback getAutomaticScrollAdjustListener() => () {
       scrollIsStopped = !scrollController.position.isScrollingNotifier.value;
       if (scrollIsStopped &&
           ((scrollStartOffset - scrollController.offset).abs() > 10)) {
@@ -128,7 +127,6 @@ class EventsMonthsState extends State<EventsMonths> {
         }
       }
     };
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -192,16 +190,14 @@ class EventsMonthsState extends State<EventsMonths> {
                             _stickyOffset = state.offset;
                             return const SizedBox.shrink();
                           },
-                          contentBuilder: (context) {
-                            return Month(
+                          contentBuilder: (context) => Month(
                               controller: widget.controller,
                               month: month,
                               weekParam: widget.weekParam,
                               weekHeight: weekHeight,
                               daysParam: widget.daysParam,
                               maxEventsShowed: maxEventsShowed,
-                            );
-                          },
+                            ),
                         );
                       },
                     ),
@@ -253,7 +249,7 @@ class EventsMonthsState extends State<EventsMonths> {
   void _onScaleUpdate(ScaleUpdateDetails details) {
     if (details.pointerCount == 2) {
       final speed = widget.pinchToZoomParam.pinchToZoomSpeed;
-      final scale = (((details.scale - 1) * speed) + 1);
+      final scale = ((details.scale - 1) * speed) + 1;
       final newWeekHeight = weekHeightScaleStart * scale;
       final minZoom = widget.pinchToZoomParam.pinchToZoomMinWeekHeight;
       final maxZoom = widget.pinchToZoomParam.pinchToZoomMaxWeekHeight;
@@ -333,8 +329,7 @@ class WeekParam {
   /// top header (day of week) text color
   final Color Function(int dayOfWeek)? headerDayTextColor;
 
-  static BoxDecoration defaultWeekDecoration(BuildContext context) {
-    return BoxDecoration(
+  static BoxDecoration defaultWeekDecoration(BuildContext context) => BoxDecoration(
       border: Border(
         bottom: BorderSide(
           width: 0.5,
@@ -342,7 +337,6 @@ class WeekParam {
         ),
       ),
     );
-  }
 }
 
 class DaysParam {

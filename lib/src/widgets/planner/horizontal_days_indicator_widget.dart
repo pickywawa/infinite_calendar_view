@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
 import 'package:sticky_infinite_list/models/alignments.dart';
 import 'package:sticky_infinite_list/widget.dart';
 
 import '../../../infinite_calendar_view.dart';
+import '../../utils/extension.dart';
 
 class HorizontalDaysIndicatorWidget extends StatelessWidget {
   const HorizontalDaysIndicatorWidget({
@@ -25,7 +25,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
     final defaultHeaderBackgroundColor =
         Theme.of(context).appBarTheme.backgroundColor;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: daysHeaderParam.daysHeaderColor ?? defaultHeaderBackgroundColor,
       ),
@@ -45,8 +45,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
               final isToday = DateUtils.isSameDay(day, DateTime.now());
 
               return InfiniteListItem(
-                contentBuilder: (context) {
-                  return SizedBox(
+                contentBuilder: (context) => SizedBox(
                     width: dayWidth,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -62,8 +61,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
                           getColumnsHeader(context, day, isToday)
                       ],
                     ),
-                  );
-                },
+                  ),
               );
             },
           ),
@@ -72,14 +70,12 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
     );
   }
 
-  DefaultDayHeader getDefaultDayHeader(DateTime day, bool isToday) {
-    return DefaultDayHeader(
+  DefaultDayHeader getDefaultDayHeader(DateTime day, bool isToday) => DefaultDayHeader(
       dayText: daysHeaderParam.dayHeaderTextBuilder?.call(day) ??
-          "${day.day}/${day.month}",
+          '${day.day}/${day.month}',
       isToday: isToday,
       foregroundColor: daysHeaderParam.daysHeaderForegroundColor,
     );
-  }
 
   Row getColumnsHeader(BuildContext context, DateTime day, bool isToday) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -117,11 +113,10 @@ class DefaultColumnHeader extends StatelessWidget {
   final double columnWidth;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
+  Widget build(BuildContext context) => SizedBox(
       width: columnWidth,
       child: Center(
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -140,7 +135,6 @@ class DefaultColumnHeader extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class DefaultDayHeader extends StatelessWidget {
@@ -182,7 +176,7 @@ class DefaultDayHeader extends StatelessWidget {
 
     return Center(
       child: isToday
-          ? Container(
+          ? DecoratedBox(
               decoration: BoxDecoration(
                 color: todayBgColor,
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -205,11 +199,9 @@ class DefaultDayHeader extends StatelessWidget {
     );
   }
 
-  TextStyle getDefaultStyle(Color fgColor) {
-    return TextStyle(
+  TextStyle getDefaultStyle(Color fgColor) => TextStyle(
       fontSize: 12,
       fontWeight: FontWeight.w500,
       color: fgColor,
     );
-  }
 }

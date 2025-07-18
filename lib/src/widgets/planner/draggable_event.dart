@@ -11,7 +11,7 @@ class DraggableEventWidget extends StatelessWidget {
     this.draggableFeedback,
   });
 
-  static double defaultDraggableOpacity = 0.7;
+  static var defaultDraggableOpacity = 0.7;
 
   /// event
   final Event event;
@@ -51,7 +51,7 @@ class DraggableEventWidget extends StatelessWidget {
       childWhenDragging: const SizedBox.shrink(),
       onDragStarted: () {
         plannerState = context.findAncestorStateOfType<EventsPlannerState>();
-        final oldBox = context.findRenderObject() as RenderBox;
+        final oldBox = context.findRenderObject()! as RenderBox;
         final oldPosition = oldBox.localToGlobal(Offset.zero);
         oldPositionY = oldPosition.dy;
         oldVerticalOffset = plannerState?.mainVerticalController.offset ?? 0;
@@ -60,7 +60,7 @@ class DraggableEventWidget extends StatelessWidget {
         manageHorizontalScroll(plannerState, context, details);
       },
       onDragEnd: (details) {
-        final renderBox = plannerState?.context.findRenderObject() as RenderBox;
+        final renderBox = plannerState!.context.findRenderObject()! as RenderBox;
         final relativeOffset = renderBox.globalToLocal(details.offset);
 
         // find day
@@ -112,7 +112,7 @@ class DraggableEventWidget extends StatelessWidget {
 
         // find column
         var columnIndex = 0;
-        final dayPosition = (releaseOffsetX % dayWidth);
+        final dayPosition = releaseOffsetX % dayWidth;
         final columnsParam = plannerState?.widget.columnsParam;
         if (columnsParam != null && columnsParam.columns > 0) {
           for (var column = 0; column < columnsParam.columns; column++) {
@@ -143,7 +143,7 @@ class DraggableEventWidget extends StatelessWidget {
     if (plannerState != null) {
       final horizontalController = plannerState.mainHorizontalController;
       final verticalController = plannerState.mainVerticalController;
-      final renderBox = plannerState.context.findRenderObject() as RenderBox;
+      final renderBox = plannerState.context.findRenderObject()! as RenderBox;
       final relativeOffset = renderBox.globalToLocal(details.globalPosition);
 
       //var dx = details.localPosition.dx;
@@ -162,8 +162,7 @@ class DraggableEventWidget extends StatelessWidget {
     }
   }
 
-  SizedBox getDefaultDraggableFeedback() {
-    return SizedBox(
+  SizedBox getDefaultDraggableFeedback() => SizedBox(
       height: height,
       width: width,
       child: Opacity(
@@ -171,5 +170,4 @@ class DraggableEventWidget extends StatelessWidget {
         child: child,
       ),
     );
-  }
 }

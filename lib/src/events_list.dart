@@ -80,7 +80,7 @@ class EventsListState extends State<EventsList> {
   var key = UniqueKey();
   late DateTime stickyDay;
   var currentIndex = 0;
-  bool listenScroll = true;
+  var listenScroll = true;
 
   @override
   void initState() {
@@ -92,8 +92,7 @@ class EventsListState extends State<EventsList> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return ScrollConfiguration(
+  Widget build(BuildContext context) => ScrollConfiguration(
       key: key,
       behavior: ScrollConfiguration.of(context).copyWith(
         scrollbars: widget.showWebScrollBar,
@@ -116,7 +115,7 @@ class EventsListState extends State<EventsList> {
                   stickyDay = day;
                   currentIndex = state.index;
                   Future(() {
-                    if (listenScroll == true) {
+                    if (listenScroll) {
                       widget.onDayChange?.call(stickyDay);
                       widget.controller.updateFocusedDay(stickyDay);
                     }
@@ -139,7 +138,6 @@ class EventsListState extends State<EventsList> {
         },
       ),
     );
-  }
 
   /// jump to date
   /// change initial date and redraw all list
@@ -182,7 +180,7 @@ class _DayEventsState extends State<DayEvents> {
   void initState() {
     super.initState();
     events = widget.controller.getSortedFilteredDayEvents(widget.day);
-    eventListener = () => updateEvents();
+    eventListener = updateEvents;
     widget.controller.addListener(eventListener);
   }
 
@@ -197,7 +195,7 @@ class _DayEventsState extends State<DayEvents> {
     if (mounted) {
       final dayEvents = widget.controller.getSortedFilteredDayEvents(widget.day);
       // no update if no change for current day
-      if (listEquals(dayEvents, events) == false) {
+      if (!listEquals(dayEvents, events)) {
         setState(() {
           events = dayEvents;
         });
@@ -206,8 +204,6 @@ class _DayEventsState extends State<DayEvents> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.dayEventsBuilder?.call(widget.day.withoutTime, events) ??
+  Widget build(BuildContext context) => widget.dayEventsBuilder?.call(widget.day.withoutTime, events) ??
         DefaultDayEvents(events: events);
-  }
 }

@@ -26,7 +26,7 @@ class SideEventArranger extends EventArranger {
       final conflicts = events
           .where((e) =>
               e != event &&
-              e.startTime.isBefore(event.endTime!) == true &&
+              e.startTime.isBefore(event.endTime!) &&
               e.endTime!.isAfter(event.startTime))
           .toList();
       eventsConflict[event] = conflicts;

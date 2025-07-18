@@ -212,7 +212,7 @@ class DayWidget extends StatelessWidget {
     final dayMinuteRounded = dayParam.onSlotMinutesRound *
         (dayMinute / dayParam.onSlotMinutesRound)
             .round(); // Round to nearest multiple of 10 minutes
-    return day.withoutTime.add(Duration(minutes: dayMinuteRounded.toInt()));
+    return day.withoutTime.add(Duration(minutes: dayMinuteRounded));
   }
 }
 
@@ -247,7 +247,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
     heightPerMinute = widget.heightPerMinute;
     events = getDayColumnEvents();
     organizedEvents = getOrganizedEvents(events);
-    eventListener = () => updateEvents();
+    eventListener = updateEvents;
     widget.controller.addListener(eventListener);
   }
 
@@ -257,8 +257,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
     widget.controller.removeListener(eventListener);
   }
 
-  List<Event>? getDayColumnEvents() {
-    return widget.controller
+  List<Event>? getDayColumnEvents() => widget.controller
         .getFilteredDayEvents(
           widget.day,
           returnMultiDayEvents: widget.showMultiDayEvents,
@@ -267,7 +266,6 @@ class _EventsListWidgetState extends State<EventsListWidget> {
         )
         ?.where((e) => e.columnIndex == widget.columIndex)
         .toList();
-  }
 
   List<OrganizedEvent> getOrganizedEvents(List<Event>? events) {
     final arranger = widget.dayEventsArranger;
@@ -292,7 +290,7 @@ class _EventsListWidgetState extends State<EventsListWidget> {
       }
 
       // no update if no change for current day
-      if (listEquals(dayEvents, events) == false) {
+      if (!listEquals(dayEvents, events)) {
         setState(() {
           events = dayEvents != null ? [...dayEvents] : null;
           organizedEvents = getOrganizedEvents(events);
@@ -395,11 +393,10 @@ class DefaultDayEvent extends StatelessWidget {
   final GestureTapCallback? onDoubleTap;
   final GestureLongPressCallback? onLongPress;
 
-  static final minHeight = 30;
+  static const minHeight = 30;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       margin: eventMargin,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(roundBorderRadius),
@@ -422,7 +419,6 @@ class DefaultDayEvent extends StatelessWidget {
                 ),
                 child: child ??
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (title?.isNotEmpty == true && height > 15)
@@ -459,5 +455,4 @@ class DefaultDayEvent extends StatelessWidget {
         ),
       ),
     );
-  }
 }

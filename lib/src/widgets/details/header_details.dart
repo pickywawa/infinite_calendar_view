@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/infinite_calendar_view.dart';
+import '../../../infinite_calendar_view.dart';
 
 /// listen day events and update header when days events change
 class HeaderListWidget extends StatefulWidget {
@@ -28,7 +28,7 @@ class _HeaderListWidgetState extends State<HeaderListWidget> {
   @override
   void initState() {
     super.initState();
-    eventListener = () => updateEvents();
+    eventListener = updateEvents;
     widget.controller.addListener(eventListener);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       updateEvents();
@@ -47,7 +47,7 @@ class _HeaderListWidgetState extends State<HeaderListWidget> {
       final dayEvents = widget.controller.getFilteredDayEvents(widget.day);
 
       // no update if no change for current day
-      if (listEquals(dayEvents, events) == false) {
+      if (!listEquals(dayEvents, events)) {
         setState(() {
           events = dayEvents;
         });
@@ -56,10 +56,8 @@ class _HeaderListWidgetState extends State<HeaderListWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.dayHeaderBuilder?.call(widget.day, widget.isToday, events) ??
+  Widget build(BuildContext context) => widget.dayHeaderBuilder?.call(widget.day, widget.isToday, events) ??
         DefaultHeader(dayText: widget.day.toString());
-  }
 }
 
 class DefaultHeader extends StatelessWidget {
@@ -74,8 +72,7 @@ class DefaultHeader extends StatelessWidget {
   final String dayText;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => DecoratedBox(
       decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
       child: Column(
         children: [
@@ -99,5 +96,4 @@ class DefaultHeader extends StatelessWidget {
         ],
       ),
     );
-  }
 }

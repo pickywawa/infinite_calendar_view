@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/events_months.dart';
-import 'package:infinite_calendar_view/src/utils/default_text.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
+import '../../events_months.dart';
+import '../../utils/default_text.dart';
+import '../../utils/extension.dart';
 
 class MonthHeader extends StatelessWidget {
   const MonthHeader({
@@ -20,7 +20,6 @@ class MonthHeader extends StatelessWidget {
         color: Theme.of(context).appBarTheme.backgroundColor,
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.max,
         children: [
           for (var dayOfWeek = startOfWeek;
               dayOfWeek < startOfWeek + 7;
@@ -35,15 +34,13 @@ class MonthHeader extends StatelessWidget {
     );
   }
 
-  Widget getDefaultHeaderDay(BuildContext context, int dayOfWeek) {
-    return Center(
+  Widget getDefaultHeaderDay(BuildContext context, int dayOfWeek) => Center(
       child: Text(
         weekParam.headerDayText?.call(dayOfWeek + 1) ??
             defaultDaysOfWeekText[dayOfWeek],
         style: weekParam.headerStyle ?? getDefaultTextStyle(context, dayOfWeek),
       ),
     );
-  }
 
   TextStyle getDefaultTextStyle(BuildContext context, int dayOfWeek) {
     final defaultForegroundColor = context.isDarkMode

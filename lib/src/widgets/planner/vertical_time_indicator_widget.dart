@@ -14,8 +14,7 @@ class VerticalTimeIndicatorWidget extends StatelessWidget {
   final Color currentHourIndicatorColor;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
+  Widget build(BuildContext context) => SizedBox(
       width: timesIndicatorsParam.timesIndicatorsWidth,
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -34,5 +33,4 @@ class VerticalTimeIndicatorWidget extends StatelessWidget {
         ),
       ),
     );
-  }
 }

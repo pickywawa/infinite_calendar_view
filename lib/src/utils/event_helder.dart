@@ -1,8 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/events/event.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
+import '../events/event.dart';
+import 'extension.dart';
 
 /// find event must be showed, and place multi day event in same row
 List<List<Event?>> getShowedWeekEvents(
@@ -12,9 +12,9 @@ List<List<Event?>> getShowedWeekEvents(
   final sortedMultiDayEvents = getWeekMultiDaysEventsSortedMap(weekEvents);
 
   // place no multi days events to show
-  final List<List<Event?>> daysEventsList = List.generate(7, (index) {
+  final daysEventsList = List<List<Event?>>.generate(7, (index) {
     final events = (weekEvents[index] ?? []).where((e) => !e.isMultiDay);
-    return List.generate(maxEventsShowed, (i) => events.getOrNull(i));
+    return List.generate(maxEventsShowed, events.getOrNull);
   });
 
   for (final multiDayEvents in sortedMultiDayEvents.values) {
@@ -46,10 +46,11 @@ List<List<Event?>> getShowedWeekEvents(
 SplayTreeMap<UniqueKey, Map<int, Event>> getWeekMultiDaysEventsSortedMap(
     List<List<Event>?> weekEvents) {
   // generate map of all multi days events
-  final Map<UniqueKey, Map<int, Event>> multiDaysEventsMap = {};
+  final multiDaysEventsMap = <UniqueKey, Map<int, Event>>{};
   for (var day = 0; day < 7; day++) {
     final multiDaysEvents = weekEvents[day]?.where((e) => e.isMultiDay);
-    for (final Event event in multiDaysEvents ?? []) {
+    if (multiDaysEvents?.isEmpty ?? true) continue;
+    for (final event in multiDaysEvents!) {
       multiDaysEventsMap[event.uniqueId] = {
         ...multiDaysEventsMap[event.uniqueId] ?? {},
         day: event
@@ -73,8 +74,8 @@ SplayTreeMap<UniqueKey, Map<int, Event>> getWeekMultiDaysEventsSortedMap(
 }
 
 List<DateTime> getDaysInBetween(DateTime startDate, DateTime endDate) {
-  final List<DateTime> days = [];
-  for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
+  final days = <DateTime>[];
+  for (var i = 0; i <= endDate.difference(startDate).inDays; i++) {
     days.add(startDate.add(Duration(days: i)));
   }
   return days;

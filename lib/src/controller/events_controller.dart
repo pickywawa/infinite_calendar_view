@@ -11,13 +11,13 @@ class EventsController extends ChangeNotifier {
   EventsController();
 
   // events data
-  final CalendarData calendarData = CalendarData();
+  final calendarData = CalendarData();
 
   // events filter to show on views
   EventFilter dayEventsFilter = (date, dayEvents) => dayEvents;
 
   // focused day : change when scroll on view
-  DateTime focusedDay = DateTime.now();
+  var focusedDay = DateTime.now();
 
   // call when focused day change
   void Function(DateTime day)? onFocusedDayChange;
@@ -34,7 +34,7 @@ class EventsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateFocusedDay(DateTime day) {
+  void updateFocusedDay(DateTime day) {
     focusedDay = day;
     onFocusedDayChange?.call(day);
   }
@@ -80,7 +80,7 @@ class CalendarData {
           0;
 
       // if event is multi days, dispatch in all events days
-      for (int i = 0; i <= days; i++) {
+      for (var i = 0; i <= days; i++) {
         final day = event.startTime.withoutTime.add(Duration(days: i));
         final startTime = i == 0 ? event.startTime : day;
         final endTime = (i == days && !event.isFullDay)
@@ -184,7 +184,7 @@ class CalendarData {
   }
 
   // clear all data
-  clearAll() {
+  void clearAll() {
     dayEvents.clear();
   }
 }

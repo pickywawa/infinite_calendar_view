@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const String defaultType = "default";
+const defaultType = 'default';
 
 class Event {
   Event({
@@ -24,7 +24,7 @@ class Event {
   }
 
   // generated unique id
-  late UniqueKey uniqueId = UniqueKey();
+  late var uniqueId = UniqueKey();
 
   // column index in planner mode, 0 if not multiple column
   final int columnIndex;

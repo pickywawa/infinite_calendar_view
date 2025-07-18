@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/controller/events_controller.dart';
-import 'package:infinite_calendar_view/src/events/event.dart';
-import 'package:infinite_calendar_view/src/events_months.dart';
-import 'package:infinite_calendar_view/src/utils/default_text.dart';
-import 'package:infinite_calendar_view/src/utils/event_helder.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
-import 'package:infinite_calendar_view/src/widgets/month/day.dart';
+import '../../controller/events_controller.dart';
+import '../../events/event.dart';
+import '../../events_months.dart';
+import '../../utils/default_text.dart';
+import '../../utils/event_helder.dart';
+import '../../utils/extension.dart';
+import 'day.dart';
 
 class Week extends StatefulWidget {
   const Week({
@@ -33,7 +33,7 @@ class _WeekState extends State<Week> {
   void initState() {
     super.initState();
     updateEvents();
-    eventListener = () => updateEvents();
+    eventListener = updateEvents;
     widget.controller.addListener(eventListener);
   }
 
@@ -50,7 +50,7 @@ class _WeekState extends State<Week> {
       final weekShowedEvents =
           getShowedWeekEvents(weekEvents, widget.maxEventsShowed);
       // no update if no change for current day
-      if (listEquals(weekShowedEvents, this.weekShowedEvents) == false) {
+      if (!listEquals(weekShowedEvents, this.weekShowedEvents)) {
         setState(() {
           this.weekEvents = weekEvents;
           this.weekShowedEvents = weekShowedEvents;
@@ -61,7 +61,7 @@ class _WeekState extends State<Week> {
 
   /// find events of week
   List<List<Event>?> getWeekEvents() {
-    final List<List<Event>?> eventsList = [];
+    final eventsList = <List<Event>?>[];
     for (var day = 0; day < 7; day++) {
       eventsList.add(widget.controller.getSortedFilteredDayEvents(
         widget.startOfWeek.add(Duration(days: day)),
@@ -71,11 +71,10 @@ class _WeekState extends State<Week> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => DecoratedBox(
       decoration: widget.weekParam.weekDecoration ??
           WeekParam.defaultWeekDecoration(context),
-      child: Container(
+      child: SizedBox(
         height: widget.weekHeight,
         child: LayoutBuilder(builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -83,15 +82,14 @@ class _WeekState extends State<Week> {
 
           return DragTarget(
             onAcceptWithDetails: (details) {
-              final onDragEnd = details.data as Function(DateTime);
-              final renderBox = context.findRenderObject() as RenderBox;
+              final onDragEnd = details.data! as Function(DateTime);
+              final renderBox = context.findRenderObject()! as RenderBox;
               final relativeOffset = renderBox.globalToLocal(
                   Offset(details.offset.dx + dayWidth / 2, details.offset.dy));
               final dragDay = getPositionDay(relativeOffset, dayWidth);
               onDragEnd.call(dragDay);
             },
-            builder: (context, candidateData, rejectedData) {
-              return GestureDetector(
+            builder: (context, candidateData, rejectedData) => GestureDetector(
                 onTapDown: (details) => widget.daysParam.onDayTapDown
                     ?.call(getPositionDay(details.localPosition, dayWidth)),
                 onTapUp: (details) => widget.daysParam.onDayTapUp
@@ -100,10 +98,9 @@ class _WeekState extends State<Week> {
                 child: Column(
                   children: [
                     // days header
-                    Container(
+                    SizedBox(
                       height: widget.daysParam.headerHeight,
                       child: Row(
-                        mainAxisSize: MainAxisSize.max,
                         children: [
                           for (var dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++)
                             Expanded(child: getHeaderWidget(dayOfWeek)),
@@ -112,7 +109,7 @@ class _WeekState extends State<Week> {
                     ),
 
                     // week events
-                    Container(
+                    SizedBox(
                       height: widget.weekHeight - widget.daysParam.headerHeight,
                       child: Stack(
                         children: [
@@ -128,13 +125,11 @@ class _WeekState extends State<Week> {
                     ),
                   ],
                 ),
-              );
-            },
+              ),
           );
         }),
       ),
     );
-  }
 
   DateTime getPositionDay(Offset localPosition, double dayWidth) {
     final x = localPosition.dx;
@@ -144,16 +139,16 @@ class _WeekState extends State<Week> {
   }
 
   // get header of day
-  Container getHeaderWidget(int dayOfWeek) {
+  Widget getHeaderWidget(int dayOfWeek) {
     final day = widget.startOfWeek.add(Duration(days: dayOfWeek));
     final isStartOfMonth = day.day == 1;
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
+    return SizedBox(
       height: widget.daysParam.headerHeight,
       child: widget.daysParam.dayHeaderBuilder?.call(day) ??
           DefaultMonthDayHeader(
             text: isStartOfMonth
-                ? "${defaultMonthAbrText[day.month - 1]} 1"
+                ? '${defaultMonthAbrText[day.month - 1]} 1'
                 : day.day.toString(),
             isToday: DateUtils.isSameDay(day, DateTime.now()),
             textColor:
@@ -190,7 +185,7 @@ class _WeekState extends State<Week> {
               DefaultNotShowedMonthEventsWidget(
                 context: context,
                 eventHeight: eventHeight,
-                text: "$notShowedEventsCount others",
+                text: '$notShowedEventsCount others',
               ),
         )
       ];

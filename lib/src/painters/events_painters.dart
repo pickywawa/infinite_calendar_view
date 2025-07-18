@@ -169,10 +169,8 @@ class HoursPainter extends CustomPainter {
     }
   }
 
-  bool isHideByCurrentTime(TimeOfDay currentTime, double y) {
-    return showCurrentHour &&
+  bool isHideByCurrentTime(TimeOfDay currentTime, double y) => showCurrentHour &&
         ((currentTime.totalMinutes * heightPerMinute) - y).abs() <= 10;
-  }
 
   void drawHour(
     Canvas canvas,
@@ -190,8 +188,7 @@ class HoursPainter extends CustomPainter {
     textPainter.paint(canvas, Offset(0, y));
   }
 
-  TextPainter getDefaultTextPainter(TimeOfDay time, Color color) {
-    return TextPainter(
+  TextPainter getDefaultTextPainter(TimeOfDay time, Color color) => TextPainter(
       text: TextSpan(
         text:
             "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}",
@@ -203,7 +200,6 @@ class HoursPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.right,
     );
-  }
 
   @override
   bool shouldRepaint(HoursPainter oldDelegate) => false;

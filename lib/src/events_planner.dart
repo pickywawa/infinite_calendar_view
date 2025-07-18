@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:infinite_calendar_view/src/utils/default_text.dart';
 import 'package:sticky_infinite_list/models/alignments.dart';
 import 'package:sticky_infinite_list/widget.dart';
 
@@ -11,6 +10,7 @@ import 'controller/events_controller.dart';
 import 'events/event.dart';
 import 'events/event_arranger.dart';
 import 'events/side_events_arranger.dart';
+import 'utils/default_text.dart';
 import 'utils/extension.dart';
 import 'widgets/planner/day_widget.dart';
 import 'widgets/planner/horizontal_days_indicator_widget.dart';
@@ -146,9 +146,9 @@ class EventsPlannerState extends State<EventsPlanner> {
   late double heightPerMinute;
   late double heightPerMinuteScaleStart;
   late double mainVerticalControllerOffsetScaleStart;
-  bool listenHorizontalScrollDayChange = true;
-  int _plannerPointerDownCount = 0;
-  bool isKeyboardZoomActive = false;
+  var listenHorizontalScrollDayChange = true;
+  var _plannerPointerDownCount = 0;
+  var isKeyboardZoomActive = false;
 
   @override
   void initState() {
@@ -227,7 +227,7 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   /// listen mainHorizontalController and call onFirstDayChange when day change
   void initDayChangingListener() {
-    final halfDayWidth = (dayWidth / 2);
+    final halfDayWidth = dayWidth / 2;
     final scroll = mainHorizontalController;
     scroll.addListener(() {
       if (listenHorizontalScrollDayChange) {
@@ -246,8 +246,7 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   /// listen mainHorizontalController scroll stop and adjust to nearest day
   /// call onAutomaticAdjustHorizontalScroll when end adjust
-  VoidCallback getAutomaticScrollAdjustListener() {
-    return () {
+  VoidCallback getAutomaticScrollAdjustListener() => () {
       // when scroll stopped
       final scroll = mainHorizontalController;
       final stopScroll = !scroll.position.isScrollingNotifier.value;
@@ -269,7 +268,6 @@ class EventsPlannerState extends State<EventsPlanner> {
         }
       }
     };
-  }
 
   bool _handleKeyEvent(KeyEvent event) {
     final pressed = HardwareKeyboard.instance.logicalKeysPressed;
@@ -336,17 +334,13 @@ class EventsPlannerState extends State<EventsPlanner> {
     );
   }
 
-  Color getDefaultTodayColor(BuildContext context) {
-    return context.isDarkMode
+  Color getDefaultTodayColor(BuildContext context) => context.isDarkMode
         ? Theme.of(context).colorScheme.surface.lighten(0.03)
         : Theme.of(context).colorScheme.primaryContainer.lighten(0.04);
-  }
 
-  Color getDefaultHourIndicatorColor(BuildContext context) {
-    return context.isDarkMode
+  Color getDefaultHourIndicatorColor(BuildContext context) => context.isDarkMode
         ? Theme.of(context).colorScheme.primary.lighten()
         : Theme.of(context).colorScheme.primary.darken();
-  }
 
   Widget getPlannerAndTimesWidget(
     double plannerHeight,
@@ -383,11 +377,9 @@ class EventsPlannerState extends State<EventsPlanner> {
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     childCount: 1,
-                    (context, index) {
-                      return Padding(
+                    (context, index) => Padding(
                         padding: const EdgeInsets.only(
-                          bottom: 0,
-                          top: 0,
+                          
                         ),
                         child: SizedBox(
                           height: plannerHeight,
@@ -411,8 +403,7 @@ class EventsPlannerState extends State<EventsPlanner> {
                             ],
                           ),
                         ),
-                      );
-                    },
+                      ),
                   ),
                 )
               ],
@@ -452,8 +443,7 @@ class EventsPlannerState extends State<EventsPlanner> {
           Future(() => widget.dayParam.onDayBuild?.call(day));
 
           return InfiniteListItem(
-            contentBuilder: (context) {
-              return DayWidget(
+            contentBuilder: (context) => DayWidget(
                 controller: _controller,
                 day: day,
                 todayColor: todayColor,
@@ -468,8 +458,7 @@ class EventsPlannerState extends State<EventsPlanner> {
                 currentHourIndicatorColor: currentHourIndicatorColor,
                 offTimesParam: widget.offTimesParam,
                 showMultiDayEvents: !widget.fullDayParam.showMultiDayEvents,
-              );
-            },
+              ),
           );
         },
       ),
@@ -478,21 +467,18 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   VerticalTimeIndicatorWidget getVerticalTimeIndicatorWidget(
     Color currentHourIndicatorColor,
-  ) {
-    return VerticalTimeIndicatorWidget(
+  ) => VerticalTimeIndicatorWidget(
       timesIndicatorsParam: widget.timesIndicatorsParam,
       heightPerMinute: heightPerMinute,
       currentHourIndicatorHourVisibility:
           widget.currentHourIndicatorParam.currentHourIndicatorHourVisibility,
       currentHourIndicatorColor: currentHourIndicatorColor,
     );
-  }
 
   HorizontalFullDayEventsWidget getHorizontalFullDayEventsWidget(
     double daySeparationWidthPadding,
     Color todayColor,
-  ) {
-    return HorizontalFullDayEventsWidget(
+  ) => HorizontalFullDayEventsWidget(
       controller: _controller,
       fullDayParam: widget.fullDayParam,
       columnsParam: widget.columnsParam,
@@ -505,10 +491,8 @@ class EventsPlannerState extends State<EventsPlanner> {
       todayColor: todayColor,
       timesIndicatorsWidth: widget.timesIndicatorsParam.timesIndicatorsWidth,
     );
-  }
 
-  HorizontalDaysIndicatorWidget getHorizontalDaysIndicatorWidget() {
-    return HorizontalDaysIndicatorWidget(
+  HorizontalDaysIndicatorWidget getHorizontalDaysIndicatorWidget() => HorizontalDaysIndicatorWidget(
       daysHeaderParam: widget.daysHeaderParam,
       columnsParam: widget.columnsParam,
       dayHorizontalController: headersHorizontalController,
@@ -518,7 +502,6 @@ class EventsPlannerState extends State<EventsPlanner> {
       dayWidth: dayWidth,
       timesIndicatorsWidth: widget.timesIndicatorsParam.timesIndicatorsWidth,
     );
-  }
 
   void _onPointerSignal(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
@@ -549,7 +532,7 @@ class EventsPlannerState extends State<EventsPlanner> {
   void _onScaleUpdate(ScaleUpdateDetails details) {
     if (details.pointerCount == 2) {
       final speed = widget.pinchToZoomParam.pinchToZoomSpeed;
-      final scale = (((details.scale - 1) * speed) + 1);
+      final scale = ((details.scale - 1) * speed) + 1;
       final newHeightPerMinute = heightPerMinuteScaleStart * scale;
       final minZoom = widget.pinchToZoomParam.pinchToZoomMinHeightPerMinute;
       final maxZoom = widget.pinchToZoomParam.pinchToZoomMaxHeightPerMinute;

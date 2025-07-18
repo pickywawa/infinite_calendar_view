@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/events/event.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
+import '../../events/event.dart';
+import '../../utils/extension.dart';
 
 class DefaultMonthDayHeader extends StatelessWidget {
   const DefaultMonthDayHeader({
@@ -28,7 +28,7 @@ class DefaultMonthDayHeader extends StatelessWidget {
     final todayFgColor = todayTextColor ?? colorScheme.onPrimary;
     final fgColor = textColor ?? colorScheme.outline;
     return Center(
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: isToday ? todayBgColor : null,
           borderRadius: BorderRadius.circular(10),
@@ -65,12 +65,11 @@ class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
   final BoxDecoration? decoration;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       height: eventHeight,
       decoration: decoration ??
           BoxDecoration(
-            color: Theme.of(context).colorScheme.outlineVariant.lighten(0.1),
+            color: Theme.of(context).colorScheme.outlineVariant.lighten(),
             borderRadius: BorderRadius.circular(3),
           ),
       child: Padding(
@@ -81,7 +80,6 @@ class DefaultNotShowedMonthEventsWidget extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class DraggableMonthEvent extends StatelessWidget {
@@ -90,27 +88,23 @@ class DraggableMonthEvent extends StatelessWidget {
     this.draggableFeedback,
   });
 
-  static double defaultDraggableOpacity = 0.7;
+  static var defaultDraggableOpacity = 0.7;
   final Widget child;
   final Widget? draggableFeedback;
   final void Function(DateTime day) onDragEnd;
 
   @override
-  Widget build(BuildContext context) {
-    return LongPressDraggable(
+  Widget build(BuildContext context) => LongPressDraggable(
       data: onDragEnd,
-      child: child,
       feedback: draggableFeedback ?? getDefaultDraggableFeedback(),
       childWhenDragging: const SizedBox.shrink(),
+      child: child,
     );
-  }
 
-  Widget getDefaultDraggableFeedback() {
-    return Opacity(
+  Widget getDefaultDraggableFeedback() => Opacity(
       opacity: defaultDraggableOpacity,
       child: child,
     );
-  }
 }
 
 /// default event showed
@@ -142,8 +136,7 @@ class DefaultMonthDayEvent extends StatelessWidget {
   final GestureLongPressCallback? onLongPress;
 
   @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
+  Widget build(BuildContext context) => ClipRRect(
       borderRadius: BorderRadius.circular(roundBorderRadius),
       child: GestureDetector(
         onTap: onTap,
@@ -152,7 +145,7 @@ class DefaultMonthDayEvent extends StatelessWidget {
         onTapCancel: onTapCancel,
         onDoubleTap: onDoubleTap,
         onLongPress: onLongPress,
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: event.color,
             border: event.isFullDay
@@ -162,7 +155,7 @@ class DefaultMonthDayEvent extends StatelessWidget {
           child: Padding(
             padding: padding,
             child: Text(
-              event.title ?? "",
+              event.title ?? '',
               style: const TextStyle().copyWith(
                 fontSize: fontSize,
                 fontWeight: fontWeight,
@@ -173,5 +166,4 @@ class DefaultMonthDayEvent extends StatelessWidget {
         ),
       ),
     );
-  }
 }

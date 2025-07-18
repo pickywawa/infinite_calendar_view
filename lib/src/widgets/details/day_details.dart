@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/utils/default_text.dart';
 
 import '../../events/event.dart';
+import '../../utils/default_text.dart';
 
 class DefaultDayEvents extends StatelessWidget {
   const DefaultDayEvents({
@@ -12,7 +12,7 @@ class DefaultDayEvents extends StatelessWidget {
     this.nullEventsWidget = defaultNullEventsWidget,
   });
 
-  static const defaultNoEventText = "No event";
+  static const defaultNoEventText = 'No event';
   static const defaultHorizontalPadding = 20.0;
   static const defaultVerticalSmallPadding = 10.0;
   static const defaultVerticalPadding = 20.0;
@@ -59,13 +59,11 @@ class DefaultDayEvents extends StatelessWidget {
     }
     return Column(
       children:
-          events?.map((event) => getEventAndSeparator(event)).toList() ?? [],
+          events?.map(getEventAndSeparator).toList() ?? [],
     );
   }
 
-  Column getEventAndSeparator(Event event) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+  Column getEventAndSeparator(Event event) => Column(
       children: [
         eventBuilder?.call(event) ?? DefaultDetailEvent(event: event),
         if (eventSeparator != null &&
@@ -73,7 +71,6 @@ class DefaultDayEvents extends StatelessWidget {
           eventSeparator!,
       ],
     );
-  }
 }
 
 /// Default detail event
@@ -137,7 +134,7 @@ class DefaultDetailEvent extends StatelessWidget {
       final startTime = event.startTime;
       timeText = this.timeText ?? getDefaultTimeText(startTime);
       durationText = this.durationText ??
-          this.getDefaultDurationText(event.startTime, event.endTime!);
+          getDefaultDurationText(event.startTime, event.endTime!);
     }
 
     return InkWell(
@@ -169,22 +166,21 @@ class DefaultDetailEvent extends StatelessWidget {
     );
   }
 
-  Flexible getContent(BuildContext context) {
-    return Flexible(
+  Flexible getContent(BuildContext context) => Flexible(
       flex: defaultContentFit,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (event.title?.isNotEmpty == true)
             Text(
-              event.title ?? "",
+              event.title ?? '',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           if (event.description?.isNotEmpty == true)
             Text(
-              event.description ?? "",
+              event.description ?? '',
               style: Theme.of(context).textTheme.bodyMedium,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -192,10 +188,8 @@ class DefaultDetailEvent extends StatelessWidget {
         ],
       ),
     );
-  }
 
-  Flexible getColoredCircle() {
-    return Flexible(
+  Flexible getColoredCircle() => Flexible(
       flex: defaultColoredCircleFit,
       fit: FlexFit.tight,
       child: Container(
@@ -208,18 +202,15 @@ class DefaultDetailEvent extends StatelessWidget {
         ),
       ),
     );
-  }
 
   Flexible getHour(
     String timeText,
     String? durationText,
     BuildContext context,
-  ) {
-    return Flexible(
+  ) => Flexible(
       flex: defaultDateFit,
       fit: FlexFit.tight,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(timeText),
@@ -234,22 +225,19 @@ class DefaultDetailEvent extends StatelessWidget {
         ],
       ),
     );
-  }
 
-  String getDefaultTimeText(DateTime startTime) {
-    return "${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}";
-  }
+  String getDefaultTimeText(DateTime startTime) => "${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}";
 
   String getDefaultDurationText(DateTime startDate, DateTime endDate) {
     final duration = endDate.difference(startDate);
     final element = <String>[];
     if (duration.inHours > 0) {
-      element.add("${duration.inHours}h");
+      element.add('${duration.inHours}h');
     }
     final minutes = duration.inMinutes.remainder(60);
     if (minutes > 0) {
-      element.add("${minutes}${duration.inHours == 0 ? "m" : ""}");
+      element.add("$minutes${duration.inHours == 0 ? "m" : ""}");
     }
-    return element.join("");
+    return element.join();
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:infinite_calendar_view/src/controller/events_controller.dart';
-import 'package:infinite_calendar_view/src/events_months.dart';
-import 'package:infinite_calendar_view/src/utils/extension.dart';
-import 'package:infinite_calendar_view/src/widgets/month/week.dart';
+import '../../controller/events_controller.dart';
+import '../../events_months.dart';
+import '../../utils/extension.dart';
+import 'week.dart';
 
 class Month extends StatelessWidget {
   const Month({
@@ -28,7 +28,7 @@ class Month extends StatelessWidget {
     // weeks of month
     return Column(
       children: [
-        for (var startOfWeek in startOfWeeks)
+        for (final startOfWeek in startOfWeeks)
           Week(
             controller: controller,
             weekParam: weekParam,
