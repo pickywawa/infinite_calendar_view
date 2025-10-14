@@ -62,7 +62,8 @@ class DraggableEventWidget extends StatelessWidget {
         oldVerticalOffset = plannerState?.mainVerticalController.offset ?? 0;
       },
       onDragUpdate: (details) {
-        manageHorizontalScroll(plannerState, context, details);
+        manageVerticalScrollOnly(plannerState, context, details);
+        print(details.globalPosition);
       },
       onDragEnd: (details) {
         var renderBox = plannerState?.context.findRenderObject() as RenderBox;
@@ -129,27 +130,28 @@ class DraggableEventWidget extends StatelessWidget {
     );
   }
 
-  void manageHorizontalScroll(EventsPlannerState? plannerState,
-      BuildContext context, DragUpdateDetails details) {
-    if (plannerState != null) {
-      var horizontalController = plannerState.mainHorizontalController;
-      var verticalController = plannerState.mainVerticalController;
-      var renderBox = plannerState.context.findRenderObject() as RenderBox;
-      var relativeOffset = renderBox.globalToLocal(details.globalPosition);
+  void manageVerticalScrollOnly(
+    EventsPlannerState? plannerState,
+    BuildContext context,
+    DragUpdateDetails details,
+  ) {
+    if (plannerState == null) return;
 
-      //var dx = details.localPosition.dx;
-      if (relativeOffset.dx > (0.9 * plannerState.width)) {
-        horizontalController.jumpTo(horizontalController.offset + 20);
-      }
-      if (relativeOffset.dx < (0.1 * plannerState.width)) {
-        horizontalController.jumpTo(horizontalController.offset - 20);
-      }
-      if (relativeOffset.dy > (0.9 * plannerState.height)) {
-        verticalController.jumpTo(verticalController.offset + 10);
-      }
-      if (relativeOffset.dy < (0.1 * plannerState.height)) {
-        verticalController.jumpTo(verticalController.offset - 10);
-      }
+    final verticalController = plannerState.mainVerticalController;
+    final renderBox = plannerState.context.findRenderObject() as RenderBox;
+    final relativeOffset = renderBox.globalToLocal(details.globalPosition);
+
+    // Allow vertical auto-scroll only (up & down)
+    if (relativeOffset.dy > (0.9 * plannerState.height)) {
+      // Near bottom edge → scroll down
+      verticalController.jumpTo(
+        verticalController.offset + 10,
+      );
+    } else if (relativeOffset.dy < (0.1 * plannerState.height)) {
+      // Near top edge → scroll up
+      verticalController.jumpTo(
+        verticalController.offset - 10,
+      );
     }
   }
 
