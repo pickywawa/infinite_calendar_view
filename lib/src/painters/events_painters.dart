@@ -270,3 +270,89 @@ class ColumnPainter extends CustomPainter {
   @override
   bool shouldRepaint(ColumnPainter oldDelegate) => true;
 }
+
+class GridsPainter extends CustomPainter {
+  final double width;
+  final double heightPerMinute;
+  final Color lineColor;
+  final double hourStrokeWidth;
+  final double halfStrokeWidth;
+  final double quarterStrokeWidth;
+  final bool drawHalfHour;
+  final bool drawQuarterHour;
+
+  GridsPainter({
+    super.repaint,
+    required this.width,
+    required this.heightPerMinute,
+    required this.lineColor,
+    this.hourStrokeWidth = 0.5,
+    this.halfStrokeWidth = 0.2,
+    this.quarterStrokeWidth = 0.1,
+    this.drawHalfHour = true,
+    this.drawQuarterHour = true,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = lineColor;
+
+    canvas.drawLine(Offset(0, 0), Offset(0, size.height), paint);
+
+    final cellHeight = heightPerMinute * 60;
+
+    final hourPaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = hourStrokeWidth;
+
+    final halfHourPaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = halfStrokeWidth;
+
+    final quarterHourPaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = quarterStrokeWidth;
+
+    for (var i = 0; i < 24; i++) {
+      final hourY = i * cellHeight;
+      canvas.drawLine(Offset(0, hourY), Offset(size.width, hourY), hourPaint);
+
+      if (drawHalfHour) {
+        final halfHourY = hourY + cellHeight / 2;
+        canvas.drawLine(
+          Offset(0, halfHourY),
+          Offset(size.width, halfHourY),
+          halfHourPaint,
+        );
+      }
+
+      if (drawQuarterHour) {
+        if (heightPerMinute > 2) {
+          final quarterHourY15 = hourY + cellHeight / 4;
+          final quarterHourY45 = hourY + 3 * cellHeight / 4;
+
+          canvas.drawLine(
+            Offset(0, quarterHourY15),
+            Offset(size.width, quarterHourY15),
+            quarterHourPaint,
+          );
+          canvas.drawLine(
+            Offset(0, quarterHourY45),
+            Offset(size.width, quarterHourY45),
+            quarterHourPaint,
+          );
+        }
+      }
+    }
+
+    // Draw 24:00 line
+    canvas.drawLine(
+      Offset(0, 24 * cellHeight),
+      Offset(size.width, 24 * cellHeight),
+      hourPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(GridsPainter oldDelegate) => true;
+}
