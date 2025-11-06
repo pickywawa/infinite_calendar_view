@@ -17,7 +17,6 @@ import 'data.dart';
 import 'enumerations.dart';
 import 'views/events_list_example.dart';
 import 'views/events_planner_draggable_events_example.dart';
-import 'views/events_timeline_example.dart';
 
 var isDarkMode = false;
 var calendarMode = Mode.day3Draggable;
