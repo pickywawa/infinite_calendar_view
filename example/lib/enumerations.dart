@@ -5,6 +5,7 @@ enum Mode {
   day("One Day", Icons.calendar_view_day_outlined),
   day3("Three days", Icons.view_column),
   day3Draggable("Three days - Draggable events", Icons.view_column),
+  day3Slot("Three days with slot", Icons.view_column),
   month("Month", Icons.calendar_month),
   multiColumn("Multi columns 1", Icons.view_column_outlined),
   multiColumn2("Multi columns 2", Icons.view_column_outlined),

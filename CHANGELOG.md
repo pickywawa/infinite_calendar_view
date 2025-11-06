@@ -1,3 +1,12 @@
+## 2.10.2
+
+- [new] Support InteractiveSlot onLongPressEnd
+  override https://github.com/pickywawa/infinite_calendar_view/issues/31
+- [new] Add grid CustomPainter https://github.com/pickywawa/infinite_calendar_view/issues/29
+- [bug] Debug interactive slot resize and can disable resize
+- [new] Add slot painter in day painter
+- [documentation] add slot grid agenda example
+
 ## 2.10.1
 
 - [lint] Clean code

@@ -42,25 +42,30 @@ class _InteractiveSlotState extends State<InteractiveSlot> {
         widget.onChanged(null);
       },
       onLongPressStart: (details) {
-        initialStartDateTime = widget.slot.startDateTime;
+        slotSelectionParam.onSlotSelectionLongPress?.call(widget.slot);
+        if (slotSelectionParam.canDragSlotSelectionAfterShow) {
+          initialStartDateTime = widget.slot.startDateTime;
+        }
       },
       onLongPressMoveUpdate: (details) {
-        var slotSelection = widget.slot;
-        var round = widget.dayParam.onSlotMinutesRound;
-        final minutesDelta =
-            details.localOffsetFromOrigin.dy / widget.heightPerMinute;
-        var minutesDeltaRound = widget.dayParam.onSlotRoundAlwaysBefore
-            ? round * (minutesDelta / round).floor()
-            : round * (minutesDelta / round).round();
-        final daysDelta =
-            (details.localOffsetFromOrigin.dx / widget.dayWidth).round();
-        final newStart = initialStartDateTime
-            .add(Duration(days: daysDelta, minutes: minutesDeltaRound));
-        widget.onChanged(SlotSelection(
-            slotSelection.columnIndex,
-            slotSelection.initialStartDateTime,
-            newStart,
-            slotSelection.durationInMinutes));
+        if (slotSelectionParam.canDragSlotSelectionAfterShow) {
+          var slotSelection = widget.slot;
+          var round = widget.dayParam.onSlotMinutesRound;
+          final minutesDelta =
+              details.localOffsetFromOrigin.dy / widget.heightPerMinute;
+          var minutesDeltaRound = widget.dayParam.onSlotRoundAlwaysBefore
+              ? round * (minutesDelta / round).floor()
+              : round * (minutesDelta / round).round();
+          final daysDelta =
+              (details.localOffsetFromOrigin.dx / widget.dayWidth).round();
+          final newStart = initialStartDateTime
+              .add(Duration(days: daysDelta, minutes: minutesDeltaRound));
+          widget.onChanged(SlotSelection(
+              slotSelection.columnIndex,
+              slotSelection.initialStartDateTime,
+              newStart,
+              slotSelection.durationInMinutes));
+        }
       },
       child: Stack(
         children: [
@@ -94,39 +99,42 @@ class _InteractiveSlotState extends State<InteractiveSlot> {
           ),
 
           // Top handle
-          Align(
-            alignment: Alignment.topCenter,
-            child: RawGestureDetector(
-              gestures: {
-                VerticalDragGestureRecognizer: getTopHandleGesture(),
-              },
-              child: slotSelectionParam.slotSelectionTopHandleBuilder?.call() ??
-                  Container(
-                    height: 15,
-                    width: double.infinity,
-                    color: Colors.transparent,
-                    child: const Icon(Icons.drag_handle, size: 12),
-                  ),
+          if (slotSelectionParam.enableSlotSelectionResize)
+            Align(
+              alignment: Alignment.topCenter,
+              child: RawGestureDetector(
+                gestures: {
+                  VerticalDragGestureRecognizer: getTopHandleGesture(),
+                },
+                child:
+                    slotSelectionParam.slotSelectionTopHandleBuilder?.call() ??
+                        Container(
+                          height: 15,
+                          width: double.infinity,
+                          color: Colors.transparent,
+                          child: const Icon(Icons.drag_handle, size: 12),
+                        ),
+              ),
             ),
-          ),
 
           // Bottom handle
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: RawGestureDetector(
-              gestures: {
-                VerticalDragGestureRecognizer: getBottomHandleGesture(),
-              },
-              child:
-                  slotSelectionParam.slotSelectionBottomHandleBuilder?.call() ??
-                      Container(
-                        height: 15,
-                        width: double.infinity,
-                        color: Colors.transparent,
-                        child: const Icon(Icons.drag_handle, size: 12),
-                      ),
+          if (slotSelectionParam.enableSlotSelectionResize)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: RawGestureDetector(
+                gestures: {
+                  VerticalDragGestureRecognizer: getBottomHandleGesture(),
+                },
+                child: slotSelectionParam.slotSelectionBottomHandleBuilder
+                        ?.call() ??
+                    Container(
+                      height: 15,
+                      width: double.infinity,
+                      color: Colors.transparent,
+                      child: const Icon(Icons.drag_handle, size: 12),
+                    ),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -155,7 +163,7 @@ class _InteractiveSlotState extends State<InteractiveSlot> {
             final newDuration =
                 startHandleEndDate.totalMinutes - newStart.totalMinutes;
             if (newDuration != widget.slot.durationInMinutes &&
-                newDuration > round) {
+                newDuration >= round) {
               widget.onChanged(SlotSelection(widget.slot.columnIndex,
                   widget.slot.initialStartDateTime, newStart, newDuration));
             }
@@ -188,7 +196,7 @@ class _InteractiveSlotState extends State<InteractiveSlot> {
                 (minutesDelta / widget.dayParam.onSlotMinutesRound).round();
             final newDuration = startHandleDuration + minutesDeltaRounded;
             if (newDuration != widget.slot.durationInMinutes &&
-                newDuration > widget.dayParam.onSlotMinutesRound) {
+                newDuration >= widget.dayParam.onSlotMinutesRound) {
               widget.onChanged(SlotSelection(
                 widget.slot.columnIndex,
                 widget.slot.initialStartDateTime,

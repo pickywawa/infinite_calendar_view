@@ -1013,11 +1013,14 @@ class SlotSelectionParam {
     this.enableLongPressSlotSelection = false,
     this.enableDoubleTapSlotSelection = false,
     this.clearWhenBackgroundTap = true,
+    this.canDragSlotSelectionAfterShow = true,
     this.slotSelectionDefaultDurationInMinutes,
     this.slotSelectionContentBuilder,
     this.slotSelectionBuilder,
     this.onSlotSelectionChange,
     this.onSlotSelectionTap,
+    this.onSlotSelectionLongPress,
+    this.enableSlotSelectionResize = true,
     this.slotSelectionTopHandleBuilder,
     this.slotSelectionBottomHandleBuilder,
   });
@@ -1033,6 +1036,9 @@ class SlotSelectionParam {
 
   /// clear slot selection when background tap
   final bool clearWhenBackgroundTap;
+
+  /// can re-drag slot selection when it show with long press
+  final bool canDragSlotSelectionAfterShow;
 
   /// default duration in minutes of interactive slot selection
   final int Function(int columnIndex, DateTime date)?
@@ -1056,6 +1062,12 @@ class SlotSelectionParam {
 
   /// event when tap on interactive slot
   final void Function(SlotSelection slot)? onSlotSelectionTap;
+
+  /// event when long press on interactive slot
+  final void Function(SlotSelection slot)? onSlotSelectionLongPress;
+
+  /// enable interactive slot selection top and bottom handle for resize
+  final bool enableSlotSelectionResize;
 
   /// interactive slot selection top handle builder (for resize)
   final Widget Function()? slotSelectionTopHandleBuilder;

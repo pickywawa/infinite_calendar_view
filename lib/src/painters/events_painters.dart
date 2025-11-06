@@ -10,6 +10,12 @@ class LinesPainter extends CustomPainter {
     this.hourStrokeWidth = 0.5,
     this.halfStrokeWidth = 0.2,
     this.quarterStrokeWidth = 0.1,
+    this.verticalStrokeWidth = 0.5,
+    this.drawHalfHour = true,
+    this.drawQuarterHour = true,
+    this.drawVerticalLeftLine = false,
+    this.drawVerticalRightLine = false,
+    this.slotPainter,
   });
 
   final double heightPerMinute;
@@ -18,6 +24,12 @@ class LinesPainter extends CustomPainter {
   final double hourStrokeWidth;
   final double halfStrokeWidth;
   final double quarterStrokeWidth;
+  final double verticalStrokeWidth;
+  final bool drawHalfHour;
+  final bool drawQuarterHour;
+  final bool drawVerticalLeftLine;
+  final bool drawVerticalRightLine;
+  final TextPainter? slotPainter;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -35,14 +47,28 @@ class LinesPainter extends CustomPainter {
       ..color = lineColor
       ..strokeWidth = quarterStrokeWidth;
 
+    final verticalPaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = verticalStrokeWidth;
+
     for (var i = 0; i < 24; i++) {
       final hourY = i * cellHeight;
-      final halfHourY = hourY + cellHeight / 2;
       canvas.drawLine(Offset(0, hourY), Offset(size.width, hourY), hourPaint);
-      canvas.drawLine(
-          Offset(0, halfHourY), Offset(size.width, halfHourY), halfHourPaint);
 
-      if (heightPerMinute > 2) {
+      if (slotPainter != null) {
+        slotPainter?.layout();
+        final dx = (size.width - slotPainter!.width) / 2;
+        final dy = hourY + (cellHeight - slotPainter!.height) / 2;
+        slotPainter?.paint(canvas, Offset(dx, dy));
+      }
+
+      if (drawHalfHour) {
+        final halfHourY = hourY + cellHeight / 2;
+        canvas.drawLine(
+            Offset(0, halfHourY), Offset(size.width, halfHourY), halfHourPaint);
+      }
+
+      if (drawQuarterHour && heightPerMinute > 2) {
         final quarterHourY15 = hourY + cellHeight / 4;
         final quarterHourY45 = hourY + (cellHeight / 4) * 3;
         canvas.drawLine(Offset(0, quarterHourY15),
@@ -54,6 +80,14 @@ class LinesPainter extends CustomPainter {
     // draw 24:00
     canvas.drawLine(Offset(0, 24 * cellHeight),
         Offset(size.width, 24 * cellHeight), hourPaint);
+
+    if (drawVerticalLeftLine) {
+      canvas.drawLine(Offset(0, 0), Offset(0, size.height), verticalPaint);
+    }
+    if (drawVerticalRightLine) {
+      canvas.drawLine(Offset(size.width, 0), Offset(size.width, size.height),
+          verticalPaint);
+    }
   }
 
   @override

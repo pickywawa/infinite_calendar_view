@@ -79,18 +79,19 @@ class CustomEventWidgetExample extends StatelessWidget {
                             maxLines: 2,
                           ),
                         ),
-                        Flexible(
-                          child: Text(
-                            event.description ?? "",
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: false,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Theme.of(context).colorScheme.onSurface,
+                        if (event.description?.isNotEmpty == true)
+                          Flexible(
+                            child: Text(
+                              event.description ?? "",
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: false,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              maxLines: 2,
                             ),
-                            maxLines: 2,
                           ),
-                        ),
                       ],
                     ),
                   ),
