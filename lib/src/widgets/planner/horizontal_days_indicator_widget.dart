@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:sticky_infinite_list/models/alignments.dart';
-import 'package:sticky_infinite_list/widget.dart';
 
 import '../../../infinite_calendar_view.dart';
+import '../../utils/list/infinite_list.dart';
+import '../../utils/list/models/alignments.dart';
 
 class HorizontalDaysIndicatorWidget extends StatelessWidget {
   const HorizontalDaysIndicatorWidget({

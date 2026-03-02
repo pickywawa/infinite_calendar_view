@@ -4,14 +4,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_calendar_view/src/utils/default_text.dart';
-import 'package:sticky_infinite_list/models/alignments.dart';
-import 'package:sticky_infinite_list/widget.dart';
 
 import 'controller/events_controller.dart';
 import 'events/event.dart';
 import 'events/event_arranger.dart';
 import 'events/side_events_arranger.dart';
 import 'utils/extension.dart';
+import 'utils/list/infinite_list.dart';
+import 'utils/list/models/alignments.dart';
 import 'widgets/planner/day_widget.dart';
 import 'widgets/planner/horizontal_days_indicator_widget.dart';
 import 'widgets/planner/horizontal_full_day_events_widget.dart';

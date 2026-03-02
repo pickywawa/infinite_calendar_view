@@ -2,12 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sticky_infinite_list/models/alignments.dart';
-import 'package:sticky_infinite_list/widget.dart';
 
 import 'controller/events_controller.dart';
 import 'events/event.dart';
 import 'utils/extension.dart';
+import 'utils/list/infinite_list.dart';
+import 'utils/list/models/alignments.dart';
 import 'widgets/details/day_details.dart';
 import 'widgets/details/header_details.dart';
 

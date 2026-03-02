@@ -1,3 +1,7 @@
+## 2.11.0
+
+- [change] Remove sticky_infinite_list dependencies
+
 ## 2.10.2
 
 - [new] Support InteractiveSlot onLongPressEnd
