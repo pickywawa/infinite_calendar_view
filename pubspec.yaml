@@ -8,13 +8,8 @@ topics:
   - calendar
   - schedule
   - planning
-  - time-planner
-  - events
-  - calendar-view
-  - day-view
-  - month-view
+  - planner
   - week-view
-  - widget
 screenshots:
   - description: InfiniteCalendarView days view demo
     path: readme_assets/showcase15.png
