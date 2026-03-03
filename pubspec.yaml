@@ -1,8 +1,25 @@
 name: infinite_calendar_view
 description: Easily build your different views of your calendar with this package. Month, week, three days, one day, list ... and many features.
-version: 2.11.0
+version: 2.11.1
 homepage: https://github.com/pickywawa/infinite_calendar_view
+repository: https://github.com/pickywawa/infinite_calendar_view
 issue_tracker: https://github.com/pickywawa/infinite_calendar_view/issues
+topics:
+  - calendar
+  - schedule
+  - planning
+  - time-planner
+  - events
+  - calendar-view
+  - day-view
+  - month-view
+  - week-view
+  - widget
+screenshots:
+  - description: InfiniteCalendarView days view demo
+    path: readme_assets/showcase15.png
+  - description: InfiniteCalendarView month view demo
+    path: readme_assets/showcase13.png
 
 environment:
   sdk: ">=2.17.0 <4.0.0"

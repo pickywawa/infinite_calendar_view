@@ -1,3 +1,8 @@
+## 2.11.1
+
+- [change] Add pubspec screenshots
+- [change] Add pubspec topics
+
 ## 2.11.0
 
 - [change] Remove sticky_infinite_list dependencies
