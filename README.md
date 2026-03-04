@@ -4,7 +4,10 @@
 
 [![Build](https://github.com/pickywawa/infinite_calendar_view/workflows/Build/badge.svg?branch=master)](https://github.com/pickywawa/infinite_calendar_view/actions) [![infinite_calendar_view](https://img.shields.io/pub/v/infinite_calendar_view?label=infinite_calendar_view)](https://pub.dev/packages/infinite_calendar_view)
 
-A Flutter package allows you to easily implement all calendar UI.
+A Flutter Calendar package that allows you to easily implement all calendar UI and calendar views.
+Infinite Calendar View is a highly customizable calendar widget for Flutter that supports multiple
+calendar layouts.
+If this package helps you, consider giving it a 👍 on pub.dev
 
 ## Web Demo
 
@@ -16,21 +19,21 @@ https://pickywawa.github.io/infinite_calendar_view_demo/
 
 ## Features
 
-- 💙 **Inspired by Outlook and Teams mobile**. Easy to use
-- 🍻 **Three views**. Planner, Month and List views
+- 💙 **Inspired by Outlook and Teams mobile**. Easy to use calendar interface
+- 👍 **No external dependencies**. No dependency conflict, easy maintenance
+- 🍻 **Three calendar views**. Calendar Planner, Calendar Month and Calendar List views
 - ♾️ **Infinite scroll**. Lazy build and best user experience
 - 🚀 **Good performance**. With several dozen appointments per day
 - ✏️ **All configurable**. Everything is configurable!
 - 🌍 **RTL Support (Arabic, Hebrew etc. text/scroll direction)**
-- 🗂️ **Events filter**. Easy filter day events
-- 🗓️ **Events types**. Managing all-day events and multi-day events. Possibility of having several
-  types of events with different placement
-  algorithms
+- 🗂️ **Events filter**. Easy filter calendar day events
+- 🗓️ **Calendar events types**. Managing all-day events and multi-day events. Possibility of having
+  several types of events with different placement algorithms
 - 🎲 **Customizable number of days**. Depending on the screen size
 - 🤏 **Pinch to zoom**. Change the time scale with two fingers or ctrl/cmd + mouse wheel
-- 👆🏼 **Drag and drop**. Move appointments easily
+- 👆🏼 **Drag and drop**. Move calendar appointments easily
 - 👆🏼 **Interactive slot selection**. Move appointments easily
-- 👩‍👧‍👦 **Multi columns**. Manage multiple calendars in the same view !
+- 👩‍👧‍👦 **Multi columns**. Manage multiple calendars in the same calendar view !
 - 🗓️ **Events arranger**. Customize the placement of appointments (for each event type) in the
   schedule
 - ➕ **many other features**
@@ -193,7 +196,7 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
 
 2. Add calendar views.
 
-   For 1 Day Planner View
+   For 1 Day Calendar Planner View
 
     ```dart
     Scaffold(
@@ -204,7 +207,7 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
     );
     ```
 
-   For 3 Days Planner View
+   For 3 Days Calendar Planner View
 
     ```dart
     Scaffold(
@@ -215,7 +218,7 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
     );
     ```
 
-   For Month View
+   For Calendar Month View
 
     ```dart
     Scaffold(
@@ -225,7 +228,7 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
     );
     ```
 
-   For List View
+   For Calendar List View
 
     ```dart
     Scaffold(
@@ -301,7 +304,7 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
    );
    ```
 
-2. For Draggable Event
+2. For Draggable Calendar Event
    ```dart
    EventsPlanner(
       controller: controller,
@@ -340,7 +343,7 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
    }
    ```
 
-3. For interactive slot selection
+3. For interactive calendar slot selection
 
    Active enableTapSlotSelection init slot selection on tap
    Active enableLongPressSlotSelection for draggable slot selection
@@ -357,9 +360,9 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
    )
    ```
 
-4. Manage multiple calendars in the same view with multiple columns
+4. Manage multiple calendars in the same calendar view with multiple columns
 
-   Set columnIndex in Event
+   Set columnIndex in Calendar Event
    ```dart
    Event(
       columnIndex: 2,
@@ -398,9 +401,9 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
       </tr>
    </table>
 
-## All parameters
+## All Calendar Parameters
 
-1. Events planner all parameters
+1. Calendar Events Planner all parameters
    ```dart
    EventsPlanner(
       key: GlobalKey<EventsPlannerState>(),
@@ -541,7 +544,7 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
    );
    ```
 
-2. Events List all parameters
+2. Calendar Events List all parameters
    ```dart
    EventsList(
       controller: controller,
@@ -603,3 +606,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ```
+
+## Tags
+
+calendar, schedule, scheduler, date, planner, planning, timeline, week-view, day-view, multi days,
+month-view, events, appointment, booking, calender, calendrier, time, viewer

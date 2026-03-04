@@ -1,7 +1,11 @@
+## 2.11.2
+
+- [documentation] readme update
+
 ## 2.11.1
 
-- [change] Add pubspec screenshots
-- [change] Add pubspec topics
+- [documentation] Add pubspec screenshots
+- [documentation] Add pubspec topics
 
 ## 2.11.0
 
