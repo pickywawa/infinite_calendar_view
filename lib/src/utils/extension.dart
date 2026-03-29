@@ -4,13 +4,16 @@ extension DateTimeExtensions on DateTime {
   /// Returns [DateTime] without timestamp.
   DateTime get withoutTime => DateTime(year, month, day);
 
+  /// Returns [DateTime] in UTC without time.
+  DateTime get utcDateOnly => DateTime.utc(year, month, day);
+
   // Returns total minutes this date is pointing at.
   /// if [DateTime] object is, DateTime(2021, 5, 13, 12, 4, 5)
   /// Then this getter will return 12*60 + 4 which evaluates to 724.
   int get totalMinutes => hour * 60 + minute;
 
   int getDayDifference(DateTime date) =>
-      withoutTime.difference(date.withoutTime).inDays;
+      utcDateOnly.difference(date.utcDateOnly).inDays;
 
   /// get startOfWeek day depending on the desired starting day of the week
   DateTime startOfWeek(int weekday) {
