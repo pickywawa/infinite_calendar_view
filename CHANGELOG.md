@@ -1,3 +1,8 @@
+## 2.11.3
+
+- [bug] One Day Planner View Not Handling Daylight
+  Saving https://github.com/pickywawa/infinite_calendar_view/issues/37
+
 ## 2.11.2
 
 - [documentation] readme update
