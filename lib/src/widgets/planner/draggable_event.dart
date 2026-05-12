@@ -72,13 +72,18 @@ class DraggableEventWidget extends StatelessWidget {
         var timeIndicatorWidth = plannerState?.widget.timesIndicatorsParam.timesIndicatorsWidth ?? 0;
         var scrollOffsetX = plannerState?.mainHorizontalController.offset ?? 0;
 
-        var releaseOffsetX = scrollOffsetX + relativeOffset.dx - timeIndicatorWidth;
-        var dayWidth = plannerState?.dayWidth ?? 0;
+        // Use the ACTUAL event width for the midpoint calculation to fix the concurrent event bug.
+        // relativeOffset.dx points to the top-left corner of the dragged widget.
+        var releaseLeftOffsetX = scrollOffsetX + relativeOffset.dx - timeIndicatorWidth;
+        var releaseMidpointOffsetX = releaseLeftOffsetX + (width / 2);
+
         var heightPerMinute = plannerState?.heightPerMinute ?? 0;
-        var dayIndex = plannerState?.getIndexForOffset(releaseOffsetX, findExact: true) ?? 0;
+
+        // Use midpoint to calculate the exact destination day index
+        var dayIndex = plannerState?.getIndexForOffset(releaseMidpointOffsetX, findExact: true) ?? 0;
         var currentDay = plannerState?.initialDate
-                .addCalendarDays(dayIndex)
-                .withoutTime ??
+            .addCalendarDays(dayIndex)
+            .withoutTime ??
             event.startTime.withoutTime;
 
         // find hour
@@ -105,17 +110,24 @@ class DraggableEventWidget extends StatelessWidget {
         var totalMinutesRound =
             onSlotMinutesRound * (totalMinutes / onSlotMinutesRound).round();
         var roundStartDateTime =
-            currentDay.add(Duration(minutes: totalMinutesRound));
+        currentDay.add(Duration(minutes: totalMinutesRound));
         var roundEndDateTime =
-            roundStartDateTime.add(Duration(minutes: duration));
+        roundStartDateTime.add(Duration(minutes: duration));
 
         // find column
         var columnIndex = 0;
-        var dayPosition = (releaseOffsetX % dayWidth);
+
+        // Get the actual width of the destination day (important for daysWidthRatio)
+        var currentDayWidth = plannerState?.getDayWidth(currentDay) ?? plannerState?.dayWidth ?? 0;
+
+        // Find local offset within the specific day instead of modulo to support variable day widths
+        var offsetForDay = plannerState?.getOffsetForIndex(dayIndex) ?? 0;
+        var dayPosition = releaseMidpointOffsetX - offsetForDay;
+
         var columnsParam = plannerState?.widget.columnsParam;
         if (columnsParam != null && columnsParam.columns > 0) {
           for (var column = 0; column < columnsParam.columns; column++) {
-            var positions = columnsParam.getColumPositions(width, column);
+            var positions = columnsParam.getColumPositions(currentDayWidth, column);
             if (positions[0] <= dayPosition && dayPosition <= positions[1]) {
               columnIndex = column;
             }
