@@ -1,3 +1,10 @@
+## 2.11.4
+
+- month refactor month events placement and correction of some related bugs :
+- [bug] https://github.com/pickywawa/infinite_calendar_view/issues/40
+- [bug] https://github.com/pickywawa/infinite_calendar_view/issues/41
+- [bug] https://github.com/pickywawa/infinite_calendar_view/issues/42
+
 ## 2.11.3
 
 - [bug] One Day Planner View Not Handling Daylight
