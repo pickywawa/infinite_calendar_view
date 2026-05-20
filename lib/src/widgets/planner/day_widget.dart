@@ -415,6 +415,21 @@ class _EventsListWidgetState extends State<EventsListWidget> {
     widget.controller.removeListener(eventListener);
   }
 
+  @override
+  void didUpdateWidget(covariant EventsListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Event positions are arranged from the available width; ratio changes can
+    // make a reused day cell narrower or wider.
+    if (!DateUtils.isSameDay(oldWidget.day, widget.day) ||
+        oldWidget.dayWidth != widget.dayWidth ||
+        oldWidget.plannerHeight != widget.plannerHeight ||
+        oldWidget.dayEventsArranger != widget.dayEventsArranger ||
+        oldWidget.showMultiDayEvents != widget.showMultiDayEvents) {
+      events = getDayColumnEvents();
+      organizedEvents = getOrganizedEvents(events);
+    }
+  }
+
   List<Event>? getDayColumnEvents() {
     return widget.controller
         .getFilteredDayEvents(

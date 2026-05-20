@@ -21,6 +21,8 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
     required this.initialDate,
     required this.dayWidthBuilder,
     required this.topLeftCellValueNotifier,
+    this.fixedPageExtent,
+    this.fixedPageItemCount = 1,
   });
 
   final TextDirection textDirection;
@@ -35,6 +37,8 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
   final DateTime initialDate;
   final double Function(DateTime) dayWidthBuilder;
   final ValueNotifier<DateTime> topLeftCellValueNotifier;
+  final double? fixedPageExtent;
+  final int fixedPageItemCount;
 
   @override
   Widget build(BuildContext context) {
@@ -65,32 +69,22 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 direction: InfiniteListDirection.multi,
-                negChildCount: maxPreviousDays,
-                posChildCount: maxNextDays,
+                negChildCount: _itemCountForMaxDays(maxPreviousDays),
+                posChildCount: _itemCountForMaxDays(maxNextDays),
+                itemExtent: fixedPageExtent,
                 builder: (context, index) {
-                  var day = getDayFromIndex(index);
-                  var isToday = DateUtils.isSameDay(day, DateTime.now());
-                  var currentDayWidth = dayWidthBuilder(day);
-
                   return InfiniteListItem(
                     contentBuilder: (context) {
-                      return SizedBox(
-                        width: currentDayWidth,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            if (daysHeaderParam.daysHeaderVisibility)
-                              daysHeaderParam.dayHeaderBuilder != null
-                                  ? daysHeaderParam.dayHeaderBuilder!
-                                      .call(day, isToday)
-                                  : getDefaultDayHeader(day, isToday),
-                            if (columnsParam.columns > 1 ||
-                                columnsParam.columnHeaderBuilder != null ||
-                                columnsParam.columnsLabels.isNotEmpty)
-                              getColumnsHeader(context, startColumnIndex,
-                                  onColumnIndexChanged, day, isToday, currentDayWidth)
-                          ],
-                        ),
+                      if (fixedPageExtent == null) {
+                        return _buildDayCell(context, index);
+                      }
+                      // Match the planner body: fixed outer page, variable day cells.
+                      return InfiniteListPage(
+                        width: fixedPageExtent,
+                        firstIndex: index * fixedPageItemCount,
+                        itemCount: fixedPageItemCount,
+                        textDirection: textDirection,
+                        builder: _buildDayCell,
                       );
                     },
                   );
@@ -103,10 +97,41 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
     );
   }
 
+  Widget _buildDayCell(BuildContext context, int dayIndex) {
+    var day = getDayFromIndex(dayIndex);
+    var isToday = DateUtils.isSameDay(day, DateTime.now());
+    var currentDayWidth = dayWidthBuilder(day);
+
+    return SizedBox(
+      width: currentDayWidth,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          if (daysHeaderParam.daysHeaderVisibility)
+            daysHeaderParam.dayHeaderBuilder != null
+                ? daysHeaderParam.dayHeaderBuilder!.call(day, isToday)
+                : getDefaultDayHeader(day, isToday),
+          if (columnsParam.columns > 1 ||
+              columnsParam.columnHeaderBuilder != null ||
+              columnsParam.columnsLabels.isNotEmpty)
+            getColumnsHeader(context, startColumnIndex,
+              onColumnIndexChanged, day, isToday, currentDayWidth)
+        ],
+      ),
+    );
+  }
+
   DateTime getDayFromIndex(int index) {
     return initialDate
         .addCalendarDays(textDirection == TextDirection.ltr ? index : -index);
   }
+
+  // Child counts are still configured in days; fixed pages group several days
+  // into one sliver child.
+  int? _itemCountForMaxDays(int? maxDays) =>
+      fixedPageExtent == null || maxDays == null
+          ? maxDays
+          : (maxDays / fixedPageItemCount).ceil();
 
   DefaultDayHeader getDefaultDayHeader(DateTime day, bool isToday) {
     return DefaultDayHeader(
