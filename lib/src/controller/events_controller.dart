@@ -61,9 +61,33 @@ class EventsController extends ChangeNotifier {
 
   // get day events sorted by startTime
   List<Event>? getSortedFilteredDayEvents(DateTime date) {
-    var daysEvents = getFilteredDayEvents(date);
-    daysEvents?.sort((a, b) => a.startTime.compareTo(b.startTime));
-    return daysEvents;
+    final dayEvents = getFilteredDayEvents(date);
+    if (dayEvents == null) return null;
+
+    final indexedEvents = <_IndexedDayEvent>[];
+    for (var index = 0; index < dayEvents.length; index++) {
+      indexedEvents.add(_IndexedDayEvent(index, dayEvents[index]));
+    }
+
+    indexedEvents.sort(_compareDayEvents);
+    return indexedEvents.map((entry) => entry.event).toList();
+  }
+
+  int _compareDayEvents(_IndexedDayEvent a, _IndexedDayEvent b) {
+    final left = a.event;
+    final right = b.event;
+
+    // For month bars (full-day/multi-day), keep source list priority.
+    if (left.isFullDay && right.isFullDay) {
+      return a.index.compareTo(b.index);
+    }
+
+    // Timed events stay chronological.
+    final timeCompare = left.startTime.compareTo(right.startTime);
+    if (timeCompare != 0) return timeCompare;
+
+    // Stable tie-breaker when start times are equal.
+    return a.index.compareTo(b.index);
   }
 
   void changeSlotSelection(SlotSelection? slotSelection) {
@@ -73,6 +97,13 @@ class EventsController extends ChangeNotifier {
   // force update UI
   @override
   void notifyListeners() => super.notifyListeners();
+}
+
+class _IndexedDayEvent {
+  const _IndexedDayEvent(this.index, this.event);
+
+  final int index;
+  final Event event;
 }
 
 class CalendarData {

@@ -219,11 +219,22 @@ class _WeekState extends State<Week> {
     if (event != null && !isMultiDayOtherDay) {
       // multi days events duration
       var duration = 1;
-      while (weekShowedEvents
-              .getOrNull(dayOfWeek + duration)
-              ?.getOrNull(eventIndex)
-              ?.uniqueId ==
-          event.uniqueId) {
+      while (true) {
+        final nextDayOfWeek = dayOfWeek + duration;
+        if (nextDayOfWeek >= 7) break;
+
+        final nextEvent =
+            weekShowedEvents.getOrNull(nextDayOfWeek)?.getOrNull(eventIndex);
+        if (nextEvent?.uniqueId != event.uniqueId) break;
+
+        final isLastVisibleLane = eventIndex == widget.maxEventsShowed - 1;
+        if (isLastVisibleLane) {
+          final nextDayRawCount = weekEvents[nextDayOfWeek]?.length ?? 0;
+          final nextDayShowsMore =
+              (nextDayRawCount - widget.maxEventsShowed) + 1 > 1;
+          if (nextDayShowsMore) break;
+        }
+
         duration++;
       }
       var eventWidth = (dayWidth * duration) - daySpacing;

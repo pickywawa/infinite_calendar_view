@@ -1,4 +1,5 @@
 import 'package:example/views/events_months_example.dart';
+import 'package:example/views/events_months_example2.dart';
 import 'package:example/views/events_months_rtl_example.dart';
 import 'package:example/views/events_planner_multi_columns2_example.dart';
 import 'package:example/views/events_planner_multi_columns_example.dart';
@@ -122,6 +123,7 @@ class CalendarViewWidget extends StatelessWidget {
       Mode.multiColumn => PlannerMultiColumns(key: UniqueKey()),
       Mode.multiColumn2 => PlannerMultiColumns2(key: UniqueKey()),
       Mode.month => Months(key: UniqueKey()),
+      Mode.month2 => Months2(key: UniqueKey()),
       Mode.day3RTL => PlannerRTL(key: UniqueKey()),
       Mode.monthRTL => MonthsRTL(key: UniqueKey()),
       Mode.day3Rotation => PlannerRotation(key: UniqueKey()),

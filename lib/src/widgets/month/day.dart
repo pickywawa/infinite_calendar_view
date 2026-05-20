@@ -134,6 +134,7 @@ class DefaultMonthDayEvent extends StatelessWidget {
     this.onTapDown,
     this.onTapUp,
     this.onTapCancel,
+    this.fullDayBorder,
   });
 
   final Event event;
@@ -147,6 +148,7 @@ class DefaultMonthDayEvent extends StatelessWidget {
   final GestureTapCallback? onTapCancel;
   final GestureTapCallback? onDoubleTap;
   final GestureLongPressCallback? onLongPress;
+  final Border? fullDayBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +165,8 @@ class DefaultMonthDayEvent extends StatelessWidget {
           decoration: BoxDecoration(
             color: event.color,
             border: event.isFullDay
-                ? Border(left: BorderSide(color: event.textColor, width: 3))
+                ? fullDayBorder ??
+                    Border(left: BorderSide(color: event.textColor, width: 3))
                 : null,
           ),
           child: Padding(
