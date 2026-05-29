@@ -10,9 +10,11 @@ class PlannerEventsDrag extends StatelessWidget {
   const PlannerEventsDrag({
     super.key,
     required this.daysShowed,
+    this.daysWidthRatio,
   });
 
   final int daysShowed;
+  final List<double>? daysWidthRatio;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,7 @@ class PlannerEventsDrag extends StatelessWidget {
     return EventsPlanner(
       controller: eventsController,
       daysShowed: daysShowed,
+      daysWidthRatio: daysWidthRatio,
       heightPerMinute: heightPerMinute,
       initialVerticalScrollOffset: initialVerticalScrollOffset,
       dayParam: DayParam(

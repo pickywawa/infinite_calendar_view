@@ -23,6 +23,7 @@ class EventsPlanner extends StatefulWidget {
     required this.controller,
     this.initialDate,
     this.daysShowed = 3,
+    this.daysWidthRatio,
     this.textDirection = TextDirection.ltr,
     this.maxPreviousDays = 365,
     this.maxNextDays = 365,
@@ -30,6 +31,7 @@ class EventsPlanner extends StatefulWidget {
     this.daySeparationWidth = 3.0,
     this.dayEventsArranger = const SideEventArranger(),
     this.onDayChange,
+    this.onSettledDayChange,
     this.initialVerticalScrollOffset = 0,
     this.minVerticalScrollOffset,
     this.maxVerticalScrollOffset,
@@ -48,7 +50,10 @@ class EventsPlanner extends StatefulWidget {
     this.offTimesParam = const OffTimesParam(),
     this.pinchToZoomParam = const PinchToZoomParameters(),
     this.fullDayParam = const FullDayParam(),
-  });
+  }) : assert(
+    daysWidthRatio == null || daysWidthRatio.length == 7,
+    'daysWidthRatio must contain exactly 7 elements representing the flex units for Monday through Sunday.',
+  );
 
   /// data controller
   final EventsController controller;
@@ -83,6 +88,12 @@ class EventsPlanner extends StatefulWidget {
 
   /// Callback when first day (showed in planner) change during horizontal scroll
   final void Function(DateTime firstDay)? onDayChange;
+
+  /// Callback when the horizontal scroll settles on the first shown day.
+  ///
+  /// Use this when parent state should only react to the final snapped page,
+  /// not to transient days revealed during a drag.
+  final void Function(DateTime firstDay)? onSettledDayChange;
 
   /// initial time scroll (vertical) : hour of day = heightPerMinute * $total_minutes
   final double initialVerticalScrollOffset;
@@ -134,6 +145,12 @@ class EventsPlanner extends StatefulWidget {
   // full day parameters
   final FullDayParam fullDayParam;
 
+  /// Array of 7 doubles representing the flex ratio of each day (Mon-Sun)
+  /// Example: [1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5]
+  /// Note: [daysShowed] acts as the viewport capacity for standard (1.0) days.
+  /// Days with a ratio > 1.0 will expand proportionately, meaning you may need to scroll to see all [daysShowed] days at once.
+  final List<double>? daysWidthRatio;
+
   @override
   State createState() => EventsPlannerState();
 }
@@ -154,9 +171,21 @@ class EventsPlannerState extends State<EventsPlanner> {
   late double heightPerMinuteScaleStart;
   late double mainVerticalControllerOffsetScaleStart;
   var _listenHorizontalScrollDayChange = true;
+  int? _lastSettledIndex;
   var _plannerPointerDownCount = 0;
   var _isKeyboardZoomActive = false;
   var _startColumnIndex = 0;
+
+  // With day width ratios, the scroll view uses fixed-width pages instead of
+  // variable-width day slivers. The days inside each page still keep their
+  // ratio-based widths, but Flutter can lay out the scroll geometry reliably.
+  bool get _usesFixedExtentPages =>
+      widget.daysWidthRatio != null && widget.daysWidthRatio!.isNotEmpty;
+
+  // The fixed page width is the unscaled width of all ratio-based days it
+  // contains.
+  double? get _horizontalItemExtent =>
+      _usesFixedExtentPages ? dayWidth * widget.daysWidthRatio!.length : null;
 
   @override
   void initState() {
@@ -188,6 +217,7 @@ class EventsPlannerState extends State<EventsPlanner> {
         mainHorizontalController.position.isScrollingNotifier
             .addListener(automaticScrollAdjustListener);
       }
+      mainHorizontalController.position.isScrollingNotifier.addListener(_handleHorizontalScrollSettled);
 
       // init vertical scroll listener when scroll stop
       if (widget.onVerticalScrollChange != null) {
@@ -229,18 +259,19 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   @override
   void dispose() {
+    if (mainHorizontalController.hasClients) {
+      mainHorizontalController.position.isScrollingNotifier.removeListener(_handleHorizontalScrollSettled);
+    }
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     super.dispose();
   }
 
   /// listen mainHorizontalController and call onFirstDayChange when day change
   void initDayChangingListener() {
-    var halfDayWidth = (dayWidth / 2);
     var scroll = mainHorizontalController;
     scroll.addListener(() {
       if (_listenHorizontalScrollDayChange) {
-        var halfDay = scroll.offset >= 0 ? halfDayWidth : -halfDayWidth;
-        var index = ((scroll.offset + halfDay) / dayWidth).toInt();
+        var index = getIndexForOffset(scroll.offset);
         // only when index has changed
         if (index != currentIndex) {
           currentIndex = index;
@@ -255,6 +286,64 @@ class EventsPlannerState extends State<EventsPlanner> {
     });
   }
 
+  /// Calls [EventsPlanner.onSettledDayChange] after horizontal scrolling snaps.
+  void _handleHorizontalScrollSettled() {
+    var scroll = mainHorizontalController;
+    if (!scroll.hasClients ||
+        scroll.position.isScrollingNotifier.value ||
+        !_listenHorizontalScrollDayChange) {
+      return;
+    }
+
+    // Give optional automatic day adjustment a chance to start first.
+    Future.delayed(const Duration(milliseconds: 1), () {
+      if (!mounted ||
+          !scroll.hasClients ||
+          scroll.position.isScrollingNotifier.value ||
+          !_listenHorizontalScrollDayChange) {
+        return;
+      }
+
+      _notifyHorizontalScrollSettled();
+    });
+  }
+
+  void _notifyHorizontalScrollSettled() {
+    var scroll = mainHorizontalController;
+    var settledIndex = getIndexForOffset(scroll.offset);
+    _jumpHorizontalScrollToIndex(settledIndex);
+    currentIndex = settledIndex;
+    if (settledIndex == _lastSettledIndex) {
+      return;
+    }
+    _lastSettledIndex = settledIndex;
+
+    var settledDay = widget.textDirection == TextDirection.ltr
+        ? getDayFromIndex(settledIndex)
+        : getDayFromIndex(settledIndex + widget.daysShowed - 1);
+    widget.onSettledDayChange?.call(settledDay);
+    widget.controller.updateFocusedDay(settledDay);
+    topLeftCellValueNotifier.value = settledDay;
+  }
+
+  void _jumpHorizontalScrollToIndex(int index) {
+    if (!mainHorizontalController.hasClients) {
+      return;
+    }
+
+    var targetOffset = getOffsetForIndex(index);
+    if (widget.textDirection == TextDirection.rtl) {
+      targetOffset = -targetOffset;
+    }
+    if ((mainHorizontalController.offset - targetOffset).abs() < 0.5) {
+      return;
+    }
+
+    _listenHorizontalScrollDayChange = false;
+    mainHorizontalController.jumpTo(targetOffset);
+    _listenHorizontalScrollDayChange = true;
+  }
+
   /// listen mainHorizontalController scroll stop and adjust to nearest day
   /// call onAutomaticAdjustHorizontalScroll when end adjust
   VoidCallback getAutomaticScrollAdjustListener() {
@@ -263,8 +352,9 @@ class EventsPlannerState extends State<EventsPlanner> {
       var scroll = mainHorizontalController;
       var stopScroll = !scroll.position.isScrollingNotifier.value;
       if (_listenHorizontalScrollDayChange && stopScroll) {
-        // Round to nearest day
-        var nearestDayOffset = dayWidth * (scroll.offset / dayWidth).round();
+        // use dynamic offset rounding
+        var nearestIndex = getIndexForOffset(scroll.offset);
+        var nearestDayOffset = getOffsetForIndex(nearestIndex);
         if (nearestDayOffset != scroll.offset) {
           // adjust scroll
           Future.delayed(const Duration(milliseconds: 1), () {
@@ -273,8 +363,7 @@ class EventsPlannerState extends State<EventsPlanner> {
                 curve: Curves.easeIn);
 
             // event
-            var adjustedDay =
-                getDayFromIndex((nearestDayOffset / dayWidth).toInt());
+            var adjustedDay = getDayFromIndex(nearestIndex);
             widget.onAutomaticAdjustHorizontalScroll?.call(adjustedDay);
           });
         }
@@ -297,6 +386,83 @@ class EventsPlannerState extends State<EventsPlanner> {
       }
     }
     return false;
+  }
+
+  /// Gets the dynamic width for a specific day based on daysWidthRatio
+  double getDayWidth(DateTime day) {
+    if (widget.daysWidthRatio == null || widget.daysWidthRatio!.length != 7) {
+      return dayWidth; // Fallback to standard calculated width
+    }
+
+    // Sum of the ratios
+    double totalFlex = widget.daysWidthRatio!.reduce((a, b) => a + b);
+
+    // We scale the width proportionally to respect `widget.daysShowed`.
+    // averageFlex represents the flex of a standard "1.0" day.
+    double averageFlex = totalFlex / widget.daysWidthRatio!.length;
+    double baseWidth = dayWidth / averageFlex;
+
+    return baseWidth * widget.daysWidthRatio![day.weekday - 1];
+  }
+
+  int? _listItemCountForMaxDays(int? maxDays) {
+    if (!_usesFixedExtentPages || maxDays == null) {
+      return maxDays;
+    }
+    return (maxDays / widget.daysWidthRatio!.length).ceil();
+  }
+
+  /// Calculates the exact scroll offset in pixels for a given day index
+  double getOffsetForIndex(int index) {
+    if (widget.daysWidthRatio == null || widget.daysWidthRatio!.length != 7) {
+      return index * dayWidth;
+    }
+
+    // The full ratio period keeps a stable total width because ratios are
+    // proportionally scaled.
+    var periodLength = widget.daysWidthRatio!.length;
+    double periodWidth = dayWidth * periodLength;
+
+    // Using double division and floor() correctly handles negative numbers in Dart
+    int periods = (index / periodLength).floor();
+    int remainder = index - (periods * periodLength);
+
+    double offset = periods * periodWidth;
+
+    // Add the specific widths for the remaining days
+    for (int i = 0; i < remainder; i++) {
+      offset += getDayWidth(getDayFromIndex(periods * periodLength + i));
+    }
+    return offset;
+  }
+
+  /// Finds the day index based on the current scroll offset in pixels
+  /// If [findExact] is true, it strictly finds the boundary the offset falls into (used for dragging).
+  /// If [findExact] is false, it finds the nearest day center (used for scroll snapping).
+  int getIndexForOffset(double offset, {bool findExact = false}) {
+    if (widget.daysWidthRatio == null || widget.daysWidthRatio!.length != 7) {
+      return findExact ? (offset / dayWidth).floor() : (offset / dayWidth).round();
+    }
+
+    var periodLength = widget.daysWidthRatio!.length;
+    double periodWidth = dayWidth * periodLength;
+    int periods = (offset / periodWidth).floor();
+    double remainingOffset = offset - (periods * periodWidth);
+
+    int index = periods * periodLength;
+    double currentOffset = 0;
+
+    // Accumulate day widths until we reach the target day
+    while (true) {
+      double currentDayWidth = getDayWidth(getDayFromIndex(index));
+      double threshold = findExact ? currentDayWidth : (currentDayWidth / 2);
+
+      if (currentOffset + threshold > remainingOffset) {
+        return index;
+      }
+      currentOffset += currentDayWidth;
+      index++;
+    }
   }
 
   @override
@@ -449,6 +615,29 @@ class EventsPlannerState extends State<EventsPlanner> {
         ? const NeverScrollableScrollPhysics()
         : widget.horizontalScrollPhysics;
 
+    if (_usesFixedExtentPages) {
+      // Use fixed sliver pages for stable scroll geometry while keeping
+      // variable day widths inside each page.
+      return InfiniteList(
+        controller: mainHorizontalController,
+        scrollDirection: Axis.horizontal,
+        direction: InfiniteListDirection.multi,
+        negChildCount: _listItemCountForMaxDays(widget.maxPreviousDays),
+        posChildCount: _listItemCountForMaxDays(widget.maxNextDays),
+        itemExtent: _horizontalItemExtent,
+        physics: physics,
+        builder: (context, index) => InfiniteListItem(
+          contentBuilder: (context) => _buildPlannerFixedExtentPage(
+            index,
+            todayColor,
+            daySeparationWidthPadding,
+            plannerHeight,
+            currentHourIndicatorColor,
+          ),
+        ),
+      );
+    }
+
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
         scrollbars: false,
@@ -469,28 +658,78 @@ class EventsPlannerState extends State<EventsPlanner> {
 
           return InfiniteListItem(
             contentBuilder: (context) {
-              return DayWidget(
-                controller: _controller,
-                textDirection: widget.textDirection,
-                day: day,
-                todayColor: todayColor,
-                daySeparationWidthPadding: daySeparationWidthPadding,
-                plannerHeight: plannerHeight,
-                heightPerMinute: heightPerMinute,
-                dayWidth: dayWidth,
-                dayEventsArranger: widget.dayEventsArranger,
-                dayParam: widget.dayParam,
-                columnsParam: widget.columnsParam,
-                startColumnIndex: _startColumnIndex,
-                currentHourIndicatorParam: widget.currentHourIndicatorParam,
-                currentHourIndicatorColor: currentHourIndicatorColor,
-                offTimesParam: widget.offTimesParam,
-                showMultiDayEvents: !widget.fullDayParam.showMultiDayEvents,
+              return _buildDayWidget(
+                index,
+                todayColor,
+                daySeparationWidthPadding,
+                plannerHeight,
+                currentHourIndicatorColor,
               );
             },
           );
         },
       ),
+    );
+  }
+
+  Widget _buildPlannerFixedExtentPage(
+    int pageIndex,
+    Color todayColor,
+    double daySeparationWidthPadding,
+    double plannerHeight,
+    Color currentHourIndicatorColor,
+  ) {
+    var pageDayCount = widget.daysWidthRatio!.length;
+    var firstDayIndex = pageIndex * pageDayCount;
+    for (var offset = 0; offset < pageDayCount; offset++) {
+      var day = getDayFromIndex(firstDayIndex + offset);
+      Future(() => widget.dayParam.onDayBuild?.call(day));
+    }
+
+    // The page has one fixed sliver extent; its child days keep their own
+    // widths from [daysWidthRatio].
+    return InfiniteListPage(
+      width: _horizontalItemExtent,
+      firstIndex: firstDayIndex,
+      itemCount: pageDayCount,
+      textDirection: widget.textDirection,
+      builder: (context, dayIndex) => _buildDayWidget(
+        dayIndex,
+        todayColor,
+        daySeparationWidthPadding,
+        plannerHeight,
+        currentHourIndicatorColor,
+      ),
+    );
+  }
+
+  Widget _buildDayWidget(
+    int dayIndex,
+    Color todayColor,
+    double daySeparationWidthPadding,
+    double plannerHeight,
+    Color currentHourIndicatorColor,
+  ) {
+    var day = getDayFromIndex(dayIndex);
+    return DayWidget(
+      // Avoid reusing arranged event state for a different date.
+      key: ValueKey(day),
+      controller: _controller,
+      textDirection: widget.textDirection,
+      day: day,
+      todayColor: todayColor,
+      daySeparationWidthPadding: daySeparationWidthPadding,
+      plannerHeight: plannerHeight,
+      heightPerMinute: heightPerMinute,
+      dayWidth: getDayWidth(day),
+      dayEventsArranger: widget.dayEventsArranger,
+      dayParam: widget.dayParam,
+      columnsParam: widget.columnsParam,
+      startColumnIndex: _startColumnIndex,
+      currentHourIndicatorParam: widget.currentHourIndicatorParam,
+      currentHourIndicatorColor: currentHourIndicatorColor,
+      offTimesParam: widget.offTimesParam,
+      showMultiDayEvents: !widget.fullDayParam.showMultiDayEvents,
     );
   }
 
@@ -521,9 +760,11 @@ class EventsPlannerState extends State<EventsPlanner> {
       maxPreviousDays: widget.maxPreviousDays,
       maxNextDays: widget.maxNextDays,
       initialDate: initialDate,
-      dayWidth: dayWidth,
+      dayWidthBuilder: getDayWidth,
       todayColor: todayColor,
       timesIndicatorsWidth: widget.timesIndicatorsParam.timesIndicatorsWidth,
+      fixedPageExtent: _horizontalItemExtent,
+      fixedPageItemCount: widget.daysWidthRatio?.length ?? 1,
     );
   }
 
@@ -541,9 +782,11 @@ class EventsPlannerState extends State<EventsPlanner> {
       maxPreviousDays: widget.maxPreviousDays,
       maxNextDays: widget.maxNextDays,
       initialDate: initialDate,
-      dayWidth: dayWidth,
+      dayWidthBuilder: getDayWidth,
       timesIndicatorsWidth: widget.timesIndicatorsParam.timesIndicatorsWidth,
       topLeftCellValueNotifier: topLeftCellValueNotifier,
+      fixedPageExtent: _horizontalItemExtent,
+      fixedPageItemCount: widget.daysWidthRatio?.length ?? 1,
     );
   }
 
@@ -630,7 +873,7 @@ class EventsPlannerState extends State<EventsPlanner> {
       // stop scroll listener for avoid change day listener
       _listenHorizontalScrollDayChange = false;
       var index = date.withoutTime.getDayDifference(initialDate);
-      var offset = index * dayWidth;
+      var offset = getOffsetForIndex(index);
       if (widget.textDirection == TextDirection.rtl) {
         offset = -offset;
       }

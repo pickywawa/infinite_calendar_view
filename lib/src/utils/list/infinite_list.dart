@@ -11,6 +11,40 @@ import 'models/types.dart';
 typedef ItemBuilder<I> = InfiniteListItem<I> Function(
     BuildContext context, I index);
 
+/// Builds a fixed-size list child from several logical item indices.
+///
+/// This lets callers keep variable-width content inside a stable sliver child.
+class InfiniteListPage extends StatelessWidget {
+  const InfiniteListPage({
+    super.key,
+    required this.width,
+    required this.firstIndex,
+    required this.itemCount,
+    required this.textDirection,
+    required this.builder,
+  });
+
+  final double? width;
+  final int firstIndex;
+  final int itemCount;
+  final TextDirection textDirection;
+  final Widget Function(BuildContext context, int index) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Row(
+        textDirection: textDirection,
+        children: [
+          for (var offset = 0; offset < itemCount; offset++)
+            builder(context, firstIndex + offset),
+        ],
+      ),
+    );
+  }
+}
+
 /// List item build should return instance on this class
 ///
 /// It can be overriden if needed
@@ -229,6 +263,9 @@ class InfiniteList extends StatefulWidget {
   /// Proxy property for [ScrollView.physics]
   final ScrollPhysics? physics;
 
+  /// Uses fixed-extent slivers when all items have the same scroll size.
+  final double? itemExtent;
+
   final Key? _centerKey;
 
   const InfiniteList({
@@ -243,6 +280,7 @@ class InfiniteList extends StatefulWidget {
     this.cacheExtent,
     this.scrollDirection = Axis.vertical,
     this.physics,
+    this.itemExtent,
   }) : _centerKey = (direction == InfiniteListDirection.multi)
             ? const ValueKey<String>('center-key')
             : null;
@@ -255,7 +293,7 @@ class _InfiniteListState extends State<InfiniteList> {
   final StreamController<StickyState<int>> _streamController =
       StreamController<StickyState<int>>.broadcast();
 
-  SliverList get _reverseList => SliverList(
+  Widget get _reverseList => _buildSliver(
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) =>
               _buildListItem(context, (index + 1) * -1),
@@ -263,12 +301,12 @@ class _InfiniteListState extends State<InfiniteList> {
         ),
       );
 
-  SliverList get _forwardList => SliverList(
+  Widget get _forwardList => _buildSliver(
+        key: widget._centerKey,
         delegate: SliverChildBuilderDelegate(
           _buildListItem,
           childCount: widget.posChildCount,
         ),
-        key: widget._centerKey,
       );
 
   Widget _buildListItem(BuildContext context, int index) =>
@@ -278,7 +316,25 @@ class _InfiniteListState extends State<InfiniteList> {
         listItem: widget.builder(context, index),
       );
 
-  List<SliverList> get _slivers {
+  Widget _buildSliver({
+    Key? key,
+    required SliverChildDelegate delegate,
+  }) {
+    var itemExtent = widget.itemExtent;
+    if (itemExtent == null) {
+      return SliverList(
+        key: key,
+        delegate: delegate,
+      );
+    }
+    return SliverFixedExtentList(
+      key: key,
+      itemExtent: itemExtent,
+      delegate: delegate,
+    );
+  }
+
+  List<Widget> get _slivers {
     switch (widget.direction) {
       case InfiniteListDirection.multi:
         return [

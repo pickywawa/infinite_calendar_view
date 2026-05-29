@@ -17,9 +17,11 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
     required this.maxPreviousDays,
     required this.maxNextDays,
     required this.initialDate,
-    required this.dayWidth,
+    required this.dayWidthBuilder,
     required this.todayColor,
     required this.timesIndicatorsWidth,
+    this.fixedPageExtent,
+    this.fixedPageItemCount = 1,
   });
 
   final EventsController controller;
@@ -31,9 +33,11 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
   final int? maxPreviousDays;
   final int? maxNextDays;
   final DateTime initialDate;
-  final double dayWidth;
+  final double Function(DateTime) dayWidthBuilder;
   final Color? todayColor;
   final double timesIndicatorsWidth;
+  final double? fixedPageExtent;
+  final int fixedPageItemCount;
 
   @override
   Widget build(BuildContext context) {
@@ -64,37 +68,56 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
             child: SizedBox(
               height: fullDayParam.fullDayEventsBarHeight,
               child: InfiniteList(
-                  controller: dayHorizontalController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  direction: InfiniteListDirection.multi,
-                  negChildCount: maxPreviousDays,
-                  posChildCount: maxNextDays,
-                  builder: (context, index) {
-                    var day = getDayFromIndex(index);
-                    var isToday = DateUtils.isSameDay(day, DateTime.now());
-                    return InfiniteListItem(
-                      contentBuilder: (context) {
-                        return SizedBox(
-                          width: dayWidth,
-                          child: FullDayEventsWidget(
-                            controller: controller,
-                            isToday: isToday,
-                            day: day,
-                            todayColor: todayColor,
-                            fullDayParam: fullDayParam,
-                            columnsParam: columnsParam,
-                            dayWidth: dayWidth,
-                            daySeparationWidthPadding:
-                                daySeparationWidthPadding,
-                          ),
-                        );
-                      },
-                    );
-                  }),
+                controller: dayHorizontalController,
+                physics: const NeverScrollableScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                direction: InfiniteListDirection.multi,
+                negChildCount: _itemCountForMaxDays(maxPreviousDays),
+                posChildCount: _itemCountForMaxDays(maxNextDays),
+                itemExtent: fixedPageExtent,
+                builder: (context, index) {
+                  return InfiniteListItem(
+                    contentBuilder: (context) {
+                      if (fixedPageExtent == null) {
+                        return _buildFullDayEventsCell(index);
+                      }
+                      // Match the planner body: fixed outer page, variable day cells.
+                      return InfiniteListPage(
+                        width: fixedPageExtent,
+                        firstIndex: index * fixedPageItemCount,
+                        itemCount: fixedPageItemCount,
+                        textDirection: textDirection,
+                        builder: (_, index) => _buildFullDayEventsCell(index),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFullDayEventsCell(int dayIndex) {
+    var day = getDayFromIndex(dayIndex);
+    var isToday = DateUtils.isSameDay(day, DateTime.now());
+    var currentDayWidth = dayWidthBuilder(day);
+
+    return SizedBox(
+      width: currentDayWidth,
+      child: FullDayEventsWidget(
+        // Full-day widgets cache events, so do not reuse state across dates.
+        key: ValueKey(day),
+        controller: controller,
+        isToday: isToday,
+        day: day,
+        todayColor: todayColor,
+        fullDayParam: fullDayParam,
+        columnsParam: columnsParam,
+        dayWidth: currentDayWidth,
+        daySeparationWidthPadding: daySeparationWidthPadding,
       ),
     );
   }
@@ -103,6 +126,13 @@ class HorizontalFullDayEventsWidget extends StatelessWidget {
     return initialDate
         .addCalendarDays(textDirection == TextDirection.ltr ? index : -index);
   }
+
+  // Child counts are still configured in days; fixed pages group several days
+  // into one sliver child.
+  int? _itemCountForMaxDays(int? maxDays) =>
+      fixedPageExtent == null || maxDays == null
+          ? maxDays
+          : (maxDays / fixedPageItemCount).ceil();
 }
 
 class FullDayEventsWidget extends StatefulWidget {
@@ -150,6 +180,17 @@ class _FullDayEventsWidgetState extends State<FullDayEventsWidget> {
   void dispose() {
     super.dispose();
     widget.controller.removeListener(eventListener);
+  }
+
+  @override
+  void didUpdateWidget(covariant FullDayEventsWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The state caches filtered events, but fixed pages can reuse it for a different date.
+    if (!DateUtils.isSameDay(oldWidget.day, widget.day) ||
+        oldWidget.fullDayParam.showMultiDayEvents !=
+            widget.fullDayParam.showMultiDayEvents) {
+      updateEvents();
+    }
   }
 
   void updateEvents() {

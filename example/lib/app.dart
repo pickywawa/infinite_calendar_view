@@ -54,6 +54,7 @@ class _AppState extends State<App> {
           constraints: BoxConstraints(
             maxWidth: switch (calendarMode) {
               Mode.day7 => double.infinity,
+              Mode.day7SmallWeekends => double.infinity,
               Mode.day3Rotation => 1000,
               Mode.day3RotationMultiColumn => 1000,
               _ => 500,
@@ -120,6 +121,7 @@ class CalendarViewWidget extends StatelessWidget {
       Mode.day3Draggable => PlannerEventsDrag(key: UniqueKey(), daysShowed: 3),
       Mode.day3Slot => PlannerTreeDaysSlot(key: UniqueKey()),
       Mode.day7 => PlannerEventsDrag(key: UniqueKey(), daysShowed: 7),
+      Mode.day7SmallWeekends => PlannerEventsDrag(key: UniqueKey(), daysShowed: 7, daysWidthRatio: [1, 1, 1, 1, 1, 0.6, 0.6]),
       Mode.multiColumn => PlannerMultiColumns(key: UniqueKey()),
       Mode.multiColumn2 => PlannerMultiColumns2(key: UniqueKey()),
       Mode.month => Months(key: UniqueKey()),
