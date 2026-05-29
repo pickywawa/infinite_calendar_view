@@ -42,12 +42,22 @@ class _Months2State extends State<Months2> {
             },
           );
         },
-        dayMoreEventsBuilder: (count, day) => Text(
-          "+$count more",
-          style: TextStyle(
-            color: Colors.blueGrey,
-            fontWeight: FontWeight.bold,
-            fontSize: 10,
+        dayMoreEventsBuilder: (count, day) => GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _showDayEventsPopup(day),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "+$count more",
+                style: const TextStyle(
+                  color: Colors.blueGrey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -61,6 +71,44 @@ class _Months2State extends State<Months2> {
         hour: event.effectiveStartTime!.hour,
         minute: event.effectiveStartTime!.minute,
       ),
+    );
+  }
+
+  Future<void> _showDayEventsPopup(DateTime day) async {
+    final events = controller.getSortedFilteredDayEvents(day) ?? const <Event>[];
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Events ${day.day.toString().padLeft(2, '0')}/${day.month.toString().padLeft(2, '0')}/${day.year}',
+          ),
+          content: SizedBox(
+            width: 320,
+            child: events.isEmpty
+                ? const Text('No event')
+                : ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: events.length,
+                    separatorBuilder: (_, __) => const Divider(height: 12),
+                    itemBuilder: (context, index) {
+                      final event = events[index];
+                      final title = event.title?.trim().isNotEmpty == true
+                          ? event.title!
+                          : 'Untitled event';
+                      return Text(title, style: const TextStyle(fontSize: 13));
+                    },
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

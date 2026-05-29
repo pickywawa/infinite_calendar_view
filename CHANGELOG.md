@@ -1,3 +1,8 @@
+## 2.11.5
+
+- [bug] month events placement
+  correction https://github.com/pickywawa/infinite_calendar_view/issues/41
+
 ## 2.11.4
 
 - month refactor month events placement and correction of some related bugs :

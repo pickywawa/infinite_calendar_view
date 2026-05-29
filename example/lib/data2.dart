@@ -871,3 +871,23 @@ List<Event> generateSampleEvents() {
 
   return events;
 }
+
+List<Event> getTestEvents() {
+  Event buildEvent(String title, DateTime start, DateTime end) => Event(
+        title: title,
+        startTime: start,
+        endTime: end,
+        isFullDay: true,
+        color: const Color(0xFF90CAF9),
+        textColor: const Color(0xFF0D47A1),
+      );
+
+  return [
+    buildEvent('Test1', DateTime(2027, 8, 1), DateTime(2027, 8, 2, 23, 59)),
+    buildEvent('Test2', DateTime(2027, 8, 3), DateTime(2027, 8, 3, 23, 59)),
+    buildEvent('Test3', DateTime(2027, 8, 1), DateTime(2027, 8, 15, 23, 59)),
+    buildEvent('Test4', DateTime(2027, 8, 1), DateTime(2027, 8, 15, 23, 59)),
+    buildEvent('Test5', DateTime(2027, 8, 1), DateTime(2027, 8, 15, 23, 59)),
+    buildEvent('Test6', DateTime(2027, 8, 1), DateTime(2027, 8, 15, 23, 59)),
+  ];
+}

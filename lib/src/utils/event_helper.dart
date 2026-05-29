@@ -5,8 +5,8 @@ import 'package:infinite_calendar_view/src/utils/extension.dart';
 /// Builds a 7 x `maxEventsShowed` display grid for one week.
 ///
 /// Strategy:
-/// 1) Place multi-day events first so they keep a stable row (lane) across days.
-/// 2) Fill remaining holes per day with single-day events.
+/// 1) Keep continued visible multi-day events on the same lane.
+/// 2) Fill remaining visible lanes using the day's sorted event order.
 List<List<Event?>> getShowedWeekEvents(
   List<List<Event>?> weekEvents,
   int maxEventsShowed,
@@ -16,27 +16,70 @@ List<List<Event?>> getShowedWeekEvents(
   if (maxEventsShowed <= 0) return daysEventsList;
 
   final segments = _buildSortedMultiDaySegments(weekEvents);
-  final laneBySegmentId = _assignMultiDayLanes(segments);
+  final segmentById = {for (final segment in segments) segment.uniqueId: segment};
 
-  // Multi-day events are written first to reserve stable visual lanes.
-  // If a lane is outside the visible cap, the event is hidden and counted by UI as "other".
-  for (final segment in segments) {
-    final lane = laneBySegmentId[segment.uniqueId]!;
-    if (lane >= maxEventsShowed) continue;
-    for (final entry in segment.eventsByDay.entries) {
-      daysEventsList[entry.key][lane] = entry.value;
-    }
-  }
-
-  // Single-day events are only allowed to fill holes left by multi-day placement.
-  // This avoids pushing a multi-day event to a different lane on adjacent days.
+  // Place multi-day events day-by-day:
+  // - keep lane continuity for events already visible the previous day,
+  // - then fill remaining holes with other active multi-day events.
+  final previousVisibleIds = List<UniqueKey?>.filled(maxEventsShowed, null);
+  final firstVisibleDayById = <UniqueKey, int>{};
   for (var day = 0; day < 7; day++) {
+    final dayLaneEvents = List<Event?>.filled(maxEventsShowed, null);
+    final placedIds = <UniqueKey>{};
     final dayEvents = weekEvents[day] ?? const <Event>[];
-    final singleDayEvents = dayEvents.where((e) => !e.isMultiDay);
-    for (final event in singleDayEvents) {
-      final emptyLane = daysEventsList[day].indexOf(null);
+    final dayEventsCount = weekEvents[day]?.length ?? 0;
+    final dayVisibleLaneCount =
+        dayEventsCount > maxEventsShowed ? maxEventsShowed - 1 : maxEventsShowed;
+
+    // 1) Preserve lane continuity for already visible multi-day events.
+    for (var lane = 0; lane < dayVisibleLaneCount; lane++) {
+      final previousId = previousVisibleIds[lane];
+      if (previousId == null) continue;
+
+      final continuingSegment = segmentById[previousId];
+      if (continuingSegment == null ||
+          !continuingSegment.eventsByDay.containsKey(day)) {
+        continue;
+      }
+
+      dayLaneEvents[lane] = continuingSegment.eventsByDay[day];
+      placedIds.add(continuingSegment.uniqueId);
+      firstVisibleDayById.putIfAbsent(continuingSegment.uniqueId, () => day);
+    }
+
+    // 2) Fill remaining visible lanes in day order (list priority).
+    for (final dayEvent in dayEvents) {
+      if (dayEvent.isMultiDay && placedIds.contains(dayEvent.uniqueId)) {
+        continue;
+      }
+
+      final emptyLane = _findFirstEmptyLane(dayLaneEvents, dayVisibleLaneCount);
       if (emptyLane == -1) break;
-      daysEventsList[day][emptyLane] = event;
+
+      var event = dayEvent;
+
+      // If this event becomes visible for the first time mid-week,
+      // mark that day as a local segment start so it can be rendered.
+      if (event.isMultiDay) {
+        final firstVisibleDay = firstVisibleDayById[event.uniqueId];
+        if (firstVisibleDay == null) {
+          firstVisibleDayById[event.uniqueId] = day;
+          if (day > 0 && (event.daysIndex ?? 0) > 0) {
+            event = event.copyWith(daysIndex: 0);
+          }
+        }
+      }
+
+      dayLaneEvents[emptyLane] = event;
+      if (event.isMultiDay) {
+        placedIds.add(event.uniqueId);
+      }
+    }
+
+    daysEventsList[day] = dayLaneEvents;
+
+    for (var lane = 0; lane < maxEventsShowed; lane++) {
+      previousVisibleIds[lane] = dayLaneEvents[lane]?.uniqueId;
     }
   }
 
@@ -93,34 +136,6 @@ List<_MultiDaySegment> _buildSortedMultiDaySegments(
   return segments;
 }
 
-Map<UniqueKey, int> _assignMultiDayLanes(List<_MultiDaySegment> segments) {
-  final laneBySegmentId = <UniqueKey, int>{};
-  final occupiedDaysByLane = <Set<int>>[];
-
-  for (final segment in segments) {
-    var lane = 0;
-    while (true) {
-      if (lane == occupiedDaysByLane.length) {
-        occupiedDaysByLane.add(<int>{});
-      }
-
-      final occupiedDays = occupiedDaysByLane[lane];
-      // Greedy first-fit: choose the first lane that does not overlap
-      // any day covered by this segment.
-      final overlap = segment.days.any(occupiedDays.contains);
-      if (!overlap) {
-        occupiedDays.addAll(segment.days);
-        laneBySegmentId[segment.uniqueId] = lane;
-        break;
-      }
-
-      lane++;
-    }
-  }
-
-  return laneBySegmentId;
-}
-
 class _MultiDaySegment {
   _MultiDaySegment({
     required this.uniqueId,
@@ -150,4 +165,11 @@ List<DateTime> getDaysInBetween(DateTime startDate, DateTime endDate) {
     days.add(startDate.addCalendarDays(i));
   }
   return days;
+}
+
+int _findFirstEmptyLane(List<Event?> lanes, int limit) {
+  for (var i = 0; i < limit; i++) {
+    if (lanes[i] == null) return i;
+  }
+  return -1;
 }
