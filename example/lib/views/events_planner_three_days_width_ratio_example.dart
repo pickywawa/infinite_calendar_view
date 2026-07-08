@@ -17,8 +17,6 @@ class PlannerTreeDaysWidthRatio extends StatefulWidget {
 
 class _PlannerTreeDaysWidthRatioState extends State<PlannerTreeDaysWidthRatio> {
   final EventsController controller = EventsController();
-  final TextEditingController _titleController = TextEditingController();
-  PersistentBottomSheetController? _bottomSheetController = null;
 
   @override
   void initState() {
