@@ -22,6 +22,7 @@ class EventsList extends StatefulWidget {
     this.dayHeaderBuilder,
     this.onDayChange,
     this.dayEventsBuilder,
+    this.scrollController,
     this.verticalScrollPhysics = const BouncingScrollPhysics(
       decelerationRate: ScrollDecelerationRate.fast,
     ),
@@ -66,6 +67,9 @@ class EventsList extends StatefulWidget {
     List<Event>? events,
   )? dayHeaderBuilder;
 
+  /// Custom main scroll controller
+  final ScrollController? scrollController;
+
   /// Vertical day scroll physics
   final ScrollPhysics verticalScrollPhysics;
 
@@ -89,7 +93,7 @@ class EventsListState extends State<EventsList> {
     initialDay =
         widget.initialDate?.withoutTime ?? widget.controller.focusedDay;
     stickyDay = initialDay;
-    mainVerticalController = ScrollController();
+    mainVerticalController = widget.scrollController ?? ScrollController();
   }
 
   @override

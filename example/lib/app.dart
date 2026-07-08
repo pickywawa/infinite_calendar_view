@@ -8,7 +8,8 @@ import 'package:example/views/events_planner_rotate_example.dart';
 import 'package:example/views/events_planner_rotate_multi_columns_example.dart';
 import 'package:example/views/events_planner_rtl_example.dart';
 import 'package:example/views/events_planner_three_days_example.dart';
-import 'package:example/views/events_planner_three_days_example2.dart';
+import 'package:example/views/events_planner_three_days_slot_example.dart';
+import 'package:example/views/events_planner_three_days_width_ratio_example.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_calendar_view/infinite_calendar_view.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -119,6 +120,7 @@ class CalendarViewWidget extends StatelessWidget {
       Mode.day3 => PlannerTreeDays(key: UniqueKey()),
       Mode.day3Draggable => PlannerEventsDrag(key: UniqueKey(), daysShowed: 3),
       Mode.day3Slot => PlannerTreeDaysSlot(key: UniqueKey()),
+      Mode.day3WidthRatio => PlannerTreeDaysWidthRatio(key: UniqueKey()),
       Mode.day7 => PlannerEventsDrag(key: UniqueKey(), daysShowed: 7),
       Mode.multiColumn => PlannerMultiColumns(key: UniqueKey()),
       Mode.multiColumn2 => PlannerMultiColumns2(key: UniqueKey()),

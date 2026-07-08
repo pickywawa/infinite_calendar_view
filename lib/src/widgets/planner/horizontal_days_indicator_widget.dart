@@ -19,7 +19,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
     required this.maxPreviousDays,
     required this.maxNextDays,
     required this.initialDate,
-    required this.dayWidth,
+    required this.dayWidthCalculator,
     required this.topLeftCellValueNotifier,
   });
 
@@ -33,7 +33,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
   final int? maxPreviousDays;
   final int? maxNextDays;
   final DateTime initialDate;
-  final double dayWidth;
+  final DayWidthCalculator dayWidthCalculator;
   final ValueNotifier<DateTime> topLeftCellValueNotifier;
 
   @override
@@ -70,6 +70,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
                 builder: (context, index) {
                   var day = getDayFromIndex(index);
                   var isToday = DateUtils.isSameDay(day, DateTime.now());
+                  var dayWidth = dayWidthCalculator.widthForIndex(index);
 
                   return InfiniteListItem(
                     contentBuilder: (context) {
@@ -87,7 +88,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
                                 columnsParam.columnHeaderBuilder != null ||
                                 columnsParam.columnsLabels.isNotEmpty)
                               getColumnsHeader(context, startColumnIndex,
-                                  onColumnIndexChanged, day, isToday)
+                                  onColumnIndexChanged, day, isToday, dayWidth)
                           ],
                         ),
                       );
@@ -122,6 +123,7 @@ class HorizontalDaysIndicatorWidget extends StatelessWidget {
     Function(int newStartColumnIndex) onColumnIndexChanged,
     DateTime day,
     bool isToday,
+    double dayWidth,
   ) {
     var colorScheme = Theme.of(context).colorScheme;
     var bgColor = colorScheme.surface;

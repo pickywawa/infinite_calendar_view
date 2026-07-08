@@ -24,6 +24,13 @@ class PlannerEventsDrag extends StatelessWidget {
       daysShowed: daysShowed,
       heightPerMinute: heightPerMinute,
       initialVerticalScrollOffset: initialVerticalScrollOffset,
+      dayWidthBuilder: (day, defaultWidth) {
+        return switch (day.weekday) {
+          DateTime.saturday || DateTime.sunday => defaultWidth * 0.5,
+          _ when DateUtils.isSameDay(day, DateTime.now()) => defaultWidth * 2,
+          _ => defaultWidth
+        };
+      },
       dayParam: DayParam(
         onSlotMinutesRound: 30,
         dayEventBuilder: (event, height, width, heightPerMinute) {

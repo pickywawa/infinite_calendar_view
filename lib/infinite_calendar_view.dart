@@ -14,6 +14,7 @@ export './src/events_list.dart';
 export './src/events_months.dart';
 export './src/events_planner.dart';
 export './src/painters/events_painters.dart';
+export './src/utils/day_width_calculator.dart';
 export './src/utils/extension.dart';
 export './src/widgets/details/day_details.dart';
 export './src/widgets/details/header_details.dart';

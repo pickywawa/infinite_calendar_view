@@ -47,42 +47,42 @@ class DraggableEventWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EventsPlannerState? plannerState;
+    EventsPlannerState plannerState =
+        context.findAncestorStateOfType<EventsPlannerState>() ??
+            EventsPlannerState();
     var oldPositionY = 0.0;
     var oldVerticalOffset = 0.0;
 
     return LongPressDraggable(
-      feedback: draggableFeedback ?? getDefaultDraggableFeedback(),
+      feedback: draggableFeedback ?? getDefaultDraggableFeedback(plannerState),
       childWhenDragging: const SizedBox.shrink(),
       onDragStarted: () {
-        plannerState = context.findAncestorStateOfType<EventsPlannerState>();
         var oldBox = context.findRenderObject() as RenderBox;
         var oldPosition = oldBox.localToGlobal(Offset.zero);
         oldPositionY = oldPosition.dy;
-        oldVerticalOffset = plannerState?.mainVerticalController.offset ?? 0;
+        oldVerticalOffset = plannerState.mainVerticalController.offset;
       },
       onDragUpdate: (details) {
         manageHorizontalScroll(plannerState, context, details);
       },
       onDragEnd: (details) {
-        var renderBox = plannerState?.context.findRenderObject() as RenderBox;
+        var dayWidthCalculator = plannerState.dayWidthCalculator;
+        var renderBox = plannerState.context.findRenderObject() as RenderBox;
         var relativeOffset = renderBox.globalToLocal(details.offset);
 
         // find day
-        var dayWidth = plannerState?.dayWidth ?? 0;
-        var heightPerMinute = plannerState?.heightPerMinute ?? 0;
-        var scrollOffsetX = plannerState?.mainHorizontalController.offset ?? 0;
-        var releaseOffsetX = scrollOffsetX + relativeOffset.dx;
-        var dayIndex = (releaseOffsetX / dayWidth).toInt();
-        // adjust negative index, because current day begin 0 and negative begin -1
-        var reallyDayIndex = releaseOffsetX >= 0 ? dayIndex : dayIndex - 1;
-        var currentDay = plannerState?.initialDate
-                .addCalendarDays(reallyDayIndex)
-                .withoutTime ??
-            event.startTime.withoutTime;
+        var timesIndicatorsParam = plannerState.widget.timesIndicatorsParam;
+        var timeWidth = timesIndicatorsParam.timesIndicatorsWidth;
+        var heightPerMinute = plannerState.heightPerMinute;
+        var scrollOffsetX = plannerState.mainHorizontalController.offset;
+        var releaseOffsetX =
+            scrollOffsetX + relativeOffset.dx + width / 2 - timeWidth;
+        var dayIndex = dayWidthCalculator.indexForOffset(releaseOffsetX);
+        var currentDay =
+            plannerState.initialDate.addCalendarDays(dayIndex).withoutTime;
 
         // find hour
-        var scrollOffsetY = plannerState?.mainVerticalController.offset ?? 0;
+        var scrollOffsetY = plannerState.mainVerticalController.offset;
         var difference = (details.offset.dy - oldPositionY) +
             (scrollOffsetY - oldVerticalOffset);
         var minuteDiff = difference / heightPerMinute;
@@ -111,11 +111,14 @@ class DraggableEventWidget extends StatelessWidget {
 
         // find column
         var columnIndex = 0;
-        var dayPosition = (releaseOffsetX % dayWidth);
-        var columnsParam = plannerState?.widget.columnsParam;
-        if (columnsParam != null && columnsParam.columns > 0) {
+        var dayStartOffset =
+            plannerState.dayWidthCalculator.offsetForIndex(dayIndex);
+        var dayWidth = plannerState.dayWidthCalculator.widthForIndex(dayIndex);
+        var dayPosition = releaseOffsetX - dayStartOffset;
+        var columnsParam = plannerState.widget.columnsParam;
+        if (columnsParam.columns > 0) {
           for (var column = 0; column < columnsParam.columns; column++) {
-            var positions = columnsParam.getColumPositions(width, column);
+            var positions = columnsParam.getColumPositions(dayWidth, column);
             if (positions[0] <= dayPosition && dayPosition <= positions[1]) {
               columnIndex = column;
             }
@@ -153,7 +156,7 @@ class DraggableEventWidget extends StatelessWidget {
     }
   }
 
-  SizedBox getDefaultDraggableFeedback() {
+  SizedBox getDefaultDraggableFeedback(EventsPlannerState? plannerState) {
     return SizedBox(
       height: height,
       width: width,

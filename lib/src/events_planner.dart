@@ -9,6 +9,7 @@ import 'controller/events_controller.dart';
 import 'events/event.dart';
 import 'events/event_arranger.dart';
 import 'events/side_events_arranger.dart';
+import 'utils/day_width_calculator.dart';
 import 'utils/extension.dart';
 import 'utils/list/infinite_list.dart';
 import 'utils/list/models/alignments.dart';
@@ -28,6 +29,7 @@ class EventsPlanner extends StatefulWidget {
     this.maxNextDays = 365,
     this.heightPerMinute = 0.9,
     this.daySeparationWidth = 3.0,
+    this.dayWidthBuilder,
     this.dayEventsArranger = const SideEventArranger(),
     this.onDayChange,
     this.initialVerticalScrollOffset = 0,
@@ -76,6 +78,10 @@ class EventsPlanner extends StatefulWidget {
 
   /// separation between two day
   final double daySeparationWidth;
+
+  /// Custom day width builder, allowing non-uniform day widths.
+  /// e.g. `defaultDayWidth * 2` for a wider
+  final DayWidthBuilder? dayWidthBuilder;
 
   /// Arrange events position in day
   /// See SimpleEventArranger
@@ -153,6 +159,7 @@ class EventsPlannerState extends State<EventsPlanner> {
   late double heightPerMinute;
   late double heightPerMinuteScaleStart;
   late double mainVerticalControllerOffsetScaleStart;
+  late DayWidthCalculator dayWidthCalculator;
   var _listenHorizontalScrollDayChange = true;
   var _plannerPointerDownCount = 0;
   var _isKeyboardZoomActive = false;
@@ -168,6 +175,10 @@ class EventsPlannerState extends State<EventsPlanner> {
     currentIndex = 0;
     mainVerticalController = ScrollController(
       initialScrollOffset: widget.initialVerticalScrollOffset,
+    );
+    dayWidthCalculator = DayWidthCalculator(
+      getDayFromIndex: getDayFromIndex,
+      dayWidthBuilder: widget.dayWidthBuilder,
     );
 
     // synchronize horizontal scroll between days events / full day events / days header
@@ -228,6 +239,15 @@ class EventsPlannerState extends State<EventsPlanner> {
   }
 
   @override
+  void didUpdateWidget(covariant EventsPlanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.dayWidthBuilder != oldWidget.dayWidthBuilder) {
+      dayWidthCalculator.dayWidthBuilder = widget.dayWidthBuilder;
+      dayWidthCalculator.clear();
+    }
+  }
+
+  @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     super.dispose();
@@ -235,12 +255,10 @@ class EventsPlannerState extends State<EventsPlanner> {
 
   /// listen mainHorizontalController and call onFirstDayChange when day change
   void initDayChangingListener() {
-    var halfDayWidth = (dayWidth / 2);
     var scroll = mainHorizontalController;
     scroll.addListener(() {
       if (_listenHorizontalScrollDayChange) {
-        var halfDay = scroll.offset >= 0 ? halfDayWidth : -halfDayWidth;
-        var index = ((scroll.offset + halfDay) / dayWidth).toInt();
+        var index = dayWidthCalculator.nearestIndexForOffset(scroll.offset);
         // only when index has changed
         if (index != currentIndex) {
           currentIndex = index;
@@ -264,7 +282,9 @@ class EventsPlannerState extends State<EventsPlanner> {
       var stopScroll = !scroll.position.isScrollingNotifier.value;
       if (_listenHorizontalScrollDayChange && stopScroll) {
         // Round to nearest day
-        var nearestDayOffset = dayWidth * (scroll.offset / dayWidth).round();
+        var nearestIndex =
+            dayWidthCalculator.nearestIndexForOffset(scroll.offset);
+        var nearestDayOffset = dayWidthCalculator.offsetForIndex(nearestIndex);
         if (nearestDayOffset != scroll.offset) {
           // adjust scroll
           Future.delayed(const Duration(milliseconds: 1), () {
@@ -273,8 +293,7 @@ class EventsPlannerState extends State<EventsPlanner> {
                 curve: Curves.easeIn);
 
             // event
-            var adjustedDay =
-                getDayFromIndex((nearestDayOffset / dayWidth).toInt());
+            var adjustedDay = getDayFromIndex(nearestIndex);
             widget.onAutomaticAdjustHorizontalScroll?.call(adjustedDay);
           });
         }
@@ -317,6 +336,11 @@ class EventsPlannerState extends State<EventsPlanner> {
         height = constraints.maxHeight;
         var leftWidget = widget.timesIndicatorsParam.timesIndicatorsWidth;
         dayWidth = (width - leftWidget) / widget.daysShowed;
+        // reference (uniform) width changed : cached widths/offsets are stale
+        if (dayWidthCalculator.defaultDayWidth != dayWidth) {
+          dayWidthCalculator.defaultDayWidth = dayWidth;
+          dayWidthCalculator.clear();
+        }
         onColumnIndexChanged(int newStartColumnIndex) {
           setState(() {
             _startColumnIndex = newStartColumnIndex;
@@ -477,7 +501,7 @@ class EventsPlannerState extends State<EventsPlanner> {
                 daySeparationWidthPadding: daySeparationWidthPadding,
                 plannerHeight: plannerHeight,
                 heightPerMinute: heightPerMinute,
-                dayWidth: dayWidth,
+                dayWidth: dayWidthCalculator.widthForIndex(index),
                 dayEventsArranger: widget.dayEventsArranger,
                 dayParam: widget.dayParam,
                 columnsParam: widget.columnsParam,
@@ -521,7 +545,7 @@ class EventsPlannerState extends State<EventsPlanner> {
       maxPreviousDays: widget.maxPreviousDays,
       maxNextDays: widget.maxNextDays,
       initialDate: initialDate,
-      dayWidth: dayWidth,
+      dayWidthCalculator: dayWidthCalculator,
       todayColor: todayColor,
       timesIndicatorsWidth: widget.timesIndicatorsParam.timesIndicatorsWidth,
     );
@@ -541,7 +565,7 @@ class EventsPlannerState extends State<EventsPlanner> {
       maxPreviousDays: widget.maxPreviousDays,
       maxNextDays: widget.maxNextDays,
       initialDate: initialDate,
-      dayWidth: dayWidth,
+      dayWidthCalculator: dayWidthCalculator,
       timesIndicatorsWidth: widget.timesIndicatorsParam.timesIndicatorsWidth,
       topLeftCellValueNotifier: topLeftCellValueNotifier,
     );
@@ -629,11 +653,9 @@ class EventsPlannerState extends State<EventsPlanner> {
     if (context.mounted) {
       // stop scroll listener for avoid change day listener
       _listenHorizontalScrollDayChange = false;
-      var index = date.withoutTime.getDayDifference(initialDate);
-      var offset = index * dayWidth;
-      if (widget.textDirection == TextDirection.rtl) {
-        offset = -offset;
-      }
+      var diff = date.withoutTime.getDayDifference(initialDate);
+      var index = widget.textDirection == TextDirection.rtl ? -diff : diff;
+      var offset = dayWidthCalculator.offsetForIndex(index);
       mainHorizontalController.jumpTo(offset);
       _listenHorizontalScrollDayChange = true;
     }

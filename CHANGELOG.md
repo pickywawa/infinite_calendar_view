@@ -1,3 +1,8 @@
+## 2.12.0
+
+- [new] add variable day width in eventPlanner
+- [new] custom scroll in eventList
+
 ## 2.11.5
 
 - [bug] month events placement
