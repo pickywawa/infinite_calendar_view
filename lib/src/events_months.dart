@@ -71,6 +71,7 @@ class EventsMonths extends StatefulWidget {
 }
 
 class EventsMonthsState extends State<EventsMonths> {
+  var _listKey = UniqueKey();
   late ScrollController scrollController;
   late DateTime initialMonth;
   late DateTime _stickyMonth;
@@ -176,6 +177,7 @@ class EventsMonthsState extends State<EventsMonths> {
                   child: AbsorbPointer(
                     absorbing: isZoom ? _pointerDownCount > 1 : false,
                     child: InfiniteList(
+                      key: _listKey,
                       controller: scrollController,
                       direction: InfiniteListDirection.multi,
                       negChildCount: widget.maxPreviousMonth,
@@ -229,6 +231,11 @@ class EventsMonthsState extends State<EventsMonths> {
   void jumpToDate(DateTime date) {
     if (context.mounted) {
       setState(() {
+        // change key to force rebuild of sticky list items
+        // (avoid reusing stale sticky render objects/offsets from
+        // previous month positions, which could trigger onMonthChange
+        // with a wrong month)
+        _listKey = UniqueKey();
         initialMonth = DateTime(date.year, date.month);
       });
       scrollController.jumpTo(0);

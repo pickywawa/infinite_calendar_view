@@ -1,3 +1,7 @@
+## 2.12.1
+
+- [bug] jumpToDate in events_months can trigger onMonthChange with a wrong month
+
 ## 2.12.0
 
 - [new] add variable day width in eventPlanner
