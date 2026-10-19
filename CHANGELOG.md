@@ -1,3 +1,7 @@
+## 2.13.1
+
+- [bug+improve] slot selection (cursor, resize)
+
 ## 2.13.0
 
 - [deprecated] remove `cacheExtent` no used

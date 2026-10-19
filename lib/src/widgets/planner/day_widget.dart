@@ -301,14 +301,23 @@ class DayWidget extends StatelessWidget {
                             heightPerMinute: heightPerMinute,
                             mouseCursor: dayParam.slotSelectionParam
                                         .enableHoverSlotSelection &&
-                                    !controller.slotSelectionFixed &&
-                                    dayParam.slotSelectionParam
-                                        .fixHoverSlotSelectionOnTap
+                                    (!dayParam.slotSelectionParam
+                                            .fixHoverSlotSelectionOnTap ||
+                                        !controller.slotSelectionFixed)
                                 ? SystemMouseCursors.click
                                 : dayParam.slotSelectionParam
                                         .canDragSlotSelectionAfterShow
                                     ? SystemMouseCursors.grab
                                     : SystemMouseCursors.click,
+                            dragWithoutLongPress:
+                                controller.slotSelectionFixed &&
+                                    dayParam.slotSelectionParam
+                                        .enableHoverSlotSelection,
+                            hideResizeHandles: dayParam.slotSelectionParam
+                                    .enableHoverSlotSelection &&
+                                dayParam.slotSelectionParam
+                                    .fixHoverSlotSelectionOnTap &&
+                                !controller.slotSelectionFixed,
                             onTapIntercept: () {
                               var param = dayParam.slotSelectionParam;
                               if (param.enableHoverSlotSelection &&
