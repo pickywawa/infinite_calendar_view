@@ -1034,6 +1034,10 @@ class SlotSelectionParam {
     this.enableTapSlotSelection = false,
     this.enableLongPressSlotSelection = false,
     this.enableDoubleTapSlotSelection = false,
+    this.enableHoverSlotSelection = false,
+    this.fixHoverSlotSelectionOnTap = true,
+    this.hideHoverSlotSelectionOnEventConflict = true,
+    this.hoverConflictEventTypes,
     this.clearWhenBackgroundTap = true,
     this.canDragSlotSelectionAfterShow = true,
     this.slotSelectionDefaultDurationInMinutes,
@@ -1055,6 +1059,19 @@ class SlotSelectionParam {
 
   /// enable interactive slot selection when double tap on day slot
   final bool enableDoubleTapSlotSelection;
+
+  /// show interactive slot selection under the mouse pointer without tap (desktop / web)
+  final bool enableHoverSlotSelection;
+
+  /// with [enableHoverSlotSelection], hide the slot when it overlaps an existing event
+  final bool hideHoverSlotSelectionOnEventConflict;
+
+  /// event types that conflict with the hover slot (null = all types)
+  final Set<Object>? hoverConflictEventTypes;
+
+  /// with [enableHoverSlotSelection], tap on the hovered slot fixes it (instead of
+  /// triggering tap event) so it can then be dragged / resized. Background tap clears it.
+  final bool fixHoverSlotSelectionOnTap;
 
   /// clear slot selection when background tap
   final bool clearWhenBackgroundTap;

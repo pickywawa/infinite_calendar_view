@@ -11,6 +11,8 @@ class InteractiveSlot extends StatefulWidget {
     required this.columnsParam,
     required this.heightPerMinute,
     required this.onChanged,
+    this.onTapIntercept,
+    this.mouseCursor = MouseCursor.defer,
   });
 
   final SlotSelection slot;
@@ -19,6 +21,12 @@ class InteractiveSlot extends StatefulWidget {
   final ColumnsParam columnsParam;
   final double heightPerMinute;
   final void Function(SlotSelection? updatedSlot) onChanged;
+
+  /// return true when the tap has been handled (default tap behavior skipped)
+  final bool Function()? onTapIntercept;
+
+  /// mouse cursor displayed over the slot
+  final MouseCursor mouseCursor;
 
   @override
   State<InteractiveSlot> createState() => _InteractiveSlotState();
@@ -35,107 +43,112 @@ class _InteractiveSlotState extends State<InteractiveSlot> {
   Widget build(BuildContext context) {
     var slotSelectionParam = widget.dayParam.slotSelectionParam;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        slotSelectionParam.onSlotSelectionTap?.call(widget.slot);
-        widget.onChanged(null);
-      },
-      onLongPressStart: (details) {
-        slotSelectionParam.onSlotSelectionLongPress?.call(widget.slot);
-        if (slotSelectionParam.canDragSlotSelectionAfterShow) {
-          initialStartDateTime = widget.slot.startDateTime;
-        }
-      },
-      onLongPressMoveUpdate: (details) {
-        if (slotSelectionParam.canDragSlotSelectionAfterShow) {
-          var slotSelection = widget.slot;
-          var round = widget.dayParam.onSlotMinutesRound;
-          final minutesDelta =
-              details.localOffsetFromOrigin.dy / widget.heightPerMinute;
-          var minutesDeltaRound = widget.dayParam.onSlotRoundAlwaysBefore
-              ? round * (minutesDelta / round).floor()
-              : round * (minutesDelta / round).round();
-          final daysDelta =
-              (details.localOffsetFromOrigin.dx / widget.dayWidth).round();
-          final newStart = initialStartDateTime
-              .add(Duration(days: daysDelta, minutes: minutesDeltaRound));
-          widget.onChanged(SlotSelection(
-              slotSelection.columnIndex,
-              slotSelection.initialStartDateTime,
-              newStart,
-              slotSelection.durationInMinutes));
-        }
-      },
-      child: Stack(
-        children: [
-          // slot build
-          Positioned.fill(
-            child: slotSelectionParam.slotSelectionContentBuilder
-                    ?.call(widget.slot) ??
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withAlpha(80),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 1,
+    return MouseRegion(
+      cursor: widget.mouseCursor,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (widget.onTapIntercept?.call() ?? false) return;
+          slotSelectionParam.onSlotSelectionTap?.call(widget.slot);
+          widget.onChanged(null);
+        },
+        onLongPressStart: (details) {
+          slotSelectionParam.onSlotSelectionLongPress?.call(widget.slot);
+          if (slotSelectionParam.canDragSlotSelectionAfterShow) {
+            initialStartDateTime = widget.slot.startDateTime;
+          }
+        },
+        onLongPressMoveUpdate: (details) {
+          if (slotSelectionParam.canDragSlotSelectionAfterShow) {
+            var slotSelection = widget.slot;
+            var round = widget.dayParam.onSlotMinutesRound;
+            final minutesDelta =
+                details.localOffsetFromOrigin.dy / widget.heightPerMinute;
+            var minutesDeltaRound = widget.dayParam.onSlotRoundAlwaysBefore
+                ? round * (minutesDelta / round).floor()
+                : round * (minutesDelta / round).round();
+            final daysDelta =
+                (details.localOffsetFromOrigin.dx / widget.dayWidth).round();
+            final newStart = initialStartDateTime
+                .add(Duration(days: daysDelta, minutes: minutesDeltaRound));
+            widget.onChanged(SlotSelection(
+                slotSelection.columnIndex,
+                slotSelection.initialStartDateTime,
+                newStart,
+                slotSelection.durationInMinutes));
+          }
+        },
+        child: Stack(
+          children: [
+            // slot build
+            Positioned.fill(
+              child: slotSelectionParam.slotSelectionContentBuilder
+                      ?.call(widget.slot) ??
+                  Container(
+                    decoration: BoxDecoration(
+                      color:
+                          Theme.of(context).colorScheme.primary.withAlpha(80),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5.0,
-                      vertical: 15.0,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        getDefaultText(widget.slot),
-                        style: TextStyle(fontSize: 11),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5.0,
+                        vertical: 15.0,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          getDefaultText(widget.slot),
+                          style: TextStyle(fontSize: 11),
+                        ),
                       ),
                     ),
                   ),
+            ),
+
+            // Top handle
+            if (slotSelectionParam.enableSlotSelectionResize)
+              Align(
+                alignment: Alignment.topCenter,
+                child: RawGestureDetector(
+                  gestures: {
+                    VerticalDragGestureRecognizer: getTopHandleGesture(),
+                  },
+                  child: slotSelectionParam.slotSelectionTopHandleBuilder
+                          ?.call() ??
+                      Container(
+                        height: 15,
+                        width: double.infinity,
+                        color: Colors.transparent,
+                        child: const Icon(Icons.drag_handle, size: 12),
+                      ),
                 ),
-          ),
-
-          // Top handle
-          if (slotSelectionParam.enableSlotSelectionResize)
-            Align(
-              alignment: Alignment.topCenter,
-              child: RawGestureDetector(
-                gestures: {
-                  VerticalDragGestureRecognizer: getTopHandleGesture(),
-                },
-                child:
-                    slotSelectionParam.slotSelectionTopHandleBuilder?.call() ??
-                        Container(
-                          height: 15,
-                          width: double.infinity,
-                          color: Colors.transparent,
-                          child: const Icon(Icons.drag_handle, size: 12),
-                        ),
               ),
-            ),
 
-          // Bottom handle
-          if (slotSelectionParam.enableSlotSelectionResize)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: RawGestureDetector(
-                gestures: {
-                  VerticalDragGestureRecognizer: getBottomHandleGesture(),
-                },
-                child: slotSelectionParam.slotSelectionBottomHandleBuilder
-                        ?.call() ??
-                    Container(
-                      height: 15,
-                      width: double.infinity,
-                      color: Colors.transparent,
-                      child: const Icon(Icons.drag_handle, size: 12),
-                    ),
+            // Bottom handle
+            if (slotSelectionParam.enableSlotSelectionResize)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: RawGestureDetector(
+                  gestures: {
+                    VerticalDragGestureRecognizer: getBottomHandleGesture(),
+                  },
+                  child: slotSelectionParam.slotSelectionBottomHandleBuilder
+                          ?.call() ??
+                      Container(
+                        height: 15,
+                        width: double.infinity,
+                        color: Colors.transparent,
+                        child: const Icon(Icons.drag_handle, size: 12),
+                      ),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

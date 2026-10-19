@@ -215,9 +215,6 @@ class InfiniteList extends StatefulWidget {
   /// Proxy property for [ScrollView.anchor]
   final double anchor;
 
-  /// Proxy property for [RenderViewportBase.cacheExtent]
-  final double? cacheExtent;
-
   /// Scroll direction
   ///
   /// Can be vertical or horizontal (see [Axis] class)
@@ -240,7 +237,6 @@ class InfiniteList extends StatefulWidget {
     this.negChildCount,
     //this.reverse = false,
     this.anchor = 0.0,
-    this.cacheExtent,
     this.scrollDirection = Axis.vertical,
     this.physics,
   }) : _centerKey = (direction == InfiniteListDirection.multi)
@@ -301,7 +297,6 @@ class _InfiniteListState extends State<InfiniteList> {
         slivers: _slivers,
         reverse: widget.reverse,
         anchor: widget.anchor,
-        cacheExtent: widget.cacheExtent,
         scrollDirection: widget.scrollDirection,
         physics: widget.physics,
       );

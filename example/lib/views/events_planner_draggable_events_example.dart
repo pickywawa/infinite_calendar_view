@@ -37,6 +37,7 @@ class PlannerEventsDrag extends StatelessWidget {
           return draggableEvent(context, event, height, width);
         },
         slotSelectionParam: SlotSelectionParam(
+          enableHoverSlotSelection: true,
           enableTapSlotSelection: true,
           enableLongPressSlotSelection: true,
           onSlotSelectionTap: (slot) => showSnack(

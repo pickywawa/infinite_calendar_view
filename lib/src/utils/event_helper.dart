@@ -16,7 +16,9 @@ List<List<Event?>> getShowedWeekEvents(
   if (maxEventsShowed <= 0) return daysEventsList;
 
   final segments = _buildSortedMultiDaySegments(weekEvents);
-  final segmentById = {for (final segment in segments) segment.uniqueId: segment};
+  final segmentById = {
+    for (final segment in segments) segment.uniqueId: segment
+  };
 
   // Place multi-day events day-by-day:
   // - keep lane continuity for events already visible the previous day,
@@ -28,8 +30,9 @@ List<List<Event?>> getShowedWeekEvents(
     final placedIds = <UniqueKey>{};
     final dayEvents = weekEvents[day] ?? const <Event>[];
     final dayEventsCount = weekEvents[day]?.length ?? 0;
-    final dayVisibleLaneCount =
-        dayEventsCount > maxEventsShowed ? maxEventsShowed - 1 : maxEventsShowed;
+    final dayVisibleLaneCount = dayEventsCount > maxEventsShowed
+        ? maxEventsShowed - 1
+        : maxEventsShowed;
 
     // 1) Preserve lane continuity for already visible multi-day events.
     for (var lane = 0; lane < dayVisibleLaneCount; lane++) {

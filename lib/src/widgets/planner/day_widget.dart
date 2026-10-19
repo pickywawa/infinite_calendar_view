@@ -73,107 +73,84 @@ class DayWidget extends StatelessWidget {
         top: dayParam.dayTopPadding,
         bottom: dayParam.dayBottomPadding,
       ),
-      child: GestureDetector(
-        onTapUp: (details) => onSlotEvent(width, details.localPosition.dx,
-            details.localPosition.dy, true, false, false),
-        onDoubleTapDown: (details) => onSlotEvent(
-            width,
-            details.localPosition.dx,
-            details.localPosition.dy,
-            false,
-            true,
-            false),
-        onLongPressStart: (details) => onSlotEvent(
-            width,
-            details.localPosition.dx,
-            details.localPosition.dy,
-            false,
-            false,
-            true),
-        onLongPressMoveUpdate: (details) {
-          if (dayParam.slotSelectionParam.enableLongPressSlotSelection) {
-            var slotSelection = controller.slotSelectionNotifier.value;
-            if (slotSelection != null) {
-              final minutesDelta =
-                  details.localOffsetFromOrigin.dy / heightPerMinute;
-              var minutesDeltaRound = dayParam.onSlotRoundAlwaysBefore
-                  ? dayParam.onSlotMinutesRound *
-                      (minutesDelta / dayParam.onSlotMinutesRound).floor()
-                  : dayParam.onSlotMinutesRound *
-                      (minutesDelta / dayParam.onSlotMinutesRound).round();
-              final daysDelta =
-                  (details.localOffsetFromOrigin.dx / dayWidth).round();
-              final newStart = slotSelection.initialStartDateTime
-                  .addCalendarDays(daysDelta)
-                  .add(Duration(minutes: minutesDeltaRound));
-              controller.slotSelectionNotifier.value = SlotSelection(
-                slotSelection.columnIndex,
-                slotSelection.initialStartDateTime,
-                newStart,
-                slotSelection.durationInMinutes,
-              );
+      child: MouseRegion(
+        onHover: dayParam.slotSelectionParam.enableHoverSlotSelection
+            ? (event) => onSlotHover(width, event.localPosition)
+            : null,
+        onExit: dayParam.slotSelectionParam.enableHoverSlotSelection
+            ? (_) {
+                if (!controller.slotSelectionFixed) clearSlotSelection();
+              }
+            : null,
+        child: GestureDetector(
+          onTapUp: (details) => onSlotEvent(width, details.localPosition.dx,
+              details.localPosition.dy, true, false, false),
+          onDoubleTapDown: (details) => onSlotEvent(
+              width,
+              details.localPosition.dx,
+              details.localPosition.dy,
+              false,
+              true,
+              false),
+          onLongPressStart: (details) => onSlotEvent(
+              width,
+              details.localPosition.dx,
+              details.localPosition.dy,
+              false,
+              false,
+              true),
+          onLongPressMoveUpdate: (details) {
+            if (dayParam.slotSelectionParam.enableLongPressSlotSelection) {
+              var slotSelection = controller.slotSelectionNotifier.value;
+              if (slotSelection != null) {
+                final minutesDelta =
+                    details.localOffsetFromOrigin.dy / heightPerMinute;
+                var minutesDeltaRound = dayParam.onSlotRoundAlwaysBefore
+                    ? dayParam.onSlotMinutesRound *
+                        (minutesDelta / dayParam.onSlotMinutesRound).floor()
+                    : dayParam.onSlotMinutesRound *
+                        (minutesDelta / dayParam.onSlotMinutesRound).round();
+                final daysDelta =
+                    (details.localOffsetFromOrigin.dx / dayWidth).round();
+                final newStart = slotSelection.initialStartDateTime
+                    .addCalendarDays(daysDelta)
+                    .add(Duration(minutes: minutesDeltaRound));
+                controller.slotSelectionNotifier.value = SlotSelection(
+                  slotSelection.columnIndex,
+                  slotSelection.initialStartDateTime,
+                  newStart,
+                  slotSelection.durationInMinutes,
+                );
+              }
             }
-          }
-        },
-        child: Stack(
-          children: [
-            // offSet all days painter
-            Row(
-              textDirection: textDirection,
-              children: [
-                for (var column = startColumnIndex;
-                    column < endColumnIndex;
-                    column++)
-                  Container(
-                    width: columnsParam.getColumSize(width, column),
-                    height: plannerHeight,
-                    decoration: BoxDecoration(color: dayBackgroundColor),
-                    child: CustomPaint(
-                      foregroundPainter: offTimesParam.offTimesAllDaysPainter
-                              ?.call(
-                                  column,
-                                  day,
-                                  isToday,
-                                  heightPerMinute,
-                                  offTimesParam.offTimesAllDaysRanges,
-                                  offTimesParam.offTimesColor ??
-                                      offTimesDefaultColor) ??
-                          OffSetAllDaysPainter(
-                              isToday,
-                              heightPerMinute,
-                              offTimesParam.offTimesAllDaysRanges,
-                              offTimesParam.offTimesColor ??
-                                  offTimesDefaultColor),
-                    ),
-                  ),
-              ],
-            ),
-
-            // offSet particular days painter
-            if (offTimesOfDay != null)
+          },
+          child: Stack(
+            children: [
+              // offSet all days painter
               Row(
                 textDirection: textDirection,
                 children: [
                   for (var column = startColumnIndex;
                       column < endColumnIndex;
                       column++)
-                    SizedBox(
+                    Container(
                       width: columnsParam.getColumSize(width, column),
                       height: plannerHeight,
+                      decoration: BoxDecoration(color: dayBackgroundColor),
                       child: CustomPaint(
-                        foregroundPainter: offTimesParam.offTimesDayPainter
+                        foregroundPainter: offTimesParam.offTimesAllDaysPainter
                                 ?.call(
                                     column,
                                     day,
                                     isToday,
                                     heightPerMinute,
-                                    offTimesOfDay,
+                                    offTimesParam.offTimesAllDaysRanges,
                                     offTimesParam.offTimesColor ??
                                         offTimesDefaultColor) ??
                             OffSetAllDaysPainter(
-                                false,
+                                isToday,
                                 heightPerMinute,
-                                offTimesOfDay,
+                                offTimesParam.offTimesAllDaysRanges,
                                 offTimesParam.offTimesColor ??
                                     offTimesDefaultColor),
                       ),
@@ -181,131 +158,248 @@ class DayWidget extends StatelessWidget {
                 ],
               ),
 
-            // lines painters
-            SizedBox(
-              width: width,
-              height: plannerHeight,
-              child: CustomPaint(
-                foregroundPainter: dayParam.dayCustomPainter
-                        ?.call(heightPerMinute, isToday) ??
-                    LinesPainter(
-                      heightPerMinute: heightPerMinute,
-                      isToday: isToday,
-                      lineColor: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-              ),
-            ),
+              // offSet particular days painter
+              if (offTimesOfDay != null)
+                Row(
+                  textDirection: textDirection,
+                  children: [
+                    for (var column = startColumnIndex;
+                        column < endColumnIndex;
+                        column++)
+                      SizedBox(
+                        width: columnsParam.getColumSize(width, column),
+                        height: plannerHeight,
+                        child: CustomPaint(
+                          foregroundPainter: offTimesParam.offTimesDayPainter
+                                  ?.call(
+                                      column,
+                                      day,
+                                      isToday,
+                                      heightPerMinute,
+                                      offTimesOfDay,
+                                      offTimesParam.offTimesColor ??
+                                          offTimesDefaultColor) ??
+                              OffSetAllDaysPainter(
+                                  false,
+                                  heightPerMinute,
+                                  offTimesOfDay,
+                                  offTimesParam.offTimesColor ??
+                                      offTimesDefaultColor),
+                        ),
+                      ),
+                  ],
+                ),
 
-            // columns painters
-            if (columnsParam.columns > 1)
+              // lines painters
               SizedBox(
                 width: width,
                 height: plannerHeight,
                 child: CustomPaint(
-                  foregroundPainter: columnsParam.columnCustomPainter?.call(
-                        width,
-                        min(columnsParam.maxColumns ?? columnsParam.columns,
-                            columnsParam.columns),
-                      ) ??
-                      ColumnPainter(
-                        width: width,
-                        columnsParam: columnsParam,
+                  foregroundPainter: dayParam.dayCustomPainter
+                          ?.call(heightPerMinute, isToday) ??
+                      LinesPainter(
+                        heightPerMinute: heightPerMinute,
+                        isToday: isToday,
                         lineColor: Theme.of(context).colorScheme.outlineVariant,
                       ),
                 ),
               ),
 
-            // events
-            Row(
-              textDirection: textDirection,
-              children: [
-                for (var column = startColumnIndex;
-                    column < endColumnIndex;
-                    column++)
-                  EventsListWidget(
-                    // rebuild when column index change
-                    key: ValueKey(column),
-                    controller: controller,
-                    columIndex: column,
-                    day: day,
-                    plannerHeight: plannerHeight -
-                        (dayParam.dayTopPadding + dayParam.dayBottomPadding),
-                    heightPerMinute: heightPerMinute,
-                    dayWidth: columnsParam.getColumSize(width, column),
-                    dayEventsArranger: dayEventsArranger,
-                    dayParam: dayParam,
-                    showMultiDayEvents: showMultiDayEvents,
+              // columns painters
+              if (columnsParam.columns > 1)
+                SizedBox(
+                  width: width,
+                  height: plannerHeight,
+                  child: CustomPaint(
+                    foregroundPainter: columnsParam.columnCustomPainter?.call(
+                          width,
+                          min(columnsParam.maxColumns ?? columnsParam.columns,
+                              columnsParam.columns),
+                        ) ??
+                        ColumnPainter(
+                          width: width,
+                          columnsParam: columnsParam,
+                          lineColor:
+                              Theme.of(context).colorScheme.outlineVariant,
+                        ),
                   ),
-              ],
-            ),
-
-            // time line indicator
-            if (currentHourIndicatorParam.currentHourIndicatorLineVisibility)
-              SizedBox(
-                width: width,
-                height: plannerHeight,
-                child: CustomPaint(
-                  foregroundPainter: currentHourIndicatorParam
-                          .currentHourIndicatorCustomPainter
-                          ?.call(heightPerMinute, isToday) ??
-                      TimeIndicatorPainter(
-                        heightPerMinute,
-                        isToday,
-                        currentHourIndicatorColor,
-                      ),
                 ),
+
+              // events
+              Row(
+                textDirection: textDirection,
+                children: [
+                  for (var column = startColumnIndex;
+                      column < endColumnIndex;
+                      column++)
+                    EventsListWidget(
+                      // rebuild when column index change
+                      key: ValueKey(column),
+                      controller: controller,
+                      columIndex: column,
+                      day: day,
+                      plannerHeight: plannerHeight -
+                          (dayParam.dayTopPadding + dayParam.dayBottomPadding),
+                      heightPerMinute: heightPerMinute,
+                      dayWidth: columnsParam.getColumSize(width, column),
+                      dayEventsArranger: dayEventsArranger,
+                      dayParam: dayParam,
+                      showMultiDayEvents: showMultiDayEvents,
+                    ),
+                ],
               ),
 
-            // slot selection
-            ValueListenableBuilder<SlotSelection?>(
-              valueListenable: controller.slotSelectionNotifier,
-              builder: (context, slot, _) {
-                if (slot != null &&
-                    DateUtils.isSameDay(slot.startDateTime, day)) {
-                  var columnPosition =
-                      columnsParam.getColumPositions(width, slot.columnIndex);
-                  return Positioned(
-                    top: heightPerMinute * slot.startDateTime.totalMinutes,
-                    height: heightPerMinute * slot.durationInMinutes,
-                    left: columnPosition[0],
-                    width: columnPosition[1] - columnPosition[0],
-                    child: dayParam.slotSelectionParam.slotSelectionBuilder
-                            ?.call(
-                          slot,
-                          width,
-                          dayParam,
-                          columnsParam,
+              // time line indicator
+              if (currentHourIndicatorParam.currentHourIndicatorLineVisibility)
+                SizedBox(
+                  width: width,
+                  height: plannerHeight,
+                  child: CustomPaint(
+                    foregroundPainter: currentHourIndicatorParam
+                            .currentHourIndicatorCustomPainter
+                            ?.call(heightPerMinute, isToday) ??
+                        TimeIndicatorPainter(
                           heightPerMinute,
-                          (SlotSelection? updatedSlot) {
-                            controller.slotSelectionNotifier.value =
-                                updatedSlot;
-                            dayParam.slotSelectionParam.onSlotSelectionChange
-                                ?.call(updatedSlot);
-                          },
-                        ) ??
-                        InteractiveSlot(
-                          slot: slot,
-                          dayWidth: width,
-                          dayParam: dayParam,
-                          columnsParam: columnsParam,
-                          heightPerMinute: heightPerMinute,
-                          onChanged: (SlotSelection? updatedSlot) {
-                            controller.slotSelectionNotifier.value =
-                                updatedSlot;
-                            dayParam.slotSelectionParam.onSlotSelectionChange
-                                ?.call(updatedSlot);
-                          },
+                          isToday,
+                          currentHourIndicatorColor,
                         ),
-                  );
-                } else {
-                  return SizedBox.shrink();
-                }
-              },
-            ),
-          ],
+                  ),
+                ),
+
+              // slot selection
+              ValueListenableBuilder<SlotSelection?>(
+                valueListenable: controller.slotSelectionNotifier,
+                builder: (context, slot, _) {
+                  if (slot != null &&
+                      DateUtils.isSameDay(slot.startDateTime, day)) {
+                    var columnPosition =
+                        columnsParam.getColumPositions(width, slot.columnIndex);
+                    return Positioned(
+                      top: heightPerMinute * slot.startDateTime.totalMinutes,
+                      height: heightPerMinute * slot.durationInMinutes,
+                      left: columnPosition[0],
+                      width: columnPosition[1] - columnPosition[0],
+                      child: dayParam.slotSelectionParam.slotSelectionBuilder
+                              ?.call(
+                            slot,
+                            width,
+                            dayParam,
+                            columnsParam,
+                            heightPerMinute,
+                            (SlotSelection? updatedSlot) {
+                              controller.slotSelectionNotifier.value =
+                                  updatedSlot;
+                              dayParam.slotSelectionParam.onSlotSelectionChange
+                                  ?.call(updatedSlot);
+                            },
+                          ) ??
+                          InteractiveSlot(
+                            slot: slot,
+                            dayWidth: width,
+                            dayParam: dayParam,
+                            columnsParam: columnsParam,
+                            heightPerMinute: heightPerMinute,
+                            mouseCursor: dayParam.slotSelectionParam
+                                        .enableHoverSlotSelection &&
+                                    !controller.slotSelectionFixed &&
+                                    dayParam.slotSelectionParam
+                                        .fixHoverSlotSelectionOnTap
+                                ? SystemMouseCursors.click
+                                : dayParam.slotSelectionParam
+                                        .canDragSlotSelectionAfterShow
+                                    ? SystemMouseCursors.grab
+                                    : SystemMouseCursors.click,
+                            onTapIntercept: () {
+                              var param = dayParam.slotSelectionParam;
+                              if (param.enableHoverSlotSelection &&
+                                  param.fixHoverSlotSelectionOnTap &&
+                                  !controller.slotSelectionFixed) {
+                                controller.slotSelectionFixed = true;
+                                // rebuild slot to update mouse cursor
+                                var s = controller.slotSelectionNotifier.value!;
+                                controller.slotSelectionNotifier.value =
+                                    SlotSelection(
+                                  s.columnIndex,
+                                  s.initialStartDateTime,
+                                  s.startDateTime,
+                                  s.durationInMinutes,
+                                );
+                                return true;
+                              }
+                              return false;
+                            },
+                            onChanged: (SlotSelection? updatedSlot) {
+                              controller.slotSelectionNotifier.value =
+                                  updatedSlot;
+                              dayParam.slotSelectionParam.onSlotSelectionChange
+                                  ?.call(updatedSlot);
+                            },
+                          ),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void clearSlotSelection() {
+    controller.slotSelectionFixed = false;
+    if (controller.slotSelectionNotifier.value != null) {
+      controller.slotSelectionNotifier.value = null;
+      dayParam.slotSelectionParam.onSlotSelectionChange?.call(null);
+    }
+  }
+
+  void onSlotHover(double width, Offset position) {
+    // floor so the slot always contains the pointer
+    if (controller.slotSelectionFixed &&
+        controller.slotSelectionNotifier.value != null) {
+      return;
+    }
+    controller.slotSelectionFixed = false;
+    var roundDate = getRoundDateTime(position.dy, alwaysBefore: true);
+    var column = columnsParam.getColumnIndex(width, position.dx);
+    var slotSelectionParam = dayParam.slotSelectionParam;
+    int duration = slotSelectionParam.slotSelectionDefaultDurationInMinutes
+            ?.call(column, roundDate) ??
+        DayParam.defaultSlotSelectionDurationInMinutes;
+    if (slotSelectionParam.hideHoverSlotSelectionOnEventConflict) {
+      var slotEnd = roundDate.add(Duration(minutes: duration));
+      var hasConflict = controller
+              .getFilteredDayEvents(
+                day,
+                returnFullDayEvent: false,
+                returnMultiFullDayEvents: false,
+              )
+              ?.any((e) =>
+                  e.columnIndex == column &&
+                  (slotSelectionParam.hoverConflictEventTypes
+                          ?.contains(e.eventType) ??
+                      true) &&
+                  e.startTime.isBefore(slotEnd) &&
+                  e.endTime!.isAfter(roundDate)) ??
+          false;
+      if (hasConflict) {
+        clearSlotSelection();
+        return;
+      }
+    }
+    var current = controller.slotSelectionNotifier.value;
+    if (current != null &&
+        current.columnIndex == column &&
+        current.startDateTime == roundDate) {
+      return;
+    }
+    controller.slotSelectionNotifier.value =
+        SlotSelection(column, roundDate, roundDate, duration);
+    slotSelectionParam.onSlotSelectionChange
+        ?.call(controller.slotSelectionNotifier.value);
   }
 
   void onSlotEvent(
@@ -327,6 +421,15 @@ class DayWidget extends StatelessWidget {
     eventFunction?.call(column, exactDate, roundDate);
 
     var slotSelectionParam = dayParam.slotSelectionParam;
+
+    // selection follows the mouse in hover mode
+    if (slotSelectionParam.enableHoverSlotSelection) {
+      if (controller.slotSelectionFixed &&
+          slotSelectionParam.clearWhenBackgroundTap) {
+        clearSlotSelection();
+      }
+      return;
+    }
 
     // reset slot selection
     if (controller.slotSelectionNotifier.value != null &&
@@ -354,9 +457,9 @@ class DayWidget extends StatelessWidget {
   }
 
   // Round to nearest multiple of dayParam.onSlotMinutesRound minutes
-  DateTime getRoundDateTime(double dy) {
+  DateTime getRoundDateTime(double dy, {bool alwaysBefore = false}) {
     var dayMinute = dy / heightPerMinute;
-    var dayMinuteRounded = dayParam.onSlotRoundAlwaysBefore
+    var dayMinuteRounded = alwaysBefore || dayParam.onSlotRoundAlwaysBefore
         ? dayParam.onSlotMinutesRound *
             (dayMinute / dayParam.onSlotMinutesRound).floor()
         : dayParam.onSlotMinutesRound *

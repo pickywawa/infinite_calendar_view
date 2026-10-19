@@ -25,6 +25,9 @@ class EventsController extends ChangeNotifier {
   // current interactive slot selection
   final slotSelectionNotifier = ValueNotifier<SlotSelection?>(null);
 
+  /// true when the hover slot selection has been fixed by a tap
+  bool slotSelectionFixed = false;
+
   /// modify event data and update UI
   void updateCalendarData(UpdateCalendarDataCallback fn) {
     fn.call(calendarData);

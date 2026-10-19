@@ -1,3 +1,8 @@
+## 2.13.0
+
+- [deprecated] remove `cacheExtent` no used
+- [new] add enableHoverSlotSelection for selection with mouse hover,
+
 ## 2.12.1
 
 - [bug] jumpToDate in events_months can trigger onMonthChange with a wrong month
