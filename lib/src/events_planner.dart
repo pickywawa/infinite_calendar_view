@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -50,6 +51,9 @@ class EventsPlanner extends StatefulWidget {
     this.offTimesParam = const OffTimesParam(),
     this.pinchToZoomParam = const PinchToZoomParameters(),
     this.fullDayParam = const FullDayParam(),
+    this.horizontalScrollbarBuilder,
+    this.horizontalScrollbarParam = const HorizontalScrollbarParam(),
+    this.horizontalArrowsParam = const HorizontalArrowsParam(),
   });
 
   /// data controller
@@ -140,6 +144,18 @@ class EventsPlanner extends StatefulWidget {
   // full day parameters
   final FullDayParam fullDayParam;
 
+  /// Optional horizontal scrollbar (none by default) to navigate between days
+  /// with a mouse. Wrap [child] in your own Scrollbar, or use
+  /// [defaultHorizontalScrollbarBuilder].
+  final HorizontalScrollbarBuilder? horizontalScrollbarBuilder;
+
+  /// Parameters of the default horizontal scrollbar (hidden by default).
+  /// Ignored when [horizontalScrollbarBuilder] is set.
+  final HorizontalScrollbarParam horizontalScrollbarParam;
+
+  /// Optional floating left/right arrows (hidden by default) to change days
+  final HorizontalArrowsParam horizontalArrowsParam;
+
   @override
   State createState() => EventsPlannerState();
 }
@@ -164,6 +180,7 @@ class EventsPlannerState extends State<EventsPlanner> {
   var _plannerPointerDownCount = 0;
   var _isKeyboardZoomActive = false;
   var _startColumnIndex = 0;
+  Timer? _arrowHoldTimer;
 
   @override
   void initState() {
@@ -250,6 +267,7 @@ class EventsPlannerState extends State<EventsPlanner> {
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    _arrowHoldTimer?.cancel();
     super.dispose();
   }
 
@@ -366,17 +384,112 @@ class EventsPlannerState extends State<EventsPlanner> {
 
             // days content
             Expanded(
-              child: getPlannerAndTimesWidget(
-                plannerHeight,
-                currentHourIndicatorColor,
-                todayColor,
-                daySeparationWidthPadding,
+              child: withHorizontalArrows(
+                withHorizontalScrollbar(
+                  getPlannerAndTimesWidget(
+                    plannerHeight,
+                    currentHourIndicatorColor,
+                    todayColor,
+                    daySeparationWidthPadding,
+                  ),
+                ),
               ),
             ),
           ],
         );
       },
     );
+  }
+
+  Widget withHorizontalScrollbar(Widget child) {
+    var builder = widget.horizontalScrollbarBuilder;
+    if (builder != null) {
+      return builder(context, mainHorizontalController, child);
+    }
+    var param = widget.horizontalScrollbarParam;
+    if (!param.visible) return child;
+    Widget scrollbar = Scrollbar(
+      controller: mainHorizontalController,
+      thumbVisibility: param.thumbVisibility,
+      trackVisibility: param.trackVisibility,
+      thickness: param.thickness,
+      radius: param.radius,
+      interactive: param.interactive,
+      scrollbarOrientation: ScrollbarOrientation.bottom,
+      // only horizontal scroll (days), not the vertical one (hours)
+      notificationPredicate: (n) => n.metrics.axis == Axis.horizontal,
+      child: child,
+    );
+    var theme = param.theme;
+    return theme == null
+        ? scrollbar
+        : ScrollbarTheme(data: theme, child: scrollbar);
+  }
+
+  Widget withHorizontalArrows(Widget child) {
+    var param = widget.horizontalArrowsParam;
+    if (!param.visible) return child;
+    var timesWidth = widget.timesIndicatorsParam.timesIndicatorsWidth;
+    var ltr = widget.textDirection == TextDirection.ltr;
+    Widget arrow(bool left) => Positioned(
+          top: 0,
+          bottom: 0,
+          left: left ? (ltr ? timesWidth : 0) : null,
+          right: left ? null : (ltr ? 0 : timesWidth),
+          child: Center(
+            child: _PlannerArrow(
+              param: param,
+              icon: left ? param.leftIcon : param.rightIcon,
+              onTap: () => _jumpDays(left ? -1 : 1, param.daysToJump),
+              onHoldStart: () => _startHold(left ? -1 : 1, param.holdSpeed),
+              onHoldEnd: _stopHold,
+            ),
+          ),
+        );
+    return Stack(children: [child, arrow(true), arrow(false)]);
+  }
+
+  double _clampOffset(double offset) {
+    var position = mainHorizontalController.position;
+    return offset.clamp(position.minScrollExtent, position.maxScrollExtent);
+  }
+
+  /// move [days] days (direction -1 : previous, 1 : next) from nearest day
+  void _jumpDays(int direction, int days) {
+    var scroll = mainHorizontalController;
+    var index = dayWidthCalculator.nearestIndexForOffset(scroll.offset);
+    scroll.animateTo(
+      _clampOffset(dayWidthCalculator.offsetForIndex(index + direction * days)),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _startHold(int direction, double pixelsPerSecond) {
+    const tick = Duration(milliseconds: 16);
+    var step = pixelsPerSecond * tick.inMilliseconds / 1000;
+    _arrowHoldTimer?.cancel();
+    _arrowHoldTimer = Timer.periodic(tick, (_) {
+      var scroll = mainHorizontalController;
+      scroll.jumpTo(_clampOffset(scroll.offset + direction * step));
+    });
+  }
+
+  void _stopHold() {
+    if (_arrowHoldTimer == null) return;
+    _arrowHoldTimer?.cancel();
+    _arrowHoldTimer = null;
+    // jumpTo does not trigger scroll end : adjust to nearest day manually
+    if (widget.automaticAdjustHorizontalScrollToDay) {
+      var scroll = mainHorizontalController;
+      var index = dayWidthCalculator.nearestIndexForOffset(scroll.offset);
+      scroll.animateTo(
+        _clampOffset(dayWidthCalculator.offsetForIndex(index)),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeIn,
+      );
+      widget.onAutomaticAdjustHorizontalScroll?.call(getDayFromIndex(index));
+    }
   }
 
   DateTime getDayFromIndex(int index) {
@@ -707,6 +820,149 @@ class FullDayParam {
 
   /// color of background top bar
   final Color? fullDayBackgroundColor;
+}
+
+/// Wrap [child] with a scrollbar bound to the days [controller]
+typedef HorizontalScrollbarBuilder = Widget Function(
+  BuildContext context,
+  ScrollController controller,
+  Widget child,
+);
+
+/// Default minimal horizontal scrollbar, at the bottom of the planner
+Widget defaultHorizontalScrollbarBuilder(
+  BuildContext context,
+  ScrollController controller,
+  Widget child,
+) {
+  return Scrollbar(
+    controller: controller,
+    thumbVisibility: true,
+    thickness: 14,
+    radius: const Radius.circular(7),
+    scrollbarOrientation: ScrollbarOrientation.bottom,
+    // only horizontal scroll (days), not the vertical one (hours)
+    notificationPredicate: (n) => n.metrics.axis == Axis.horizontal,
+    child: child,
+  );
+}
+
+class HorizontalScrollbarParam {
+  const HorizontalScrollbarParam({
+    this.visible = false,
+    this.thumbVisibility = true,
+    this.trackVisibility,
+    this.thickness = 14,
+    this.radius = const Radius.circular(7),
+    this.interactive = true,
+    this.theme,
+  });
+
+  /// show horizontal scrollbar at the bottom of the planner
+  final bool visible;
+
+  /// keep thumb always visible (otherwise only while scrolling / hovering)
+  final bool thumbVisibility;
+
+  /// show scrollbar track
+  final bool? trackVisibility;
+
+  /// scrollbar thickness
+  final double thickness;
+
+  /// thumb radius
+  final Radius radius;
+
+  /// allow drag on thumb with mouse
+  final bool interactive;
+
+  /// full customization (colors, minThumbLength...)
+  final ScrollbarThemeData? theme;
+}
+
+class HorizontalArrowsParam {
+  const HorizontalArrowsParam({
+    this.visible = false,
+    this.daysToJump = 3,
+    this.holdSpeed = 900,
+    this.iconSize = 60,
+    this.leftIcon = Icons.chevron_left_outlined,
+    this.rightIcon = Icons.chevron_right_outlined,
+    this.color,
+    this.hoverColor,
+  });
+
+  /// show floating arrows at the start of the first day and end of the last day
+  final bool visible;
+
+  /// number of days to move on click
+  final int daysToJump;
+
+  /// scroll speed (pixels per second) while an arrow is pressed (long press)
+  final double holdSpeed;
+
+  final double iconSize;
+  final IconData leftIcon;
+  final IconData rightIcon;
+
+  /// default : same color as the scrollbar thumb
+  final Color? color;
+
+  /// default : same hover color as the scrollbar thumb
+  final Color? hoverColor;
+}
+
+class _PlannerArrow extends StatefulWidget {
+  const _PlannerArrow({
+    required this.param,
+    required this.icon,
+    required this.onTap,
+    required this.onHoldStart,
+    required this.onHoldEnd,
+  });
+
+  final HorizontalArrowsParam param;
+  final IconData icon;
+  final VoidCallback onTap;
+  final VoidCallback onHoldStart;
+  final VoidCallback onHoldEnd;
+
+  @override
+  State<_PlannerArrow> createState() => _PlannerArrowState();
+}
+
+class _PlannerArrowState extends State<_PlannerArrow> {
+  var _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    var param = widget.param;
+    var onSurface = Theme.of(context).colorScheme.onSurface;
+    var thumbColor = ScrollbarTheme.of(context).thumbColor;
+    var color = param.color ??
+        thumbColor?.resolve({}) ??
+        onSurface.withValues(alpha: 0.3);
+    var hoverColor = param.hoverColor ??
+        thumbColor?.resolve({WidgetState.hovered}) ??
+        onSurface.withValues(alpha: 0.5);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        onLongPressStart: (_) => widget.onHoldStart(),
+        onLongPressEnd: (_) => widget.onHoldEnd(),
+        onLongPressCancel: widget.onHoldEnd,
+        child: Icon(
+          widget.icon,
+          size: param.iconSize,
+          color: _hovered ? hoverColor : color,
+        ),
+      ),
+    );
+  }
 }
 
 class PinchToZoomParameters {

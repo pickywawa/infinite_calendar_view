@@ -460,9 +460,13 @@ class DayWidget extends StatelessWidget {
     }
   }
 
+  // wall-clock date from minutes since midnight (Duration.add shifts by 1h on DST days)
+  DateTime _dayMinutesToDate(int minutes) =>
+      DateTime(day.year, day.month, day.day, 0, minutes);
+
   DateTime getExactDateTime(double dy) {
     var dayMinute = dy / heightPerMinute;
-    return day.withoutTime.add(Duration(minutes: dayMinute.toInt()));
+    return _dayMinutesToDate(dayMinute.toInt());
   }
 
   // Round to nearest multiple of dayParam.onSlotMinutesRound minutes
@@ -473,7 +477,7 @@ class DayWidget extends StatelessWidget {
             (dayMinute / dayParam.onSlotMinutesRound).floor()
         : dayParam.onSlotMinutesRound *
             (dayMinute / dayParam.onSlotMinutesRound).round();
-    return day.withoutTime.add(Duration(minutes: dayMinuteRounded.toInt()));
+    return _dayMinutesToDate(dayMinuteRounded.toInt());
   }
 }
 

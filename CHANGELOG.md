@@ -1,3 +1,8 @@
+## 2.14.0
+
+- [new] horizontal scrollbar in EventsPlanner
+- [new] floating horizontal arrows (left/right) in EventsPlanner
+
 ## 2.13.1
 
 - [bug+improve] slot selection (cursor, resize)

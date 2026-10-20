@@ -1,5 +1,6 @@
 import 'package:example/app.dart';
 import 'package:example/extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:infinite_calendar_view/infinite_calendar_view.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +23,9 @@ class PlannerEventsDrag extends StatelessWidget {
     return EventsPlanner(
       controller: eventsController,
       daysShowed: daysShowed,
+      horizontalScrollbarBuilder:
+          kIsWeb ? defaultHorizontalScrollbarBuilder : null,
+      horizontalArrowsParam: HorizontalArrowsParam(visible: kIsWeb),
       heightPerMinute: heightPerMinute,
       initialVerticalScrollOffset: initialVerticalScrollOffset,
       dayWidthBuilder: (day, defaultWidth) {

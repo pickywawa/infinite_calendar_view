@@ -32,7 +32,8 @@ https://pickywawa.github.io/infinite_calendar_view_demo/
 - 🎲 **Customizable number of days**. Depending on the screen size
 - 🤏 **Pinch to zoom**. Change the time scale with two fingers or ctrl/cmd + mouse wheel
 - 👆🏼 **Drag and drop**. Move calendar appointments easily
-- 👆🏼 **Interactive slot selection**. Move appointments easily
+- 👆🏼 **Interactive slot selection**. Tap, long press, double tap or mouse hover to select a slot, then drag and resize it
+- 🖱️ **Web/desktop navigation**. Optional horizontal scrollbar and floating arrows to change days with the mouse
 - 👩‍👧‍👦 **Multi columns**. Manage multiple calendars in the same calendar view !
 - 🗓️ **Events arranger**. Customize the placement of appointments (for each event type) in the
   schedule
@@ -347,7 +348,13 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
 
    Active enableTapSlotSelection init slot selection on tap
    Active enableLongPressSlotSelection for draggable slot selection
+   Active enableDoubleTapSlotSelection for slot selection on double tap
+   Active enableHoverSlotSelection to show the slot under the mouse pointer (web / desktop),
+   fixed on tap (fixHoverSlotSelectionOnTap) and hidden over existing events
+   (hideHoverSlotSelectionOnEventConflict, hoverConflictEventTypes)
    Set onSlotMinutesRound for round slot to nearest slot
+   Slot can be resized with top/bottom handles (enableSlotSelectionResize,
+   slotSelectionTopHandleBuilder, slotSelectionBottomHandleBuilder)
    ```dart
    EventsPlanner(
       dayParam: DayParam(
@@ -355,7 +362,28 @@ and [API docs](https://pub.dev/documentation/infinite_calendar_view/latest/) for
         slotSelectionParam: SlotSelectionParam(
           enableTapSlotSelection: true,
           enableLongPressSlotSelection: true,
+          enableHoverSlotSelection: true,
+          onSlotSelectionTap: (slot) {},
         ),
+      ),
+   )
+   ```
+
+   Horizontal scrollbar and floating arrows (web / desktop) to change days with the mouse.
+   Both are hidden by default.
+
+   Scrollbar : use horizontalScrollbarParam, or horizontalScrollbarBuilder to provide your own
+   Scrollbar (the builder has priority). defaultHorizontalScrollbarBuilder is the default look.
+   Arrows : click to move daysToJump days, hold to scroll at holdSpeed (pixels per second)
+   ```dart
+   EventsPlanner(
+      horizontalScrollbarParam: HorizontalScrollbarParam(visible: true, thickness: 14),
+      // or horizontalScrollbarBuilder: (context, controller, child) =>
+      //     Scrollbar(controller: controller, notificationPredicate: (n) => n.metrics.axis == Axis.horizontal, child: child),
+      horizontalArrowsParam: HorizontalArrowsParam(
+        visible: true,
+        daysToJump: 3,
+        holdSpeed: 300,
       ),
    )
    ```
