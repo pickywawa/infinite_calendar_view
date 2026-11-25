@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'controller/events_controller.dart';
 import 'events/event.dart';
@@ -144,6 +145,41 @@ class EventsListState extends State<EventsList> {
         },
       ),
     );
+  }
+
+  /// Animates to a laid-out day, or jumps if the day has not been laid out.
+  Future<void> animateToDate(
+    DateTime date, {
+    Duration duration = const Duration(milliseconds: 300),
+    Curve curve = Curves.easeInOut,
+  }) async {
+    if (!mounted) return;
+
+    final day = date.withoutTime;
+    final index = day.getDayDifference(initialDay);
+    final listKey = key;
+    final item =
+        StickyListItem.findLaidOutItem(context, index, listKey: listKey);
+    if (item == null) {
+      jumpToDate(day);
+      await WidgetsBinding.instance.endOfFrame;
+      return;
+    }
+
+    final viewport = RenderAbstractViewport.of(item);
+    final offset = viewport.getOffsetToReveal(item, 0).offset;
+    final position = item.scrollable.position;
+    await position.ensureVisible(item, duration: duration, curve: curve);
+    if (mounted &&
+        key == listKey &&
+        listenScroll &&
+        stickyDay != day &&
+        position.pixels == offset) {
+      stickyDay = day;
+      currentIndex = index;
+      widget.onDayChange?.call(day);
+      widget.controller.updateFocusedDay(day);
+    }
   }
 
   /// jump to date

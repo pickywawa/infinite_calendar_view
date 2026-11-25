@@ -471,6 +471,48 @@ class StickyListItem<I> extends Stack {
           children: [content, header],
         );
 
+  /// Finds a laid-out item in the scroll configuration identified by [listKey].
+  static StickyListItemRenderObject<T>? findLaidOutItem<T>(
+    BuildContext context,
+    T index, {
+    required Key listKey,
+  }) {
+    StickyListItemRenderObject<T>? result;
+
+    void findItem(Element element) {
+      if (result != null) return;
+      final item = element.widget;
+      if (item is ScrollConfiguration && item.key != listKey) return;
+      if (item is StickyListItem<T>) {
+        if (item.itemIndex != index) return;
+        final renderObject = element.renderObject;
+        if (renderObject is StickyListItemRenderObject<T> &&
+            _hasSliverLayout(renderObject)) {
+          result = renderObject;
+        }
+        return;
+      }
+      element.visitChildren(findItem);
+    }
+
+    context.visitChildElements(findItem);
+    return result;
+  }
+
+  // A kept-alive item can still have a widget and stale layout coordinates.
+  static bool _hasSliverLayout(RenderBox item) {
+    RenderObject? child = item;
+    while (
+        child != null && child.parentData is! SliverMultiBoxAdaptorParentData) {
+      child = child.parent;
+    }
+    final data = child?.parentData;
+    return item.hasSize &&
+        data is SliverMultiBoxAdaptorParentData &&
+        !data.keptAlive &&
+        data.layoutOffset != null;
+  }
+
   ScrollableState _getScrollableState(BuildContext context) {
     final ScrollableState state = Scrollable.of(context);
     return state;

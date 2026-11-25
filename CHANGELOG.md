@@ -1,3 +1,7 @@
+## 2.15.0
+
+- [new] animateToDate() in EventsList https://github.com/pickywawa/infinite_calendar_view/issues/45
+
 ## 2.14.0
 
 - [new] horizontal scrollbar in EventsPlanner

@@ -64,7 +64,7 @@ class _EventsListViewState extends State<EventsListView> {
           this.selectedDay = selectedDay;
         });
         eventsController.updateFocusedDay(selectedDay);
-        listViewKey.currentState?.jumpToDate(selectedDay);
+        listViewKey.currentState?.animateToDate(selectedDay);
       },
     );
   }
